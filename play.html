@@ -133,7 +133,7 @@
   .ab.fresh{animation:slidein .3s var(--ease) both}
   .sheet{animation:sheetin .26s var(--ease) both}
   @keyframes sheetin{ from{opacity:0;transform:translateY(14px) scale(.97)} to{opacity:1;transform:none} }
-  #modal,#bmodal,#imodal{transition:opacity .2s}
+  #modal,#bmodal,#imodal,#fmodal{transition:opacity .2s}
   #insp{transition:opacity .18s var(--ease),transform .18s var(--ease)}
   #insp.on{animation:inspin .22s var(--ease) both}
   @keyframes inspin{ from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
@@ -337,9 +337,9 @@
   #rel .need b{color:var(--warn)}
   #rel .x{position:absolute;top:8px;right:10px;cursor:pointer;color:var(--dim);
     font-size:15px;line-height:1}
-  #modal,#bmodal,#imodal{position:fixed;inset:0;background:rgba(60,50,40,.34);display:none;z-index:50;
+  #modal,#bmodal,#imodal,#fmodal{position:fixed;inset:0;background:rgba(60,50,40,.34);display:none;z-index:50;
     align-items:center;justify-content:center;padding:16px}
-  #modal.on,#bmodal.on,#imodal.on{display:flex}
+  #modal.on,#bmodal.on,#imodal.on,#fmodal.on{display:flex}
   .sheet{background:var(--panel);border:1px solid var(--edge);border-radius:13px;
     max-width:430px;width:100%;max-height:88vh;overflow:auto;padding:18px;
     box-shadow:0 18px 48px rgba(0,0,0,.24)}
@@ -357,6 +357,18 @@
 
   /* ---- bonus cards ---- */
   .sheet.wide{max-width:720px}
+  /* Fan chart. Same board, read as rings instead of a line: a wedge with no
+     name in it is a person you have not found yet. */
+  #fansvg{width:100%;height:auto;display:block;margin:2px 0 6px}
+  .fw{stroke:var(--panel);stroke-width:1.5;fill:#f2ede5}
+  .fw.pat{fill:var(--patbg)} .fw.mat{fill:var(--matbg)}
+  .fw.gap{fill:#f4f0e9;stroke:var(--edge);stroke-dasharray:3 3}
+  .fw.dim{opacity:.4}
+  .fw.here{stroke:var(--self);stroke-width:2.5}
+  .fw:not(.gap){cursor:pointer}
+  .fw:not(.gap):hover{filter:brightness(.94)}
+  .fl{text-anchor:middle;dominant-baseline:middle;fill:var(--ink);pointer-events:none}
+  .fl.faint{fill:var(--dim)}
   .sheet .sub{color:var(--dim);font-size:13px;margin:0 0 14px;line-height:1.5}
   .bcs{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
   .bc{border:1.5px solid var(--edge);border-radius:10px;padding:10px 11px;cursor:pointer;
@@ -486,7 +498,7 @@
     .sheet.wide{max-width:100%}
     .bcs{grid-template-columns:1fr}
     #isheet .rules{grid-template-columns:1fr}
-    #modal,#bmodal,#imodal{padding:8px;align-items:flex-end}
+    #modal,#bmodal,#imodal,#fmodal{padding:8px;align-items:flex-end}
     #rel{left:6px;right:6px;width:auto;max-width:none}
     #toast{bottom:150px;left:8px;right:8px;transform:none;text-align:center}
     #toast.on{transform:translateY(-6px)}
@@ -516,6 +528,7 @@
   <label class="stat" style="cursor:pointer" title="Play with everyone, not only the Kin you have marked ready">
     <input type="checkbox" id="practice" checked> use every Kin</label>
   <a href="settings.html">How to play</a>
+  <button id="fanbtn" title="See your direct line as a fan, and where the gaps are">Fan chart</button>
   <button id="bonusbtn">Legacy cards</button>
   <button id="savefam" title="Download your family file">Save file</button>
   <button id="newgame" class="primary">Start again</button>
@@ -544,6 +557,7 @@
 <div id="modal"><div class="sheet" id="sheet"></div></div>
 <div id="bmodal"><div class="sheet wide" id="bsheet"></div></div>
 <div id="imodal"><div class="sheet wide" id="isheet"></div></div>
+<div id="fmodal"><div class="sheet wide" id="fsheet"></div></div>
 <div id="toast"></div>
 
 <script>
@@ -2003,6 +2017,95 @@ function toast(m){
 }
 function toastHand(m){ $('#hand').innerHTML=`<span class="msg">${esc(m)}</span>`; }
 
+/* ---------------- fan chart ----------------
+   An alternate read of the same game, not a second game: your direct line as
+   rings around you, so who is on the timeline and who is simply missing are
+   both visible at a glance. It reads played[] and the family file and writes
+   nothing, so it cannot disturb a round in progress. */
+const FAN_GENS=5;
+
+/* rows[g][i] = the person in slot i of generation g, or undefined. Slot i*2 is
+   the father, i*2+1 the mother, so slot order left-to-right is the usual fan
+   order and the left half of every ring is the paternal side. */
+function fanRows(){
+  const idx=Object.fromEntries(fam.people.map(p=>[p.id,p]));
+  const rows=[];
+  (function walk(p,g,i){
+    (rows[g]=rows[g]||[])[i]=p;
+    if(g>=FAN_GENS) return;
+    const par=(p.parent_ids||[]).map(x=>idx[x]).filter(Boolean);
+    const f=par.find(x=>x.sex==='M')||par[0];
+    const m=par.find(x=>x.sex==='F'&&x!==f)||par.find(x=>x!==f);
+    if(f) walk(f,g+1,i*2);
+    if(m) walk(m,g+1,i*2+1);
+  })(idx[fam.meta.root_id]||fam.people[0],0,0);
+  return rows;
+}
+
+function fanWedge(cx,cy,r0,r1,a0,a1){
+  const P=(r,a)=>[(cx+r*Math.cos(a)).toFixed(1),(cy+r*Math.sin(a)).toFixed(1)];
+  const [x0,y0]=P(r1,a0),[x1,y1]=P(r1,a1),[x2,y2]=P(r0,a1),[x3,y3]=P(r0,a0);
+  return `M${x0} ${y0}A${r1} ${r1} 0 0 1 ${x1} ${y1}L${x2} ${y2}A${r0} ${r0} 0 0 0 ${x3} ${y3}Z`;
+}
+
+/* One name, cut to what fits along the radius rather than shrunk to nothing. */
+function fanLabel(p,room){
+  const s=(p.given||p.name||'').trim()||'?';
+  const max=Math.floor(room/5.4);
+  return s.length>max ? s.slice(0,Math.max(1,max-1))+'…' : s;
+}
+
+function renderFan(){
+  const W=760,cx=W/2,cy=406,R=374,R0=54,step=(R-R0)/FAN_GENS;
+  const rows=fanRows(), on=new Set(played);
+  let svg='', have=0, here=0, total=0;
+  for(let g=1;g<=FAN_GENS;g++){
+    const n=2**g, r0=R0+(g-1)*step, r1=r0+step;
+    for(let i=0;i<n;i++){
+      total++;
+      const p=(rows[g]||[])[i];
+      const a0=Math.PI+i*Math.PI/n, a1=a0+Math.PI/n, am=(a0+a1)/2;
+      const d=fanWedge(cx,cy,r0,r1,a0,a1);
+      if(!p){ svg+=`<path class="fw gap" d="${d}"></path>`; continue; }
+      have++;
+      const played_=on.has(p.id); if(played_) here++;
+      const cls=`fw ${i<n/2?'pat':'mat'} ${played_?'here':'dim'}`;
+      const note=played_?' · on the timeline':(p.birth_year?'':' · no birth year, so not playable');
+      svg+=`<path class="${cls}" d="${d}" data-id="${esc(p.id)}"><title>${
+        esc(p.name)}${p.birth_year?' · '+p.birth_year:''}${esc(note)}</title></path>`;
+      // Radial text, flipped on the left half so no name reads upside down.
+      const mid=r0+step/2, tx=cx+mid*Math.cos(am), ty=cy+mid*Math.sin(am);
+      const rot=am*180/Math.PI+(Math.cos(am)<0?180:0);
+      svg+=`<text class="fl${played_?'':' faint'}" x="${tx.toFixed(1)}" y="${ty.toFixed(1)}"
+        transform="rotate(${rot.toFixed(1)} ${tx.toFixed(1)} ${ty.toFixed(1)})"
+        font-size="${g<=2?11:9.5}">${esc(fanLabel(p,step))}</text>`;
+    }
+  }
+  const root=rows[0][0];
+  // A half disc, so the fan sits flat on its baseline rather than bulging past it.
+  svg+=`<path class="fw here" style="fill:var(--selfbg)"
+    d="M${cx-R0} ${cy}A${R0} ${R0} 0 0 1 ${cx+R0} ${cy}Z"></path>
+    <text class="fl" x="${cx}" y="${cy-24}" font-size="12">${esc(fanLabel(root,90))}</text>
+    <text class="fl faint" x="${cx}" y="${cy-11}" font-size="9.5">you</text>`;
+
+  setHTML($('#fsheet'), `
+    <h2>Your line, as a fan</h2>
+    <p class="sub">${here} of the ${have} direct ancestors in your file are on the
+      timeline right now. ${total-have} wedge${total-have===1?' is':'s are'} empty —
+      nobody in the file fills ${total-have===1?'it':'them'}. Paternal side left,
+      maternal right. Tap anyone to read their card.</p>
+    <svg id="fansvg" viewBox="0 0 ${W} ${cy+2}" role="img"
+      aria-label="Fan chart of your direct ancestors">${svg}</svg>
+    <button id="fclose" style="width:100%">Back to the timeline</button>`);
+}
+
+function openFan(){
+  if(!fam||!fam.people.length) return;
+  renderFan();
+  $('#fmodal').classList.add('on');
+}
+function closeFan(){ $('#fmodal').classList.remove('on'); }
+
 function openCard(p){
   $('#sheet').innerHTML=`
     <div class="rel">${esc(p.relationship_to_root||'')}${p.relationship_side?' · '+p.relationship_side:''}</div>
@@ -2047,12 +2150,18 @@ $('#savefam').onclick=()=>{
   try{ toast('Saved '+FAMILY.download(fam)+' — keep it somewhere safe.'); }
   catch(err){ toast('Could not save: '+(err.message||err)); }
 };
+$('#fanbtn').onclick=()=>{closeRel(); openFan();};
+$('#fmodal').onclick=e=>{
+  if(e.target.id==='fmodal'||e.target.id==='fclose') return closeFan();
+  const w=e.target.closest('.fw[data-id]');
+  if(w) openCard(fam.people.find(p=>p.id===w.dataset.id));
+};
 $('#bonusbtn').onclick=()=>{closeRel(); openBonuses();};
 $('#bmodal').onclick=e=>{ if(e.target.id==='bmodal') closeBonuses(); };
 $('#practice').onchange=newGame;
 addEventListener('resize',()=>{fit();render();});
 addEventListener('keydown',e=>{
-  if(e.key==='Escape'){ $('#modal').classList.remove('on'); closeBonuses(); }
+  if(e.key==='Escape'){ $('#modal').classList.remove('on'); closeBonuses(); closeFan(); }
   if(e.key==='Escape' && $('#imodal').classList.contains('on')){
     $('#imodal').classList.remove('on'); beginRound();   // skip the words, not the round
   }
