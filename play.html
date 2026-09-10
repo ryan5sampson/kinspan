@@ -1,0 +1,2062 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!-- Added to the home screen, this opens without Safari's chrome. viewport-fit
+     lets the layout reach the edges; the safe-area padding below keeps the hand
+     bar clear of the home indicator. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Kinspan">
+<meta name="theme-color" content="#ffffff">
+<title>Kinspan — the timeline</title>
+<script src="tree.js"></script>
+<script src="family.js"></script>
+<script src="rules.js"></script>
+<style>
+  :root{
+    --ease:cubic-bezier(.34,1.24,.44,1);
+    --clock:#2e6ea0;
+    --bg:#f7f4ef; --panel:#ffffff; --edge:#ddd5c9; --ink:#2b2621; --dim:#7d7368;
+    --gold:#9a7212; --pat:#2f6f9e; --mat:#a8552a; --self:#2f7a45; --line:#a89d8e;
+    --patbg:#e4f0f8; --matbg:#fbeade; --selfbg:#e2f3e6;
+    --wed:#c0392b; --kid:#6b5aa8;
+    --male:#2b6ca3; --female:#b4437f;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);height:100vh;
+    height:100dvh;  /* in a browser the address bar eats vh, which cropped the hand */
+    display:flex;flex-direction:column;overflow:hidden;
+    touch-action:manipulation;  /* keeps pinch-zoom, drops the double-tap zoom */
+    font:15px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{flex:none;z-index:20;background:var(--panel);border-bottom:1px solid var(--edge);
+    padding:9px 14px;display:flex;gap:11px;align-items:center;flex-wrap:wrap}
+  h1{font-size:15px;margin:0;font-weight:650}
+  a{color:var(--pat);text-decoration:none;font-size:13px}
+  button{font:inherit;color:var(--ink);background:#fff;border:1px solid var(--edge);
+    border-radius:7px;padding:6px 11px;cursor:pointer;font-size:13.5px}
+  button:hover:not(:disabled){border-color:var(--gold)}
+  button:disabled{opacity:.4;cursor:default}
+  button.primary{background:var(--gold);color:#fff;border-color:var(--gold);font-weight:600}
+  .sp{flex:1}
+  .stat{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+  .stat b{color:var(--ink);font-size:14px}
+  #score{background:#fdf5e0;border-color:#d8bf7a;color:var(--gold);font-weight:640}
+  .legend{display:flex;gap:10px;font-size:11px;color:var(--dim);align-items:center}
+  .sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;
+    vertical-align:-1px}
+
+  #wrap{flex:1;min-height:0;display:flex}
+  #stage{flex:1;min-width:0;overflow:auto;padding:0 14px 14px}
+  #inner{position:relative;min-height:120px}
+  #axis{position:sticky;top:0;height:26px;z-index:6;background:var(--bg);
+    border-bottom:1px solid var(--edge)}
+  .tick{position:absolute;top:0;font-size:11px;color:var(--dim);
+    font-variant-numeric:tabular-nums;transform:translateX(-50%)}
+  .grid{position:absolute;top:0;bottom:0;width:1px;background:#e8e1d6}
+    /* Above every card state (hover 9, ghost 10, onpath 12): the heart and the
+     birth bubble ride ON the bars, so a raised card must not swallow them. */
+  svg#links{position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:13}
+  svg#drag{position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:30}
+  body.dragging{cursor:crosshair;user-select:none}
+  body.dragging .card{cursor:crosshair}
+  .card.dragsrc{box-shadow:0 0 0 3px rgba(154,114,18,.5)}
+  .card.dragtgt{box-shadow:0 0 0 3px rgba(47,122,69,.55)}
+  .card.onpath{box-shadow:0 0 0 2.5px var(--gold);z-index:12}
+  #links .kin.dim,#links .mar.dim{opacity:.15}
+  #links .kin.hot{opacity:1}
+  /* Only the connector line thickens on hover -- the badge riding on it keeps
+     its own stroke, or the little figure inside would swell into a blob. */
+  #links path.kin.hot{stroke-width:3.4}
+
+  .card{position:absolute;height:28px;border-radius:6px;border:1px solid;
+    display:flex;align-items:center;padding:0 7px;cursor:pointer;overflow:hidden;
+    white-space:nowrap;font-size:12px;z-index:3;transition:filter .12s,opacity .12s}
+  .card:hover{filter:brightness(.96);box-shadow:0 2px 7px rgba(0,0,0,.16);z-index:9}
+    .card .nm{overflow:hidden;text-overflow:ellipsis}
+  .card .nm.m{color:var(--male)} .card .nm.f{color:var(--female)}
+  .card.pat{background:var(--patbg);border-color:var(--pat);color:#1d3d55}
+  .card.mat{background:var(--matbg);border-color:var(--mat);color:#5e2f14}
+  .card.self{background:var(--selfbg);border-color:var(--self);color:#1d4a2c}
+  .card .pips{margin-left:auto;color:var(--gold);font-size:10px;padding-left:5px}
+  .evt{position:absolute;top:50%;transform:translate(-50%,-50%);pointer-events:none;
+    display:flex;align-items:center;justify-content:center;z-index:6}
+  .evt svg{display:block}
+  .evt.wed svg{fill:var(--wed)}
+  .evt.kid svg{fill:none;stroke:var(--kid);stroke-width:2.6;stroke-linecap:round}
+  /* Hand states for the three kinds of turn. */
+  /* A pair reads as one object: the two cards butt together with the icon in
+     the seam, and hovering either lights both, because clicking either plays
+     both. */
+  .pair{display:flex;align-items:stretch;flex:none}
+  .pair .hc{border-radius:9px 0 0 9px;border-right:0}
+  .pair .hc:last-child{border-radius:0 9px 9px 0;border-right:1px solid var(--edge);
+    border-left:0}
+  .pair .join{flex:none;display:flex;align-items:center;justify-content:center;
+    width:24px;border-top:1px solid var(--edge);border-bottom:1px solid var(--edge);
+    background:#fdfbf7}
+  .pair .join.wed svg{fill:var(--wed)}
+  .pair .join.kid svg{fill:none;stroke:var(--kid);stroke-width:2.6;stroke-linecap:round}
+  .pair:hover .hc,.pair:hover .join{border-color:var(--gold);background:#fffdf6}
+  .pair:hover{box-shadow:0 3px 9px rgba(0,0,0,.12);border-radius:9px}
+  .hc.todiscard{border-color:#d99a6c}
+  .hc.todiscard:hover{background:var(--warnbg)}
+  .hc .gain.drop{color:#b4671d}
+  .turnmsg{padding-right:4px}
+  .card.living::after{content:'';position:absolute;right:0;top:0;bottom:0;width:26px;
+    background:linear-gradient(90deg,transparent,var(--bg));pointer-events:none}
+  .card.unknownend{border-right-style:dashed;border-right-width:2px}
+  .card{transition:left .42s var(--ease),top .42s var(--ease),width .42s var(--ease),
+        opacity .18s,filter .12s,box-shadow .18s}
+  /* A card arriving on the timeline drops in and settles, rather than simply
+     existing where it did not a frame ago. */
+  @keyframes land{
+    0%  {transform:translateY(-16px) scale(.9);opacity:0}
+    62% {transform:translateY(2px)   scale(1.03);opacity:1}
+    100%{transform:none;opacity:1}
+  }
+  .card.landing{animation:land .42s var(--ease) both}
+  @keyframes dealin{
+    from{transform:translateY(22px) scale(.94);opacity:0}
+    to  {transform:none;opacity:1}
+  }
+  .hc.in,.pair.in{animation:dealin .32s var(--ease) both}
+  .hc{transition:transform .16s var(--ease),box-shadow .16s,border-color .16s,background .16s}
+  .hc:hover{transform:translateY(-5px)}
+  .pair:hover .hc{transform:translateY(-5px)}
+  /* Sidebar entries: a bonus that just ticked up should say so. */
+  @keyframes bump{
+    0%{transform:none} 35%{transform:scale(1.045)} 100%{transform:none}
+  }
+  .ab.bumped{animation:bump .34s var(--ease)}
+  @keyframes slidein{ from{opacity:0;transform:translateX(14px)} to{opacity:1;transform:none} }
+  .ab.fresh{animation:slidein .3s var(--ease) both}
+  .sheet{animation:sheetin .26s var(--ease) both}
+  @keyframes sheetin{ from{opacity:0;transform:translateY(14px) scale(.97)} to{opacity:1;transform:none} }
+  #modal,#bmodal,#imodal{transition:opacity .2s}
+  #insp{transition:opacity .18s var(--ease),transform .18s var(--ease)}
+  #insp.on{animation:inspin .22s var(--ease) both}
+  @keyframes inspin{ from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+  #score{transition:transform .2s var(--ease),background .2s}
+  #sideclose,#inspmore,#sidenav{display:none}
+  #sidenav{gap:16px;padding:0 0 12px;margin-bottom:10px;
+    border-bottom:1px solid var(--edge)}
+  #sidenav a{font-size:14px;padding:6px 0}
+  #sideclose{position:absolute;top:10px;right:12px;font-size:20px;line-height:1;
+    color:var(--dim);cursor:pointer;padding:4px 8px}
+  #inspmore{margin-top:8px;width:100%;text-align:center;font-size:12.5px;
+    color:var(--gold);border:1px solid #e2cd9b;background:#fdf5e0;border-radius:8px;
+    padding:9px;cursor:pointer}
+  .card.armed{box-shadow:0 0 0 3px var(--gold),0 4px 14px rgba(0,0,0,.2)}
+  /* The marker. It sits above the cards but under the drag layer, and moves
+     with the same easing as everything else so a turn reads as a step. */
+  #clockline{position:absolute;top:0;bottom:0;width:2px;background:var(--clock);
+    z-index:12;pointer-events:none;transition:left .42s var(--ease)}
+  #clockline::before{content:'';position:absolute;left:-9px;right:-9px;top:0;bottom:0;
+    background:linear-gradient(90deg,transparent,rgba(46,110,160,.10),transparent)}
+  #clockyear{position:absolute;top:2px;left:50%;transform:translateX(-50%);
+    background:var(--clock);color:#fff;font-size:10.5px;font-weight:660;
+    padding:2px 7px;border-radius:6px;white-space:nowrap;
+    font-variant-numeric:tabular-nums}
+  /* Where the marker WOULD go, shown while you hover a move. The band is the
+     years that move would cost you; the dashed line is where you would land. */
+  #clockband{position:absolute;top:0;bottom:0;z-index:11;pointer-events:none;
+    background:rgba(46,110,160,.11);border-left:1px solid rgba(46,110,160,.25);
+    border-right:1px solid rgba(46,110,160,.25);display:none}
+  #clockband.on{display:block}
+  #clockband.back{background:rgba(154,114,18,.14);
+    border-color:rgba(154,114,18,.3)}
+  #clockband.ends{background:rgba(180,103,29,.15);border-color:rgba(180,103,29,.35)}
+  #clockghost{position:absolute;top:0;bottom:0;width:0;z-index:12;pointer-events:none;
+    border-left:2px dashed var(--clock);display:none}
+  #clockghost.on{display:block}
+  #clockghost.back{border-color:var(--gold)}
+  #clockghost.ends{border-color:var(--warn)}
+  #ghostyear{position:absolute;top:2px;left:0;transform:translateX(-50%);
+    background:var(--panel);color:var(--clock);border:1px solid var(--clock);
+    font-size:10.5px;font-weight:660;padding:1px 6px;border-radius:6px;
+    white-space:nowrap;font-variant-numeric:tabular-nums}
+  #clockghost.back #ghostyear{color:var(--gold);border-color:var(--gold)}
+  #clockghost.ends #ghostyear{color:var(--warn);border-color:var(--warn)}
+  /* Alive when the marker passes: a quiet lift, not a spotlight -- several
+     cards are lit at once and a loud treatment would drown the board. */
+  .card.alive{box-shadow:0 0 0 1.5px var(--clock),0 2px 8px rgba(46,110,160,.22)}
+  /* The Gift is a real control on the Kin's own bar, at the end of their life.
+     Grey while it cannot fire, lit when it can. */
+  .gbtn{position:absolute;right:3px;top:50%;transform:translateY(-50%);
+    width:22px;height:22px;border-radius:6px;border:1px solid var(--edge);
+    background:#f2efe9;color:#a49a8c;font-size:12px;line-height:1;padding:0;
+    display:flex;align-items:center;justify-content:center;cursor:default;
+    pointer-events:auto;z-index:3;transition:background .15s,color .15s,box-shadow .15s}
+  .gbtn.live{background:var(--gold);border-color:var(--gold);color:#fff;cursor:pointer;
+    box-shadow:0 0 0 3px rgba(154,114,18,.22)}
+  .gbtn.live:hover{box-shadow:0 0 0 4px rgba(154,114,18,.34)}
+  .gbtn.spent{opacity:.4}
+  /* A small floating card for the Gift, shown from the button itself. */
+  #gtip{position:fixed;z-index:55;width:236px;background:var(--panel);
+    border:1px solid #ddc487;border-left:4px solid var(--gold);border-radius:10px;
+    padding:10px 12px;box-shadow:0 12px 32px rgba(0,0,0,.22);display:none;
+    pointer-events:none}
+  #gtip.on{display:block;animation:inspin .18s var(--ease) both}
+  #gtip .n{color:var(--gold);font-weight:650;font-size:13.5px}
+  #gtip .e{font-size:12px;color:#4a423a;line-height:1.45;margin-top:3px}
+  #gtip .w{font-size:11.5px;color:var(--dim);font-style:italic;margin-top:4px}
+  #gtip .m{font-size:11.5px;color:var(--dim);margin-top:6px}
+  #gtip .go{font-size:11.5px;color:var(--gold);font-weight:640;margin-top:7px}
+  .ability{border:1px solid #ddc487;background:#fdf7e6;border-radius:9px;
+    padding:9px 10px;margin-bottom:7px}
+  .ability .n{color:var(--gold);font-weight:650;font-size:13px}
+  .ability .e{font-size:11.5px;color:#5c5348;line-height:1.45;margin-top:2px}
+  .ability .w{font-size:11px;color:var(--dim);font-style:italic;margin-top:3px}
+  .ability button{width:100%;margin-top:7px;min-height:34px}
+  .ability.spent{opacity:.5;background:#f6f4f0;border-color:var(--edge)}
+  .clockbar{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;
+    margin-bottom:11px;font-variant-numeric:tabular-nums}
+  .clockbar .gifts{flex:1 0 100%}
+  .clockbar b{font-size:19px;color:var(--clock)}
+  .clockbar span{font-size:11.5px;color:var(--dim)}
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;
+      transition-duration:.01ms !important}
+  }
+  .card.ghost{border-style:dashed;border-width:2.5px;z-index:10;animation:none;opacity:.92}
+  .card.ghost.pat{border-color:var(--pat)}
+  .card.ghost.mat{border-color:var(--mat)}
+  .card.ghost.self{border-color:var(--self)}
+  .card.shift{filter:brightness(.92)}
+  .card.fresh{animation:land .42s var(--ease) both}
+  @keyframes pop{from{transform:scale(.9);box-shadow:0 0 0 5px rgba(154,114,18,.35)}to{transform:none}}
+
+  /* Open by default now: the bonus cards live here, and a bonus you cannot see
+     is a rule you have to remember instead of one you can play toward. */
+  #side{width:288px;flex:none;border-left:1px solid var(--edge);background:var(--panel);
+    overflow:auto;padding:12px;display:none}
+  #side.on{display:block}
+  /* Everything about Legacy lives in this one panel now -- the running total
+     included, rather than floating in the header away from its own breakdown. */
+  #legacytotal{display:flex;align-items:baseline;gap:7px;padding:2px 0 12px;
+    border-bottom:1px solid var(--edge);margin-bottom:12px}
+  #legacytotal b{font-size:34px;font-weight:660;color:var(--gold);line-height:1;
+    font-variant-numeric:tabular-nums}
+  #legacytotal span{font-size:12px;color:var(--dim);text-transform:uppercase;
+    letter-spacing:.09em}
+  #legacytotal.bump b{animation:bump .32s var(--ease)}
+  #side h3{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--dim);
+    margin:0 0 8px}
+  .sl{border-bottom:1px solid var(--edge);padding:7px 0}
+  .sl .t{display:flex;justify-content:space-between;font-size:13.5px}
+  .sl .t b{color:var(--gold)}
+  .sl .d{color:var(--dim);font-size:11.5px;margin-top:2px;line-height:1.4}
+  .sl.big{background:#fdf5e0;margin:6px -6px;padding:8px 6px;border-radius:7px;border:0}
+
+  #hand{flex:none;background:var(--panel);border-top:1px solid var(--edge);
+    padding:9px 14px;display:flex;gap:8px;align-items:center;overflow-x:auto;z-index:20}
+  .hc{flex:none;border:1px solid var(--edge);border-radius:9px;padding:7px 10px;
+    cursor:pointer;background:#fff;white-space:nowrap;min-width:130px;
+    box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .hc:hover{border-color:var(--gold);background:#fffdf6;box-shadow:0 3px 9px rgba(0,0,0,.12)}
+    .hc .n{font-size:13px}
+  .hc .n.m{color:var(--male)} .hc .n.f{color:var(--female)}
+  .hc small{color:var(--dim);display:block;font-size:10.5px}
+  .hc.pat{border-left:3px solid var(--pat)} .hc.mat{border-left:3px solid var(--mat)}
+  .hc.self{border-left:3px solid var(--self)}
+  .gain{color:var(--gold);font-size:10.5px}
+  .msg{color:var(--dim);font-size:13px}
+
+  /* The details panel lives low, in the empty space under the timeline, rather
+     than floating over the board where it covered the cards you were comparing.
+     pointer-events:none is deliberate: it can never steal a hover from the card
+     that opened it, and never blocks a drag passing over it. */
+  #insp{position:fixed;left:14px;right:14px;bottom:92px;z-index:40;pointer-events:none;
+    background:var(--panel);border:1px solid var(--edge);border-left:4px solid var(--accent,var(--gold));
+    border-radius:11px;padding:12px 15px;box-shadow:0 10px 30px rgba(0,0,0,.13);
+    display:none;gap:22px;align-items:flex-start;max-height:34vh;overflow:hidden}
+  #insp.on{display:flex}
+  /* Stop at the sidebar rather than sliding under it. Keyed off the panel's own
+     open state so it still uses the full width when the sidebar is closed. */
+  body:has(#side.on) #insp{right:317px}
+  #insp .who{flex:0 0 236px;min-width:0}
+  #insp .rel{color:var(--accent,var(--gold));font-size:10px;text-transform:uppercase;
+    letter-spacing:.09em}
+  #insp h4{margin:2px 0 4px;font-size:19px;font-weight:640;line-height:1.15}
+  #insp h4.m{color:var(--male)} #insp h4.f{color:var(--female)}
+  #insp .life{font-size:12.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+  #insp .facts{flex:1 1 260px;min-width:0;display:grid;
+    grid-template-columns:auto 1fr;gap:2px 12px;align-content:start;font-size:12.5px}
+  #insp .facts span:nth-child(odd){color:var(--dim)}
+  #insp .extra{flex:1 1 300px;min-width:0}
+  #insp .ab{border:1px solid #ddc487;background:#fdf7e6;border-radius:7px;
+    padding:6px 9px;margin-bottom:5px}
+  #insp .ab b{color:var(--gold);font-size:12.5px}
+  #insp .ab div{font-size:11.5px;color:#5c5348}
+  #insp .conn{font-size:11.5px;color:var(--dim);line-height:1.5}
+  #insp .conn b{color:var(--ink);font-weight:500}
+  #insp .story{font-size:11.5px;color:#5c5348;line-height:1.5;margin-top:5px;
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  #insp .gainbig{margin-top:7px;background:#fdf5e0;border:1px solid #d8bf7a;
+    border-radius:7px;padding:6px 9px;display:flex;justify-content:space-between;
+    font-size:12.5px;font-weight:600}
+  #insp .gainbig b{color:var(--gold)}
+  /* The panel itself stays click-through so it can never steal a hover or
+     block a drag; only the Use button takes the pointer. */
+  #insp .act{pointer-events:auto}
+  .gift{border:1px solid #ddc487;background:#fdf7e6;border-radius:9px;
+    padding:9px 11px;margin-bottom:7px}
+  .gift.live{box-shadow:0 0 0 2px rgba(154,114,18,.28)}
+  .gift.spent{opacity:.55;background:#f6f4f0;border-color:var(--edge)}
+  .gift .gn{color:var(--gold);font-weight:650;font-size:13.5px}
+  .gift .ge{font-size:12px;color:#4a423a;line-height:1.45;margin-top:2px}
+  .gift .gw{font-size:11.5px;color:var(--dim);font-style:italic;margin-top:3px}
+  .gift .gm{font-size:11.5px;color:var(--dim);margin-top:5px}
+  .gift .act{margin-top:7px}
+  .gift button{width:100%;min-height:34px;background:var(--gold);color:#fff;
+    border-color:var(--gold);font-weight:640}
+  .clockbar .gifts{color:var(--gold)}
+  #insp .gainbig.blind{background:#f6f4f0;border-color:var(--edge);color:var(--dim);
+    font-weight:500}
+  .ab .hid{color:var(--dim);opacity:.6}
+  #insp .hintrow{font-size:11.5px;color:var(--dim);margin-top:5px}
+  #rel{position:fixed;z-index:45;max-width:400px;background:var(--panel);
+    border:1px solid var(--edge);border-left:4px solid var(--gold);border-radius:11px;
+    padding:13px 15px;display:none;box-shadow:0 16px 40px rgba(0,0,0,.22)}
+  #rel.on{display:block}
+  #rel .hd{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--dim)}
+  #rel .big{font-size:17px;font-weight:640;margin:3px 0 2px}
+  #rel .big em{font-style:normal;color:var(--gold)}
+  #rel .sub{font-size:12px;color:var(--dim);margin-bottom:9px}
+  #rel .chain{display:flex;flex-wrap:wrap;align-items:center;gap:4px;font-size:12.5px;
+    line-height:1.7}
+  #rel .pn{padding:2px 7px;border-radius:6px;border:1px solid var(--edge);background:#faf7f2;
+    white-space:nowrap}
+  #rel .pn.m{color:var(--male)} #rel .pn.f{color:var(--female)}
+  #rel .pn.off{border-style:dashed;border-color:var(--warn);background:var(--warnbg)}
+  #rel .lk{color:var(--dim);font-size:10.5px}
+  #rel .need{margin-top:10px;background:var(--warnbg);border:1px solid #e8c79a;
+    border-radius:8px;padding:8px 10px;font-size:12.5px;color:#6b4413}
+  #rel .need b{color:var(--warn)}
+  #rel .x{position:absolute;top:8px;right:10px;cursor:pointer;color:var(--dim);
+    font-size:15px;line-height:1}
+  #modal,#bmodal,#imodal{position:fixed;inset:0;background:rgba(60,50,40,.34);display:none;z-index:50;
+    align-items:center;justify-content:center;padding:16px}
+  #modal.on,#bmodal.on,#imodal.on{display:flex}
+  .sheet{background:var(--panel);border:1px solid var(--edge);border-radius:13px;
+    max-width:430px;width:100%;max-height:88vh;overflow:auto;padding:18px;
+    box-shadow:0 18px 48px rgba(0,0,0,.24)}
+  .sheet .rel{color:var(--gold);font-size:11px;text-transform:uppercase;letter-spacing:.09em}
+  .sheet h2{margin:4px 0 10px;font-size:22px}
+  .traits{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+  .trait{background:#faf7f2;border:1px solid var(--edge);border-radius:7px;padding:6px 9px}
+  .trait .k{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim)}
+  .abil{border:1px solid #ddc487;background:#fdf7e6;border-radius:9px;padding:10px;margin-bottom:8px}
+  .abil .n{color:var(--gold);font-weight:640;font-size:14px}
+  .abil .s{color:var(--dim);font-size:12.5px;font-style:italic;margin-top:4px}
+  .story{font-size:13.5px;color:#4a423a;white-space:pre-wrap;margin-bottom:10px}
+  .sheet img{width:100%;border-radius:8px;margin-bottom:10px}
+  .empty{color:var(--dim);padding:28px 4px;font-size:14px}
+
+  /* ---- bonus cards ---- */
+  .sheet.wide{max-width:720px}
+  .sheet .sub{color:var(--dim);font-size:13px;margin:0 0 14px;line-height:1.5}
+  .bcs{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+  .bc{border:1.5px solid var(--edge);border-radius:10px;padding:10px 11px;cursor:pointer;
+    background:#fdfbf7;position:relative;transition:border-color .12s,background .12s}
+  .bc:hover{border-color:#c9b184}
+  .bc.on{border-color:var(--gold);background:#fdf5e0;box-shadow:0 0 0 1px var(--gold) inset}
+  .bc .g{font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--dim)}
+  .bc .n{font-weight:640;font-size:14px;margin:1px 0 3px}
+  .bc .b{font-size:11.5px;color:#5c5348;line-height:1.42}
+  .bc .p{position:absolute;top:9px;right:10px;font-size:10.5px;color:var(--gold);font-weight:640}
+  .bc.dead{opacity:.45}
+  .brow{display:flex;align-items:center;gap:14px;margin-top:16px}
+  .brow .sp{flex:1}
+  .brow label{font-size:12.5px;color:var(--dim);display:flex;align-items:center;gap:5px;cursor:pointer}
+  /* Active bonuses in the sidebar: a bonus sitting at 0 still has to be
+     visible, or you cannot see what you are supposed to be chasing. */
+  .ab{border:1px solid var(--edge);border-radius:8px;padding:7px 9px;margin-bottom:7px;
+    background:#fdfbf7}
+  .ab.scoring{background:#fdf5e0;border-color:#e2cd9b}
+  .ab .t{display:flex;justify-content:space-between;font-size:13px;font-weight:600}
+  .ab .t b{color:var(--gold)}
+  .ab .b{font-size:11px;color:var(--dim);line-height:1.4;margin-top:3px}
+  .ab .d{font-size:11px;color:#6d6055;line-height:1.4;margin-top:4px}
+  .ab.base{background:#f4f6f3;border-color:#cfd8cd}
+  .ab .tag{font-size:9px;text-transform:uppercase;letter-spacing:.08em;border-radius:4px;
+    padding:1px 5px;margin-left:6px;vertical-align:1px}
+  .ab .tag.b{background:#e3ebe2;color:#4a6b52}
+  .ab .tag.x{background:#fdf5e0;color:var(--gold);border:1px solid #e2cd9b}
+  #isheet .hello{color:var(--gold);font-size:10.5px;text-transform:uppercase;
+    letter-spacing:.11em}
+  #isheet h2{font-size:26px;letter-spacing:-.015em}
+  #isheet .sub{color:var(--dim);font-size:13.5px;line-height:1.55;margin:0 0 15px;max-width:56ch}
+  #isheet .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    gap:2px 22px}
+  #isheet .rule{display:flex;gap:11px;padding:7px 0;border-top:1px solid var(--edge);
+    font-size:12.5px;line-height:1.5}
+  #isheet .rule .k{flex:0 0 78px;color:var(--dim);text-transform:uppercase;
+    letter-spacing:.07em;font-size:10px;padding-top:2px}
+  #isheet .rule .v{flex:1;color:#4a423a}
+  #bsheet select{font:inherit;padding:4px 7px;border:1px solid var(--edge);
+    border-radius:6px;background:var(--panel);color:var(--ink)}
+  /* Poker flips and bonus takes need to announce themselves -- they happen
+     without a click, so nothing else on screen would explain the score moving. */
+  #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:60;
+    background:#332c24;color:#fdf8ef;padding:9px 15px;border-radius:9px;font-size:13.5px;
+    box-shadow:0 8px 24px rgba(0,0,0,.28);opacity:0;pointer-events:none;
+    transition:opacity .2s,transform .2s}
+  #toast.on{opacity:1;transform:translateX(-50%) translateY(-6px)}
+  /* ---------------------------------------------------------------
+     PHONE OVERRIDES LIVE LAST ON PURPOSE. They lost to base rules of
+     equal specificity written further down the file -- #insp kept its
+     desktop pointer-events:none and its 236px fixed column, which on a
+     phone became 236px of empty height under the name and a panel you
+     could not scroll with a finger. Anything added below this block
+     will silently override it, so add above.
+     --------------------------------------------------------------- */
+  /* ------------------------------------------------------------------
+     Phones. Three structural changes, not just smaller type:
+       - the sidebar stops being a column and becomes a sheet you pull up,
+         because 288px of a 390px screen is most of the board;
+       - the details panel goes full width and single column;
+       - anything you tap gets a 40px target.
+     ------------------------------------------------------------------ */
+  @media (max-width: 760px){
+    /* Two deliberate rows -- identity and score on top, controls beneath.
+       Letting it wrap on its own gave three rows and 137px of a 812px screen,
+       with the score chip landing wherever the wrap happened to put it. */
+    header{padding:6px 10px;gap:7px;row-gap:5px;align-items:center}
+    h1{font-size:14px;flex:0 0 auto;order:1}
+    header a{display:none}
+    header .stat{order:2}
+    header #score{order:3;margin-left:auto;padding:4px 11px;min-height:32px;
+      display:flex;align-items:center}
+    header .legend{display:none}
+    header .sp{display:none}
+    /* Force the break: everything from here starts row two. */
+    header::after{content:'';flex-basis:100%;height:0;order:3}
+    header #bonusbtn{order:5} header #newgame{order:6}
+    #sidenav{display:flex}
+    header label.stat{order:5;font-size:11px}
+    /* "use every Kin" is most of a phone row on its own. */
+    header label.stat{font-size:0}
+    header label.stat::after{content:'every Kin';font-size:11px;margin-left:4px}
+    button{padding:7px 11px;min-height:36px;font-size:13px}
+
+    /* The sidebar becomes a sheet. It already toggles on the score chip, so
+       the control the phone needs is the one the desktop already had. */
+    #side{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;z-index:45;
+      max-height:72vh;border-left:0;border-top:1px solid var(--edge);
+      border-radius:14px 14px 0 0;box-shadow:0 -12px 34px rgba(0,0,0,.2);
+      padding:14px 14px 22px;transform:translateY(100%);transition:transform .28s var(--ease);
+      display:block}
+    #side.on{transform:none}
+    #side::before{content:'';position:absolute;top:7px;left:50%;transform:translateX(-50%);
+      width:38px;height:4px;border-radius:2px;background:var(--edge)}
+    #sideclose{display:block}
+
+    #stage{padding:0 8px 10px}
+    /* The panel scrolls on a phone, so it has to take the finger. The reason it
+       is click-through on a desktop -- never steal a hover -- does not exist on
+       a touch screen, where the panel is pinned by a tap in the first place. */
+    #insp{left:6px;right:6px;bottom:80px;flex-direction:column;gap:9px;
+      max-height:52vh;overflow:auto;padding:11px 13px;pointer-events:auto;
+      -webkit-overflow-scrolling:touch}
+    body:has(#side.on) #insp{right:6px}
+    #insp .who,#insp .facts,#insp .extra{flex:none;width:100%}
+    #insp .facts{grid-template-columns:auto 1fr}
+    #insp h4{font-size:17px}
+    #inspmore{display:block}
+
+    /* On the home screen there is no browser chrome under the hand, so the
+       home indicator sits right on top of the cards without this. */
+    #hand{padding:8px 10px;padding-bottom:calc(8px + env(safe-area-inset-bottom));
+      gap:7px;-webkit-overflow-scrolling:touch}
+    #side{padding-bottom:calc(22px + env(safe-area-inset-bottom))}
+    .hc{min-width:118px;padding:9px 11px}
+    .hc .n{font-size:12.5px}
+    /* These wrapped to three lines on a phone; a turn's name and its price
+       belong on one. */
+    #hand button{min-height:40px;white-space:nowrap;font-size:12.5px;padding:7px 10px}
+    /* The bar is 28px tall, so this is as big as the target can honestly get.
+       First tap explains the Gift, second uses it -- same rule as the rest. */
+    .gbtn{width:26px;height:26px;right:1px;font-size:13px}
+    #gtip{width:260px}
+
+    .sheet{max-height:92vh;border-radius:14px;padding:15px}
+    .sheet.wide{max-width:100%}
+    .bcs{grid-template-columns:1fr}
+    #isheet .rules{grid-template-columns:1fr}
+    #modal,#bmodal,#imodal{padding:8px;align-items:flex-end}
+    #rel{left:6px;right:6px;width:auto;max-width:none}
+    #toast{bottom:150px;left:8px;right:8px;transform:none;text-align:center}
+    #toast.on{transform:translateY(-6px)}
+    /* A finger drag on a card is a relate-gesture once armed, so stop the page
+       scrolling underneath it. Before the long-press fires, scrolling is free. */
+    body.dragging{overflow:hidden;touch-action:none}
+    body.dragging #stage{touch-action:none}
+  }
+
+</style>
+
+<header>
+  <h1>Kinspan</h1>
+  <!-- Links are relative: this build is static files, and a host may serve it
+       from a subpath. An absolute "/" would leave the site. -->
+  <a href="./" title="Load a different family file">← Files</a>
+  <a href="edit.html" title="Write stories, fix records, add people">Your family</a>
+  <span class="stat" id="famname"></span>
+  <span class="stat">Turn <b id="turn">–</b></span>
+  <span class="stat">Archive <b id="deckn">–</b></span>
+  <button id="score" title="Show or hide your Legacy">Legacy</button>
+  <div class="sp"></div>
+  <div class="legend">
+    <span><i class="sw" style="background:var(--patbg);border:1px solid var(--pat)"></i>paternal</span>
+    <span><i class="sw" style="background:var(--matbg);border:1px solid var(--mat)"></i>maternal</span>
+  </div>
+  <label class="stat" style="cursor:pointer" title="Play with everyone, not only the Kin you have marked ready">
+    <input type="checkbox" id="practice" checked> use every Kin</label>
+  <a href="settings.html">How to play</a>
+  <button id="bonusbtn">Legacy cards</button>
+  <button id="savefam" title="Download your family file">Save file</button>
+  <button id="newgame" class="primary">Start again</button>
+</header>
+
+<div id="wrap">
+  <div id="stage"><div id="inner">
+    <div id="axis"></div><svg id="links"></svg><div id="cards"></div>
+    <div id="clockband"></div>
+    <div id="clockghost"><span id="ghostyear"></span></div>
+    <div id="clockline"><span id="clockyear"></span></div><svg id="drag"></svg>
+  </div></div>
+  <div id="side" class="on"><span id="sideclose">✕</span>
+    <div id="sidenav"><a href="./">← Files</a><a href="edit.html">Your family</a><a href="settings.html">How to play</a></div>
+    <div id="legacytotal"><b id="ltot">0</b><span>Legacy</span></div>
+    <div id="clockbox"></div>
+    <h3>Legacy cards</h3><div id="bl"></div>
+    <h3 style="margin-top:16px">Where it came from</h3><div id="sl"></div>
+  </div>
+</div>
+
+<div id="hand"></div>
+<div id="insp"></div>
+<div id="gtip"></div>
+<div id="rel"></div>
+<div id="modal"><div class="sheet" id="sheet"></div></div>
+<div id="bmodal"><div class="sheet wide" id="bsheet"></div></div>
+<div id="imodal"><div class="sheet wide" id="isheet"></div></div>
+<div id="toast"></div>
+
+<script>
+const LANE_H=28, LANE_GAP=11, COUPLE_GAP=0, TOP=40, MINW=52, XGAP=10;
+const NOW=new Date().getFullYear();
+let people=[], byId={}, pxYear=7, span=[1870,NOW];
+let deck=[], hand=[], played=[], turn=0, fresh=null, over=false;
+/* Active bonus cards, by id. These are now the ONLY source of points beyond a
+   flat 1 per ancestor -- marriage, descent and lineage are bonuses like any
+   other, so a game that drafted neither really does score differently. */
+/* Entries are {id, baseline?, mult?, faceDown?} -- richer than a bare id
+   because poker mode, the doubled river and the always-on family defaults all
+   need to say something about a card beyond which one it is. */
+let bonuses=[], offer=[], pickAll=false, pending=[], dealt=false, SET=loadSettings();
+
+/* ---- the clock --------------------------------------------------------
+   A marker walking the timeline. Actions cost years; the game ends when it
+   runs off the end. Abilities are gated on it standing inside a person's
+   lifetime, which is what makes WHEN you play someone matter. */
+let clock=0, clockDir=1, clockSpan=[0,0], turned=false, usedAbil=new Set(), freePlay=0;
+let overWhy=null;   // why the game ended, recorded where it happens
+const bonusIds=()=>bonuses.map(b=>b.id);
+/* Cards YOU are holding: not the always-on family defaults, and not the ones
+   poker mode turned face up at you. The cap governs what you chose to take --
+   counting the game's own flips against it let a flip push you over the cap
+   and turn the Take button into a Swap you never asked for. */
+const held=()=>bonuses.filter(b=>!b.baseline && !b.flip);
+const $=s=>document.querySelector(s);
+/* What a Kin is called at each level of how much you know about them. The
+   stored values stay basic/uncommon/rare so old saves and the builder keep
+   working; only the word the player reads changes. */
+const TIERWORD={basic:'Sketch', uncommon:'Story', rare:'Biography'};
+const tierOf=p=>TIERWORD[p.tier]||p.tier||'';
+/* Coarse pointer = no hover to rely on. Checked once; the layout media query
+   keys off width, but the interaction has to key off the input device. */
+const TOUCH=matchMedia('(hover: none), (pointer: coarse)').matches;
+let inspecting=null;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const startY=p=>p.birth_year, endY=p=>p.death_year||NOW;
+const sideOf=p=>p.relationship_to_root==='self'?'self'
+              :(p.relationship_side==='maternal'?'mat':'pat');
+const X=y=>(y-span[0])*pxYear;
+
+let fam=null;   // the loaded family: people, byId, graph, meta (see family.js)
+
+async function load(){
+  // No backend and NO bundled family — Kinspan ships with nobody in it. The
+  // player brings a file on the title screen; FAMILY.load() returns what they
+  // brought, or the autosave from a previous session, or null. Null is not an
+  // error: they just have not loaded anything yet, so send them to do that.
+  try{
+    fam=await FAMILY.load();
+  }catch(err){ fam=null; }
+  if(!fam){ location.replace('./'); return; }
+
+  people=FAMILY.playable(fam);
+  people.forEach(p=>byId[p.id]=p);
+  if(!people.length){
+    toast('No one in this family has a birth year, so there is no timeline to build.');
+  }
+  const nameEl=$('#famname');
+  if(nameEl) nameEl.textContent=fam.meta.title||'';
+  // Place bonuses are built from THIS tree, so they name real places from it.
+  buildBonuses(people);
+  const ys=people.flatMap(p=>[startY(p),endY(p)]);
+  span=[Math.floor(Math.min(...ys)/10)*10, Math.ceil(Math.max(...ys)/10)*10];
+  fit(); newGame();
+}
+function fit(){ pxYear=Math.max(4.5,($('#stage').clientWidth-28)/(span[1]-span[0])); }
+
+/* ---------------- game ---------------- */
+function newGame(){
+  SET=loadSettings();
+  const pool=people.filter(p=>$('#practice').checked ? true : p.ready);
+  deck=shuffle(pool.map(p=>p.id));
+  // The hand is NOT dealt yet. You pick your bonuses first and are dealt into
+  // them, so the opening hand is something you read against objectives you
+  // already know -- dealing first made the draft an afterthought.
+  hand=[]; played=[]; turn=1; over=false; fresh=null; pickAll=false;
+  mustDiscard=0; dealt=false; lastPts={}; shownScore=null; inspecting=null; giftTapped=null;
+  abilPts=0; kinFrom=null; overWhy=null;
+  buildAbilities(people, SET.abilityRate);
+  clockInit();
+
+  // The baseline rides along as ordinary bonus entries, flagged so the sidebar
+  // can label them and the draft can never offer one back to you.
+  bonuses = SET.defaults ? BASELINE.map(id=>({id, baseline:true})) : [];
+
+  const pool2=shuffle(draftPool(SET));
+  const keep=Math.min(SET.keep, pool2.length);
+  pending=[];                                  // poker's face-down flips
+  if(SET.selection==='all'){
+    offer=pool2; pickAll=true;
+  } else if(SET.selection==='random'){
+    offer=[];
+    pool2.splice(0,keep).forEach(id=>bonuses.push({id}));
+  } else {
+    offer=pool2.slice(0,Math.min(SET.deal, pool2.length));
+  }
+  if(SET.reveal==='poker'){
+    // Held back from the same shuffle, so a flip can never repeat what you kept.
+    const rest=pool2.filter(id=>!bonusIds().includes(id) && !offer.includes(id));
+    pending=rest.slice(0,SET.pokerFlips).map((id,i)=>({
+      id, turn:(i+1)*SET.pokerEvery,
+      mult:(SET.river && i===SET.pokerFlips-1) ? 2 : 1 }));
+  }
+  render();
+  if(!pool.length){
+    toastHand('No Kin are marked ready yet. Tick some in the Archive, or leave “use every Kin” on.');
+    return;
+  }
+  if(SET.showIntro) openIntro(); else beginRound();
+}
+
+/* Bonuses first, then the deal. */
+function beginRound(){
+  if(SET.selection==='random'){ announceRandom(); dealOpening(); }
+  else openBonuses();
+}
+
+function dealOpening(){
+  if(dealt) return;
+  dealt=true;
+  const n=Math.min(SET.openingHand, deck.length);
+  // One card at a time so it reads as a deal rather than a hand appearing.
+  const step=i=>{
+    if(i>=n){ toast(`${n} Kin in hand. Your Legacy cards: ${held().map(b=>BONUS_BY_ID[b.id].name).join(' · ')}`); return; }
+    hand.push(deck.shift()); render();
+    setTimeout(()=>step(i+1), 110);
+  };
+  step(0);
+}
+
+/* ---- the welcome ------------------------------------------------------
+   Every round, because the rules are configurable and the round you are about
+   to play may not be the one you played last. It states THIS game's rules, not
+   a generic tutorial -- and it can be switched off, here or in settings. */
+function rulesLines(){
+  const L=[];
+  L.push(['Legacy', `Every Kin you connect is worth <b>${RULES.PRESENCE}</b> Legacy. `
+    + (SET.defaults
+      ? 'Family ties count on top, for free: <b>+1</b> a parent and child, '
+        + '<b>+2</b> a married couple, and your longest line grows 3 / 9 / 27.'
+      : 'Nothing else counts unless a Legacy card says so.')]);
+  const pool=draftPool(SET).length;
+  L.push(['Legacy cards', SET.selection==='all'
+      ? `Take any you like from all <b>${pool}</b>. This is where most of your Legacy comes from.`
+      : SET.selection==='random'
+      ? `<b>${Math.min(SET.keep,pool)}</b> handed to you, no choosing. This is where most of your Legacy comes from.`
+      : `You are shown <b>${Math.min(SET.deal,pool)}</b> and keep <b>${Math.min(SET.keep,pool)}</b>. `
+        + 'This is where most of your Legacy comes from.']);
+  if(SET.reveal==='poker') L.push(['More to come', `<b>${SET.pokerFlips}</b> more Legacy cards `
+    + `turn face up as you go, one every <b>${SET.pokerEvery}</b> turns`
+    + `${SET.river?', and the last one is worth <b>double</b>':''}. `
+    + 'You are guessing at what is still hidden.']);
+  if(SET.clockOn){
+    const dirTxt={forward:'walks forward to the present',
+      backward:'walks backward from the present',
+      forwardback:'walks to the present and all the way home again',
+      backwardforward:'walks back to the beginning, then forward again'}[SET.clockDir];
+    L.push(['The marker', `It starts at <b>${clockSpan[0]}</b> and ${dirTxt}. `
+      + `Everything you do spends years, and the game ends when the years run out. `
+      + `Hover a move to see where it would leave the marker before you commit.`]);
+    if(SET.abilityRate>0)
+      L.push(['Gifts', `Some Kin have a Gift — the <b>✦</b> at the end of their life. `
+        + `It lights up only while the marker stands <b>inside their lifetime</b>, and it works once`
+        + ((SET.clockDir==='forwardback'||SET.clockDir==='backwardforward')
+           ? ` — until the marker turns around, when every Gift comes back.` : `.`)
+        + ` A Gift does what a turn cannot: free Kin, a free Connect, or years back.`]);
+  }
+  L.push(['A turn', `One of: <b>Pull ${SET.drawCount}</b>, <b>Connect a Kin</b>`
+    + (SET.pairPlay ? ' (a married pair, or a parent and child, connect together for one turn)' : '')
+    + (SET.drawBonus ? ', or <b>claim a Legacy card</b>' : '') + '.'
+    + (SET.clockOn ? ` Costing <b>${SET.costDraw}</b>, <b>${SET.costPlay}</b>`
+        + (SET.drawBonus?` and <b>${SET.costBonus}</b>`:'') + ' years.' : '')]);
+  L.push(['Your hand', `You can hold <b>${SET.handLimit}</b> Kin. Pull past that and you `
+    + 'return some to the Archive. A full hand costs you.']);
+  L.push(['It ends', SET.clockOn
+    ? `when the marker runs off the end — <b>${clockSpan[1]-clockSpan[0]}</b> years`
+      + ((SET.clockDir==='forwardback'||SET.clockDir==='backwardforward') ? ' each way' : '')
+      + ', or when the Archive and your hand are both empty.'
+    : 'when the Archive and your hand are both empty.']);
+  if(SET.difficulty==='hard')
+    L.push(['Harder', 'Kin do <b>not</b> tell you what they are worth. You work it out.']);
+  else if(SET.difficulty==='brutal')
+    L.push(['Hardest', 'Nothing tells you what it is worth, and <b>no running Legacy</b>. '
+      + 'You find out at the end.']);
+  L.push(['On the timeline', TOUCH
+    ? 'Tap a Kin to see their life, tap again for everything. <b>Press and hold a Kin, '
+      + 'then drag it onto another</b> to trace the line between them.'
+    : 'Hover a Kin to see their life. <b>Drag one Kin onto another</b> '
+      + 'to trace the line between them.']);
+  return L;
+}
+
+function openIntro(){
+  $('#isheet').innerHTML=`
+    <div class="hello">A hand of your own family</div>
+    <h2 style="margin:2px 0 6px">Kinspan</h2>
+    <p class="sub">Every Kin is a real person from your family. Connect them to the
+      timeline where they lived. You earn Legacy by putting people back together —
+      husbands and wives, parents and children, whole lines of them.</p>
+    <div class="rules">${rulesLines().map(([k,v])=>`
+      <div class="rule"><span class="k">${esc(k)}</span><span class="v">${v}</span></div>`).join('')}</div>
+    <div class="brow">
+      <label><input type="checkbox" id="noagain"> don't show this every round</label>
+      <span class="sp"></span>
+      <button id="igo" class="primary">${SET.selection==='random'
+        ? 'Deal me in' : 'Choose your Legacy cards'}</button>
+    </div>`;
+  $('#imodal').classList.add('on');
+  $('#noagain').onchange=e=>{ SET.showIntro=!e.target.checked; saveSettings(SET); };
+  $('#igo').onclick=()=>{ $('#imodal').classList.remove('on'); beginRound(); };
+}
+
+function announceRandom(){
+  toast(`Your Legacy cards: ${held().map(b=>BONUS_BY_ID[b.id].name).join(' · ')}`);
+}
+
+/* Poker mode: turn the next bonus face up once its turn arrives. Called from
+   endCheck, so a flip lands whether the turn was a play, a draw or a bonus. */
+function pokerCheck(){
+  let flipped=null;
+  while(pending.length && turn>=pending[0].turn){
+    const f=pending.shift();
+    bonuses.push({id:f.id, mult:f.mult, flip:true});
+    flipped=f;
+  }
+  if(flipped){
+    const b=BONUS_BY_ID[flipped.id];
+    toast(`${pending.length?'A new Legacy card':'The last Legacy card'}: ${b.name}`
+          +(flipped.mult>1?' — worth double':''));
+  }
+}
+
+/* ---- the bonus draft --------------------------------------------------
+   Deal BONUS_DEAL, keep BONUS_KEEP. "Show all" lifts both limits, which is
+   what you want when you are exploring the set rather than playing a game. */
+function openBonuses(){ $('#bmodal').classList.add('on'); renderBonusPicker(); }
+/* The draft is a decision, not a dialog you can dismiss: clicking the backdrop
+   or hitting Escape with only one of two picked used to leave you in a game
+   with a half-finished draft AND a stale sidebar, because nothing re-rendered
+   on the way out. Both paths go through here, and neither can leave early. */
+function draftDone(){
+  if(takeMode) return false;          // a take is committed by picking, not by OK
+  const n=held().length;
+  return pickAll ? n>0 : n===Math.min(SET.keep, draftPool(SET).length);
+}
+function closeBonuses(){
+  if(!draftDone()) return false;
+  $('#bmodal').classList.remove('on');
+  render();
+  dealOpening();          // no-op once the round has been dealt
+  return true;
+}
+
+function renderBonusPicker(){
+  const taking = !!takeMode;
+  const inPlay = new Set(bonusIds());
+  // Never offer a card you are already scoring -- baseline included, which is
+  // the whole reason the baseline is carried as bonus entries rather than as
+  // separate hard-wired code.
+  const list = (pickAll ? draftPool(SET) : offer)
+    .filter(id => taking ? !inPlay.has(id) : true)
+    .map(id => BONUS_BY_ID[id]).filter(Boolean);
+  const need = pickAll ? null : Math.min(SET.keep, draftPool(SET).length);
+  const chosen = held().map(b => b.id);
+
+  const head = taking
+    ? (takeMode === 'swap'
+        ? `<h2 style="margin:0 0 4px">Swap a Legacy card</h2>
+           <p class="sub">You are holding ${chosen.length} of ${SET.maxBonuses}. Take a new one and
+             the card that has given you the <i>least</i> goes back, unless you choose another below.</p>`
+        : `<h2 style="margin:0 0 4px">Claim a Legacy card</h2>
+           <p class="sub">This costs you a turn. Choose one.</p>`)
+    : `<h2 style="margin:0 0 4px">Legacy cards</h2>
+       <p class="sub">${pickAll
+        ? `All ${list.length} of them. Take as many as you like.`
+        : `Keep <b>${need}</b> of these ${list.length}.`}
+        ${SET.defaults
+          ? `Family ties count on top of these, for free.`
+          : `Past a flat ${RULES.PRESENCE} Legacy for each Kin you connect, these are the <i>only</i> way to earn.`}</p>`;
+
+  $('#bsheet').innerHTML = head + `
+    <div class="bcs">${list.map(b => `
+      <div class="bc ${chosen.includes(b.id) ? 'on' : ''}" data-id="${b.id}">
+        <div class="p">${esc(b.per)}</div>
+        <div class="g">${esc(b.group)}</div>
+        <div class="n">${esc(b.name)}</div>
+        <div class="b">${esc(b.blurb)}</div>
+      </div>`).join('')}</div>
+    ${taking && takeMode === 'swap' ? `
+      <div class="brow"><label style="gap:8px">put back
+        <select id="bdrop">${held().map(b =>
+          `<option value="${b.id}" ${swapOut === b.id ? 'selected' : ''}
+            >${esc(BONUS_BY_ID[b.id].name)}</option>`).join('')}</select>
+      </label></div>` : ''}
+    <div class="brow">
+      ${taking
+        ? `<button id="bcancel">Never mind</button><span class="sp"></span>
+           <span class="msg">${list.length} to choose from</span>`
+        : `<label><input type="checkbox" id="ball" ${pickAll ? 'checked' : ''}> show all
+             ${draftPool(SET).length}</label>
+           <span class="sp"></span>
+           <span class="msg">${chosen.length} chosen${need ? ` of ${need}` : ''}</span>
+           <button id="bgo" class="primary" ${draftDone() ? '' : 'disabled'}
+             >${played.length ? 'Keep these' : 'Deal me in'}</button>`}
+    </div>`;
+
+  $('#bsheet').querySelectorAll('.bc').forEach(el => {
+    el.onclick = () => {
+      const id = el.dataset.id;
+      if (taking){ $('#bmodal').classList.remove('on'); commitTake(id); return; }
+      if (chosen.includes(id)) bonuses = bonuses.filter(b => b.id !== id);
+      // In a real draft the keep-count is the constraint; the oldest pick drops
+      // out, so clicking a third card swaps rather than doing nothing at all.
+      else {
+        bonuses.push({ id });
+        if (need && held().length > need)
+          bonuses = bonuses.filter(b => b.id !== held()[0].id);
+      }
+      renderBonusPicker();
+    };
+  });
+  const drop = $('#bdrop'); if (drop) drop.onchange = e => { swapOut = e.target.value; };
+  const all = $('#ball'); if (all) all.onchange = e => { pickAll = e.target.checked; renderBonusPicker(); };
+  const go = $('#bgo'); if (go) go.onclick = closeBonuses;
+  const cx = $('#bcancel'); if (cx) cx.onclick = () => {
+    takeMode = null; swapOut = null; $('#bmodal').classList.remove('on'); render();
+  };
+}
+function shuffle(a){ a=[...a];
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a; }
+
+/* ---- a turn ------------------------------------------------------------
+   One of three things: draw `drawCount`, play a card (plus one relative), or
+   take a bonus. Drawing is no longer blocked at the hand limit -- you draw and
+   then discard back down to it, which makes a full hand a real cost rather
+   than a greyed button. */
+let mustDiscard=0;     // cards owed to the discard pile before play resumes
+
+function doDraw(){
+  previewMove(null);
+  if(over||!dealt||!deck.length||mustDiscard) return;
+  closeRel(); hidePop();
+  const n=Math.min(SET.drawCount, deck.length);
+  for(let i=0;i<n;i++) hand.push(deck.shift());
+  advanceClock(SET.costDraw);
+  endTurn();
+  mustDiscard=Math.max(0, hand.length-SET.handLimit);
+  render();
+}
+
+/* How two cards in hand are tied, or null. Spouse first: a couple is the
+   pairing people reach for, and it is the one with its own icon. */
+function handLink(a, b){
+  const p=byId[a];
+  if((p.spouse_ids||[]).includes(b))   return 'spouse';
+  if((p.children_ids||[]).includes(b)) return 'child';
+  if((p.parent_ids||[]).includes(b))   return 'parent';
+  return null;
+}
+
+/* The hand laid out as groups: singles, and pairs that play together.
+ *
+ * The pairing is a DISJOINT matching -- each card belongs to at most one pair.
+ * That is what keeps it honest against the one-relative-per-turn rule: Ralph
+ * sitting between Deanna and Scott can only leave with one of them, and
+ * choosing greedily (spouses first) beats asking the question mid-turn. */
+function handGroups(){
+  if(!SET.pairPlay) return hand.map(id=>({ids:[id]}));
+  const taken=new Set(), out=[];
+  for(const id of hand){
+    if(taken.has(id)) continue;
+    let mate=null, link=null;
+    for(const pref of ['spouse','child','parent']){
+      mate=hand.find(h=>h!==id && !taken.has(h) && handLink(id,h)===pref);
+      if(mate){ link=pref; break; }
+    }
+    taken.add(id);
+    if(mate){ taken.add(mate); out.push({ids:[id,mate], link}); }
+    else out.push({ids:[id]});
+  }
+  return out;
+}
+
+/* Playing a group is one turn, however many cards are in it. */
+function doPlay(ids){
+  previewMove(null);
+  if(over||!dealt||mustDiscard) return;
+  if(!Array.isArray(ids)) ids=[ids];
+  closeRel(); hidePop();
+  for(const id of ids){ hand=hand.filter(x=>x!==id); played.push(id); }
+  fresh=ids[0];
+  setTimeout(()=>{ fresh=null; }, 500);
+  // A kin play granted by an ability, or a banked free play, costs no years
+  // and is not a turn -- that is the whole value of the ability.
+  if(kinFrom && kinIsFree(ids)){ kinFrom=null; render(); return; }
+  if(freePlay>0){ freePlay--; endTurn(); render(); return; }
+  advanceClock(SET.costPlay);
+  endTurn(); render();
+}
+
+function endTurn(){ turn++; endCheck(); }
+
+/* Was this play the free relative an Inseparable-style ability granted? */
+function kinIsFree(ids){
+  const src=byId[kinFrom]; if(!src) return false;
+  const kin=new Set([...(src.spouse_ids||[]),...(src.parent_ids||[]),...(src.children_ids||[])]);
+  return ids.every(i=>kin.has(i));
+}
+
+/* ---- clock ---------------------------------------------------------- */
+function clockInit(){
+  clockSpan = clockRange(people);
+  const back = SET.clockDir==='backward' || SET.clockDir==='backwardforward';
+  clock = back ? clockSpan[1] : clockSpan[0];
+  clockDir = back ? -1 : 1;
+  turned = false; usedAbil.clear(); freePlay=0;
+}
+
+/* Years still to walk before the game is over, counting the return leg. */
+function yearsLeft(){
+  const [a,b]=clockSpan, both = SET.clockDir==='forwardback'||SET.clockDir==='backwardforward';
+  const toEnd = clockDir>0 ? b-clock : clock-a;
+  return toEnd + (both && !turned ? (b-a) : 0);
+}
+
+function advanceClock(years){
+  if(!SET.clockOn || !years) return;
+  const [a,b]=clockSpan;
+  const both = SET.clockDir==='forwardback' || SET.clockDir==='backwardforward';
+  let left=years;
+  while(left>0){
+    const wall = clockDir>0 ? b : a;
+    const room = Math.abs(wall-clock);
+    if(left < room){ clock += clockDir*left; left=0; break; }
+    clock = wall; left -= room;
+    if(both && !turned){
+      // The turnaround is the whole point of the there-and-back modes: every
+      // ability comes back, so the second pass is a real second chance.
+      turned=true; clockDir=-clockDir;
+      toast(`${clock}. The marker turns for home — every Gift is ready again.`);
+      usedAbil.clear();
+    } else { over=true; overWhy='The marker walked off the end of the timeline'; return; }
+  }
+}
+
+/* ---- previewing a move ------------------------------------------------
+   Every action costs years, so before you commit to one you should be able to
+   see where it puts the marker. Hovering a move draws the band it would spend
+   and a dashed line where it would land. */
+
+/* Where `years` of movement would leave the marker, without moving it. Mirrors
+   advanceClock's wall-and-turnaround logic; kept separate because that one ends
+   the game and toasts, and a preview must do neither. */
+function projectClock(years){
+  const [a,b]=clockSpan;
+  const both = SET.clockDir==='forwardback' || SET.clockDir==='backwardforward';
+  let c=clock, d=clockDir, t=turned, left=years, ends=false, turns=false;
+  while(left>0){
+    const wall = d>0 ? b : a;
+    const room = Math.abs(wall-c);
+    if(left<room){ c += d*left; break; }
+    c = wall; left -= room;
+    if(both && !t){ t=true; d=-d; turns=true; }
+    else { ends=true; break; }
+  }
+  return {year:c, turns, ends};
+}
+
+function previewMove(years){
+  const band=$('#clockband'), gh=$('#clockghost');
+  const clear=()=>{ band.className=''; gh.className=''; };
+  if(!SET.clockOn || years==null){ clear(); return; }
+
+  let year, ends=false, back=false;
+  if(years<0){                       // a Gift handing years back
+    back=true;
+    year = clockDir>0 ? Math.max(clockSpan[0], clock+years)
+                      : Math.min(clockSpan[1], clock-years);
+  } else {
+    const pr=projectClock(years); year=pr.year; ends=pr.ends;
+  }
+  if(year===clock){ clear(); return; }
+
+  const x1=X(Math.min(clock,year)), x2=X(Math.max(clock,year));
+  band.style.left=x1+'px'; band.style.width=Math.max(1,x2-x1)+'px';
+  band.className='on'+(back?' back':'')+(ends?' ends':'');
+  gh.style.left=X(year)+'px';
+  gh.className='on'+(back?' back':'')+(ends?' ends':'');
+  $('#ghostyear').textContent = ends ? 'the end' : year;
+}
+
+/* Can this Kin's Gift fire RIGHT NOW, and if not, why not?
+ *
+ * The general gates -- connected, alive at the marker, not already spent -- are
+ * only half of it. Each effect also needs something to act on: a free Connect
+ * with an empty hand, or "connect their relative free" with none of their
+ * family in hand, is a lit button that does nothing when you press it. Those
+ * cases grey out and say what is missing. */
+function giftStatus(p){
+  const ab = SET.abilityRate>0 ? abilityOf(p) : null;
+  if(!ab) return null;
+  const no = why => ({ab, ok:false, why});
+  if(over) return no('The game is over.');
+  if(mustDiscard) return no('Return Kin to the Archive first.');
+  if(!played.includes(p.id)) return no('Connect them and you can use it.');
+  if(usedAbil.has(p.id)) return no('Already used. It comes back if the marker turns for home.');
+  if(SET.clockOn && !aliveAt(p, clock))
+    return no(`Only while the marker is between ${startY(p)} and ${p.living?'now':(p.death_year||'?')}.`);
+
+  switch(ab.kind){
+    case 'draw':
+      if(!deck.length) return no('The Archive is empty — nothing left to pull.');
+      break;
+    case 'freeplay':
+      if(!hand.length) return no('Nothing in your hand to connect for free.');
+      break;
+    case 'playkin': {
+      const kin=new Set([...(p.spouse_ids||[]),...(p.parent_ids||[]),...(p.children_ids||[])]);
+      if(!hand.some(h=>kin.has(h)))
+        return no('None of their family is in your hand.');
+      break;
+    }
+    case 'time': {
+      if(!SET.clockOn) return no('The marker is switched off.');
+      const wall = clockDir>0 ? clockSpan[0] : clockSpan[1];
+      if(clock===wall) return no('The marker is already as far back as it goes.');
+      break;
+    }
+  }
+  return {ab, ok:true, why:''};
+}
+
+function readyAbilities(){
+  if(SET.abilityRate<=0) return [];
+  return played.map(id=>byId[id])
+    .map(p=>({p, st:giftStatus(p)}))
+    .filter(x=>x.st && x.st.ok)
+    .map(x=>({p:x.p, ab:x.st.ab}));
+}
+
+function useAbility(id){
+  const p=byId[id], st=giftStatus(p);
+  if(!st || !st.ok) return;
+  const ab=st.ab;
+  usedAbil.add(id);
+  const n=ab.n||1;
+  switch(ab.kind){
+    case 'draw':
+      for(let i=0;i<n && deck.length;i++) hand.push(deck.shift());
+      mustDiscard=Math.max(0, hand.length-SET.handLimit);
+      toast(`${ab.name} — pulled ${n} from the Archive, no years spent.`); break;
+    case 'time':
+      // Free years, and never past the wall you came from.
+      clock = clockDir>0 ? Math.max(clockSpan[0], clock-n) : Math.min(clockSpan[1], clock+n);
+      toast(`${ab.name} — ${n} years back, to ${clock}.`); break;
+    case 'points':
+      abilPts += n; toast(`${ab.name} — ${n} Legacy.`); break;
+    case 'freeplay':
+      freePlay++; toast(`${ab.name} — your next Connect is free.`); break;
+    case 'playkin':
+      kinFrom=id; toast(`${ab.name} — connect their spouse, parent or child from your hand, free.`); break;
+    default:
+      toast(`${ab.name}`); break;
+  }
+  $('#gtip').classList.remove('on');
+  render();
+}
+let abilPts=0, kinFrom=null;
+
+function doDiscard(id){
+  if(!mustDiscard) return;
+  hand=hand.filter(x=>x!==id); deck.push(id);   // to the bottom, not gone
+  mustDiscard--; hidePop(); render();
+}
+function endCheck(){
+  pokerCheck();
+  // `turn` has already been advanced to the NEXT turn's number by endTurn, so
+  // a limit of 20 means the game is over once it reads 21 -- you get all 20.
+  if(!deck.length && !hand.length){
+    over=true; overWhy=overWhy||'The Archive and your hand are empty';
+  }
+}
+
+/* Bonuses not already in play and not still face down in the poker stack. */
+function bonusPool(){
+  const out=new Set(bonusIds().concat(pending.map(f=>f.id)));
+  return draftPool(SET).filter(id=>!out.has(id));
+}
+
+/* Spending a turn on a bonus. At the cap this becomes a swap, which is the
+   more interesting move anyway: a bonus that has stopped paying is a resource
+   rather than dead weight. */
+function doTakeBonus(){
+  previewMove(null);
+  // A turn is one of three things, and the other two are unavailable while the
+  // hand is still over the limit.
+  if(over || !dealt || !SET.drawBonus || mustDiscard) return;
+  const pool=bonusPool(); if(!pool.length) return;
+  const full=held().length>=SET.maxBonuses;
+  if(full && !SET.swapAtCap) return;
+  closeRel();
+  takeMode = full ? 'swap' : 'add';
+  offer = shuffle(pool).slice(0, Math.max(1, Math.min(SET.deal, pool.length)));
+  if(SET.selection==='random'){          // blind games stay blind mid-game too
+    commitTake(offer[0]); return;
+  }
+  pickAll = SET.selection==='all';
+  if(pickAll) offer = pool;
+  openBonuses();
+}
+let takeMode=null, swapOut=null;
+
+function commitTake(id){
+  if(takeMode==='swap'){
+    // Drop the weakest-scoring drafted card unless you picked one to drop.
+    const sc=window.scoreBoard(played.map(i=>byId[i]), byId, bonuses);
+    const worst=swapOut || held()
+      .map(b=>({id:b.id, pts:(sc.bonuses.find(x=>x.id===b.id)||{}).pts||0}))
+      .sort((a,b)=>a.pts-b.pts)[0].id;
+    bonuses=bonuses.filter(b=>b.id!==worst);
+    toast(`${BONUS_BY_ID[worst].name} goes back. ${BONUS_BY_ID[id].name} is yours.`);
+  } else {
+    toast(`${BONUS_BY_ID[id].name} is yours.`);
+  }
+  bonuses.push({id});
+  takeMode=null; swapOut=null;
+  advanceClock(SET.costBonus);
+  turn++; endCheck(); render();
+}
+
+/* ---------------- layout ----------------
+   Units are couples (two adjacent, zero-gap lanes) or singles. Traversal is
+   depth-first from the oldest generation, so a child unit is placed straight
+   after its parents and never above them. Within a lane, people whose bars do
+   not overlap in time share the row.                                        */
+function layout(list){
+  const inPlay=new Set(list.map(p=>p.id));
+  const unitOf={}, units=[], seen=new Set();
+  const byGen=[...list].sort((a,b)=>(b.generation??0)-(a.generation??0)||startY(a)-startY(b));
+  for(const p of byGen){
+    if(seen.has(p.id)) continue;
+    const sp=(p.spouse_ids||[]).map(i=>byId[i]).find(s=>s&&inPlay.has(s.id)&&!seen.has(s.id));
+    const u=sp?[p,sp]:[p];
+    u.forEach(m=>{seen.add(m.id); unitOf[m.id]=u;});
+    units.push(u);
+  }
+  const uid=u=>u[0].id;
+  const kidUnits=u=>{
+    const out=[], s=new Set();
+    for(const m of u) for(const cid of (m.children_ids||[])){
+      if(!inPlay.has(cid)) continue;
+      const cu=unitOf[cid];
+      if(cu && cu!==u && !s.has(uid(cu))){ s.add(uid(cu)); out.push(cu); }
+    }
+    return out.sort((a,b)=>startY(a[0])-startY(b[0]));
+  };
+  const hasParent=u=>u.some(m=>(m.parent_ids||[]).some(x=>inPlay.has(x)));
+
+  const lanes=[], place={}, glue=new Set();
+  const box=p=>{ const x0=X(startY(p)); return [x0, x0+Math.max(MINW, X(endY(p))-x0)]; };
+  const free=(i,x0,x1)=>!(lanes[i]||[]).some(([a,b])=>!(x1<a-XGAP||x0>b+XGAP));
+
+  const assign=(u,minLane)=>{
+    const bs=u.map(box);
+    const x0=Math.min(...bs.map(b=>b[0])), x1=Math.max(...bs.map(b=>b[1]));
+    let i=minLane;
+    for(;;i++){
+      while(lanes.length<i+u.length) lanes.push([]);
+      if(u.every((_,k)=>free(i+k,x0,x1))) break;
+    }
+    u.forEach((m,k)=>{ lanes[i+k].push(box(m)); place[m.id]={lane:i+k}; });
+    if(u.length===2) glue.add(i);
+    return i+u.length-1;
+  };
+
+  const visited=new Set();
+  const visit=(u,minLane)=>{
+    if(visited.has(uid(u))) return;
+    visited.add(uid(u));
+    const last=assign(u,minLane);
+    for(const cu of kidUnits(u)) visit(cu,last+1);
+  };
+  units.filter(u=>!hasParent(u)).forEach(u=>visit(u,0));
+  units.forEach(u=>visit(u,0));
+
+  const laneY=[]; let y=TOP;
+  for(let i=0;i<lanes.length;i++){ laneY[i]=y; y+=LANE_H+(glue.has(i)?COUPLE_GAP:LANE_GAP); }
+  Object.values(place).forEach(v=>v.y=laneY[v.lane]);
+  return {place, height:y+16};
+}
+
+/* Write innerHTML only when the markup actually differs. Every render used to
+   rewrite the sidebar and the hand wholesale, which is what the flicker was:
+   the element under the cursor was destroyed and rebuilt, firing mouseleave →
+   render → mouseenter → render in a loop, and killing every CSS transition
+   mid-flight because the node they were running on no longer existed. */
+function setHTML(el, html){
+  if(el.dataset.sig===html) return false;
+  el.dataset.sig=html; el.innerHTML=html; return true;
+}
+
+/* ---------------- render ---------------- */
+/* `ghost` is what hovering a Kin in hand previews. It is a LIST, because a
+   married pair or a parent and child connect together -- previewing only the
+   one under the cursor showed half of what the click would actually do. */
+function render(ghost){
+  const ghosts = ghost ? (Array.isArray(ghost)?ghost:[ghost]) : [];
+  const ghostId = ghosts[0] || null;
+  const list=(ghosts.length?played.concat(ghosts):played).map(id=>byId[id]);
+  $('#turn').textContent = turn;
+  $('#deckn').textContent=deck.length;
+  const sc=window.scoreBoard(played.map(id=>byId[id]), byId, bonuses);
+  if(abilPts){ sc.lines.push({label:'Gifts you used', pts:abilPts,
+    detail:'Legacy handed to you by your own Kin'}); sc.total+=abilPts; }
+  // In 'brutal' the score exists and is computed exactly as always -- it is
+  // simply not shown until the game ends. Nothing about scoring changes.
+  const seeScore = showsScore(SET) || over;
+  if(seeScore) tickScore(sc.total);
+  else { shownScore=null; $('#ltot').textContent='—'; }
+  // The button that opens the panel carries the number only while the panel is
+  // not showing it. Keyed off whether the panel is actually open rather than
+  // the viewport width, so closing it on a desktop puts the number back too.
+  $('#score').textContent = $('#side').classList.contains('on')
+    ? 'Legacy' : `Legacy ${seeScore ? sc.total : '—'}`;
+  const blHTML = sc.bonuses.length ? sc.bonuses.map(b=>`
+      <div class="ab ${b.baseline?'base':(seeScore&&b.pts?'scoring':'')}
+           ${!ghostId&&lastPts[b.id]===undefined?'fresh':''}
+           ${!ghostId&&lastPts[b.id]!==undefined&&lastPts[b.id]!==b.pts?'bumped':''}">
+        <div class="t"><span>${esc(b.name)}${b.baseline?'<i class="tag b">default</i>':''}${
+          b.mult>1?`<i class="tag x">×${b.mult}</i>`:''}</span>${
+          seeScore?`<b>+${b.pts}</b>`:'<b class="hid">?</b>'}</div>
+        <div class="b">${esc(b.blurb)}</div>
+        ${seeScore&&b.detail?`<div class="d">${esc(b.detail)}</div>`:''}
+      </div>`).join('')
+    : '<div class="msg">You have no Legacy cards yet, so every Kin is worth one Legacy. '
+      +'Tap <b>Legacy cards</b> to choose some.</div>';
+  setHTML($('#bl'), blHTML + (pending.length
+    ? `<div class="msg" style="margin-top:6px">${pending.length} still face down. The next
+        turns over on turn ${pending[0].turn}${pending.length===1&&pending[0].mult>1
+          ? ', and it is worth <b>double</b>':''}.</div>` : ''));
+
+  setHTML($('#sl'), !seeScore
+    ? '<div class="msg">Hidden this game. You will see it all when the game ends.</div>'
+    : sc.lines.length ? sc.lines.map(l=>`
+      <div class="sl ${l.big?'big':''}"><div class="t"><span>${esc(l.label)}</span><b>+${l.pts}</b></div>
+      ${l.detail?`<div class="d">${esc(l.detail)}</div>`:''}</div>`).join('')
+    : '<div class="msg">Connect a Kin to start earning.</div>');
+
+  // Gifts live on the person now, not in a list over here -- see showPop().
+  setHTML($('#clockbox'), !SET.clockOn ? '' : `
+    <div class="clockbar"><b>${clock}</b>
+      <span>${clockDir>0?'moving forward':'moving back'} ·
+        ${yearsLeft()} year${yearsLeft()===1?'':'s'} left${turned?' · on the way home':''}</span>
+      ${readyAbilities().length?`<span class="gifts">${readyAbilities().length}
+        Gift${readyAbilities().length===1?'':'s'} ready — look for a lit ✦</span>`:''}</div>`);
+
+  // Remember what each bonus was worth so the NEXT render knows what moved.
+  // Ghost previews are hypothetical, so they must not update the baseline or
+  // every hover would leave the sidebar flashing at real values it never had.
+  if(!ghostId) for(const b of sc.bonuses) lastPts[b.id]=b.pts;
+  if(!ghostId) renderHand(sc.total);
+  if(!list.length){
+    nodes.forEach(el=>el.remove()); nodes.clear();
+    $('#cards').innerHTML='<div class="empty">Nobody on the timeline yet. Connect a Kin from your hand.</div>';
+    $('#links').innerHTML=''; $('#axis').innerHTML=''; $('#axis').dataset.w='';
+    $('#inner').style.height='auto'; return;
+  }
+  if($('#cards').firstElementChild && $('#cards').firstElementChild.className==='empty')
+    $('#cards').innerHTML='';
+  paint(list, ghosts);
+}
+
+/* Roll the total up to its new value instead of swapping the number. Small
+   thing, but a score that counts is the difference between a readout and a
+   game telling you it just gave you something. */
+let shownScore=null, scoreTimer=0, lastPts={};
+function tickScore(target){
+  const el=$('#ltot');
+  // rAF does not run in a hidden tab, so a tween started there would leave the
+  // old number frozen on screen until something else forced a paint. Snap.
+  if(shownScore===null || Math.abs(target-shownScore)<=1 || prefersStill() || document.hidden){
+    shownScore=target; el.textContent=target; return;
+  }
+  const box=$('#legacytotal');
+  if(target!==shownScore)
+    box.classList.remove('bump'), void box.offsetWidth, box.classList.add('bump');
+  cancelAnimationFrame(scoreTimer);
+  // rAF, not setInterval: a timer keeps firing (throttled to a crawl) while the
+  // tab is hidden and the count arrives in visible lurches on return. rAF just
+  // pauses, and the guard below snaps to the right number when it resumes.
+  const from=shownScore, span=target-from, t0=performance.now();
+  const ms=Math.min(700, 120+Math.abs(span)*26);
+  const step=()=>{
+    const k=Math.min(1,(performance.now()-t0)/ms);
+    el.textContent=Math.round(from + span*(1-Math.pow(1-k,3)));
+    if(k<1) scoreTimer=requestAnimationFrame(step); else shownScore=target;
+  };
+  scoreTimer=requestAnimationFrame(step);
+}
+const prefersStill=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* Paint the board. `ghosts` are the Kin being hovered in hand: they are laid out
+   as if played, so the preview shows the REAL consequence -- including the
+   other cards shifting to make room. Nodes are keyed by id and mutated rather
+   than rebuilt, so those shifts animate instead of jumping. */
+const nodes = new Map();
+function paint(list, ghosts){
+  ghosts = ghosts || [];
+  const isGhost = id => ghosts.includes(id);
+  const cards=$('#cards'), axis=$('#axis');
+  const {place,height}=layout(list);
+  const W=X(span[1])+10;
+  $('#inner').style.width=W+'px'; $('#inner').style.height=height+'px';
+
+  if(axis.dataset.w!==String(W)){
+    let a='';
+    for(let y=span[0]; y<=span[1]; y+=10)
+      a+=`<div class="grid" style="left:${X(y)}px"></div><div class="tick" style="left:${X(y)}px">${y}</div>`;
+    axis.innerHTML=a; axis.style.width=W+'px'; axis.dataset.w=String(W);
+  }
+
+  const want=new Set(list.map(p=>p.id));
+  for(const [id,el] of nodes) if(!want.has(id)){ el.remove(); nodes.delete(id); }
+
+  for(const p of list){
+    let el=nodes.get(p.id);
+    const isNew=!el;
+    if(!el){
+      el=document.createElement('div');
+      el.dataset.id=p.id;
+      el.onpointerdown=e=>{ if(!el.classList.contains('ghost')) beginDrag(e, p.id); };
+      el.onclick=()=>{ if(dragMoved){ dragMoved=false; return; }
+        if(el.classList.contains('ghost')) return;
+        // No hover on a touch screen, so the first tap does what the hover did
+        // and only a second tap on the SAME card opens the full sheet.
+        if(TOUCH && inspecting!==p.id){ inspecting=p.id; spotlight(p.id); showPop(p.id,false); return; }
+        inspecting=null; openCard(byId[p.id]); };
+      el.onmouseenter=()=>{ if(TOUCH||drag||el.classList.contains('ghost')) return;
+        spotlight(p.id); showPop(p.id, false); };
+      el.onmouseleave=()=>{ if(TOUCH||drag||el.classList.contains('ghost')) return;
+        spotlight(null); hidePop(true); };
+      cards.appendChild(el); nodes.set(p.id, el);
+    }
+    const endCls=p.living?'living':(p.death_year?'':'unknownend');
+    const pips='◆'.repeat((p.abilities||[]).length);
+    const lit=SET.clockOn && aliveAt(p, clock);
+    el.className=`card ${sideOf(p)} ${endCls} ${isGhost(p.id)?'ghost':''} `
+                +`${p.id===fresh?'fresh':''} ${isNew&&!isGhost(p.id)?'landing':''} `
+                +`${lit?'alive':''}`;
+    /* The marriage heart sits in the seam the two bars share, at the wedding
+       year -- which on a narrow screen lands in the middle of a name and its
+       halo erases the letters underneath. Truncate the name before it instead:
+       the ellipsis is honest, a name with a hole punched in it is not. */
+    // Their Gift, at the end of their bar. Built here rather than in the
+    // details panel so it is on the person, in a place you can click.
+    const gst = isGhost(p.id) ? null : giftStatus(p);
+    const gab = gst ? gst.ab : (SET.abilityRate>0 ? abilityOf(p) : null);
+    const gState = !gab ? null : !gst ? 'off'
+      : gst.ok ? 'live' : (usedAbil.has(p.id) ? 'spent' : 'off');
+
+    let nmCap='';
+    for(const m of (p.marriages||[])){
+      const seam=seamOf(p, m, place); if(seam==null) continue;
+      const room=X(m.year) - X(startY(p)) - 15;
+      if(room > 24) nmCap=`;max-width:${Math.round(room)}px`;
+    }
+    el.innerHTML=`<span class="nm ${p.sex==='M'?'m':p.sex==='F'?'f':''}" `
+      +`style="min-width:0${nmCap}">${esc(p.name)}</span>`
+      +(pips?`<span class="pips">${pips}</span>`:'')
+      +eventMarks(p, place)
+      +(gab?`<button class="gbtn ${gState}" data-gift="${p.id}"
+             aria-label="${esc(gab.name)}">✦</button>`:'');
+    el.style.left=X(startY(p))+'px';
+    el.style.top=place[p.id].y+'px';
+    el.style.width=Math.max(MINW,X(endY(p))-X(startY(p)))+'px';
+    // Nodes are reused now, so inline opacity from a previous spotlight would
+    // otherwise persist after the hover ends.
+    el.style.opacity='';
+    // One-shot classes: leaving them on would replay the drop every time the
+    // board re-renders for an unrelated reason.
+    if(isNew) setTimeout(()=>el.classList.remove('landing'), 460);
+
+    const gb=el.querySelector('.gbtn');
+    if(gb) wireGift(gb, p, gab, gState, gst);
+  }
+  drawLinks(list, place, W, height);
+  const cl=$('#clockline');
+  cl.style.display = SET.clockOn ? 'block' : 'none';
+  if(SET.clockOn){ cl.style.left=X(clock)+'px'; $('#clockyear').textContent=clock; }
+  if(ghosts.length) spotlight(ghosts[0], true);
+  else if(fresh) revealCard(fresh);
+}
+
+const HEART_D='M12 21s-7.5-4.7-7.5-10.4A4.6 4.6 0 0 1 12 7.6a4.6 4.6 0 0 1 7.5 3C19.5 16.3 12 21 12 21z';
+const FIGURE_D='<circle cx="12" cy="5.5" r="3.4"/><path d="M12 9.5v7M12 16.5l-4 5M12 16.5l4 5M7 12h10"/>';
+const HEART='<svg width="11" height="11" viewBox="0 0 24 24"><path d="'+HEART_D+'"/></svg>';
+const FIGURE='<svg width="9" height="11" viewBox="0 0 24 24">'+FIGURE_D+'</svg>';
+
+/* Life events drawn on the bar itself: a heart at each marriage year, a small
+   figure at each child's birth year. Skipped when they'd fall outside the bar.
+   Also skipped when the OTHER party is on the board, because drawLinks then
+   draws that same icon on the connection between them -- one heart for the
+   couple rather than one on each bar, and one figure riding the parent-child
+   line rather than a figure the line runs straight through. `place` is how we
+   know who else is down; without it (no board context) every mark is drawn. */
+function eventMarks(p, place){
+  const x0=X(startY(p)), w=Math.max(MINW, X(endY(p))-x0);
+  const out=[];
+  const at=(year, cls, svg, title)=>{
+    if(!year) return;
+    const off=X(year)-x0;
+    if(off<6||off>w-6) return;                 // would hang off the bar
+    out.push(`<span class="evt ${cls}" style="left:${off}px" title="${esc(title)}">${svg}</span>`);
+  };
+  for(const m of (p.marriages||[])){
+    if(place && seamOf(p, m, place)!=null) continue;   // heart lives on the seam
+    at(m.year,'wed',HEART,`Married ${m.year}${m.spouse_name?' — '+m.spouse_name:''}`);
+  }
+  for(const cid of (p.children_ids||[])){
+    const c=byId[cid];
+    if(place && place[cid]) continue;                  // figure rides the line
+    if(c && c.birth_year) at(c.birth_year,'kid',FIGURE,`${c.name} born ${c.birth_year}`);
+  }
+  return out.join('');
+}
+
+/* The y of the seam two married bars share, or null if this couple doesn't get
+   a heart there -- spouse not on the board, no marriage year to place it at, or
+   the two ended up in non-adjacent lanes so there is no seam to sit on. Both
+   eventMarks and drawLinks ask this, so exactly one heart is drawn either way. */
+function seamOf(p, mar, place){
+  const sp=byId[mar.spouse_id];
+  if(!sp || !mar.year || !place[p.id] || !place[sp.id]) return null;
+  if(Math.abs(place[p.id].lane-place[sp.id].lane)!==1) return null;
+  return Math.max(place[p.id].y, place[sp.id].y);
+}
+
+function drawLinks(list, place, W, H){
+  const svg=$('#links');
+  svg.setAttribute('width',W); svg.setAttribute('height',H);
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  let g='';
+  for(const child of list){
+    const bx=X(startY(child)), cy=place[child.id].y;
+    const tint=sideOf(child)==='mat'?'var(--mat)':sideOf(child)==='self'?'var(--self)':'var(--pat)';
+    const ttl=`${esc(child.name)} born ${startY(child)}`;
+    let near=null;                       // shortest link -- where the badge goes
+    for(const pid of (child.parent_ids||[])){
+      if(!place[pid]) continue;
+      const py=place[pid].y;
+      const from=py<cy?py+LANE_H:py, to=py<cy?cy:cy+LANE_H, mid=(from+to)/2;
+      g+=`<path class="kin" data-a="${pid}" data-b="${child.id}"
+            d="M ${bx} ${from} C ${bx} ${mid}, ${bx} ${mid}, ${bx} ${to}"
+            stroke="${tint}" stroke-width="2" fill="none" opacity=".85"/>`;
+      if(!near || Math.abs(to-from)<near.len)
+        near={pid, len:Math.abs(to-from), corner:(py<cy?cy:cy+LANE_H)};
+    }
+    // ONE badge per birth, not one per parent: with both parents on the board a
+    // child has two lines, and a bubble on each stacked two figures on top of
+    // each other for what is a single event. It rides the shorter line -- the
+    // nearer parent.
+    //
+    // It sits on the CHILD'S OWN CORNER rather than halfway up that line. Mid-
+    // line put it squarely over whichever bar was above, which is somebody's
+    // name; on the corner it straddles the child's own leading edge, where the
+    // card's padding already leaves the name clear.
+    if(near){
+      const d=`data-a="${near.pid}" data-b="${child.id}"`;
+      const cx=bx-1, ky=near.corner;
+      g+=`<circle class="kin bub" ${d} cx="${cx}" cy="${ky}" r="8"
+            fill="var(--panel)" stroke="${tint}" stroke-width="1.5"><title>${ttl}</title></circle>
+          <svg class="kin fig" ${d} x="${cx-4.5}" y="${ky-5.5}" width="9" height="11"
+            viewBox="0 0 24 24" fill="none" stroke="${tint}" stroke-width="2.6"
+            stroke-linecap="round">${FIGURE_D}<title>${ttl}</title></svg>`;
+    }
+  }
+  const done=new Set();
+  for(const p of list) for(const mar of (p.marriages||[])){
+    const sp=byId[mar.spouse_id];
+    if(!sp||!place[sp.id]||!mar.year) continue;
+    const key=[p.id,sp.id].sort().join('|'); if(done.has(key)) continue; done.add(key);
+    const seam=seamOf(p, mar, place); if(seam==null) continue;
+    const mx=X(mar.year);
+    g+=`<g class="mar" data-a="${p.id}" data-b="${sp.id}">
+          <circle cx="${mx}" cy="${seam}" r="8.4" fill="var(--panel)"
+            stroke="var(--wed)" stroke-width="1.4"/>
+          <svg x="${mx-6}" y="${seam-7.1}" width="12" height="12" viewBox="0 0 24 24">
+            <path d="${HEART_D}" fill="var(--wed)"/></svg>
+          <title>${esc(p.name)} &amp; ${esc(sp.name)} — married ${mar.year}</title></g>`;
+  }
+  svg.innerHTML=g;
+}
+
+/* ---- drag one card onto another to ask how they are related ---------- */
+let drag=null, dragMoved=false;
+
+function innerXY(e){
+  const r=$('#inner').getBoundingClientRect();
+  return [e.clientX-r.left, e.clientY-r.top];
+}
+function cardCentre(id){
+  const el=nodes.get(id); if(!el) return null;
+  return [parseFloat(el.style.left)+el.offsetWidth/2, parseFloat(el.style.top)+LANE_H/2];
+}
+
+/* A finger has to do two incompatible things on this screen: scroll the
+   timeline, and drag one card onto another. So touch waits -- press and hold
+   for LONGPRESS and the drag begins; move before that and it is a scroll and
+   we never take it. A mouse has a dedicated button, so it starts immediately. */
+const LONGPRESS=340;
+let pressTimer=null, pressStart=null;
+
+function beginDrag(e, id){
+  if(e.pointerType==='mouse' && e.button!==0) return;
+  if(e.pointerType==='mouse'){ e.preventDefault(); return startDrag(e, id); }
+
+  pressStart=[e.clientX, e.clientY];
+  clearTimeout(pressTimer);
+  pressTimer=setTimeout(()=>{
+    pressTimer=null;
+    startDrag(e, id);
+    nodes.get(id)?.classList.add('armed');
+    if(navigator.vibrate) navigator.vibrate(12);
+  }, LONGPRESS);
+  addEventListener('pointermove', pressWatch);
+  addEventListener('pointerup', pressCancel, {once:true});
+  addEventListener('pointercancel', pressCancel, {once:true});
+}
+/* Any real movement before the timer means they meant to scroll. */
+function pressWatch(e){
+  if(!pressStart||!pressTimer) return;
+  if(Math.hypot(e.clientX-pressStart[0], e.clientY-pressStart[1])>10) pressCancel();
+}
+function pressCancel(){
+  clearTimeout(pressTimer); pressTimer=null; pressStart=null;
+  removeEventListener('pointermove', pressWatch);
+}
+
+function startDrag(e, id){
+  pressCancel();
+  drag={from:id, to:null}; dragMoved=false;
+  document.body.classList.add('dragging');
+  nodes.get(id)?.classList.add('dragsrc');
+  hidePop();
+  addEventListener('pointermove', onDragMove);
+  addEventListener('pointerup', onDragEnd, {once:true});
+  addEventListener('pointercancel', onDragEnd, {once:true});
+}
+
+function onDragMove(e){
+  if(!drag) return;
+  e.preventDefault();
+  dragMoved=true;
+  const [x,y]=innerXY(e);
+  const from=cardCentre(drag.from);
+  const over=document.elementFromPoint(e.clientX,e.clientY)?.closest('.card');
+  const tgt=over && over.dataset.id!==drag.from ? over.dataset.id : null;
+  if(tgt!==drag.to){
+    if(drag.to) nodes.get(drag.to)?.classList.remove('dragtgt');
+    drag.to=tgt;
+    if(tgt) nodes.get(tgt)?.classList.add('dragtgt');
+  }
+  const end = tgt ? cardCentre(tgt) : [x,y];
+  $('#drag').innerHTML = from ? `
+    <path d="M ${from[0]} ${from[1]} L ${end[0]} ${end[1]}" stroke="var(--gold)"
+      stroke-width="2.4" stroke-dasharray="6 4" fill="none"/>
+    <circle cx="${end[0]}" cy="${end[1]}" r="4" fill="var(--gold)"/>` : '';
+}
+
+async function onDragEnd(e){
+  removeEventListener('pointermove', onDragMove);
+  document.body.classList.remove('dragging');
+  $('#drag').innerHTML='';
+  const d=drag; drag=null;
+  if(!d) return;
+  nodes.get(d.from)?.classList.remove('dragsrc','armed');
+  if(d.to) nodes.get(d.to)?.classList.remove('dragtgt');
+  if(!d.to || !dragMoved){ setTimeout(()=>dragMoved=false, 0); return; }
+  await showRelation(d.from, d.to, e);
+}
+
+async function showRelation(a, b, e){
+  /* Computed here now, not by the server. This used to POST /api/relate, which
+     was the one route importing ged4py, so a server started without its venv
+     500'd on exactly this and nothing else -- the only symptom was a drag that
+     did nothing. Local means it cannot fail that way, but keep saying so when
+     it does fail: a silent return is what made that bug so hard to see. */
+  let r;
+  try{
+    r=FAMILY.relate(fam, a, b);
+  }catch(err){ toast('Could not trace the line — ' + (err.message||err)); return; }
+  if(!r || !r.ok){ toast((r&&r.error) || 'Could not trace the line.'); return; }
+
+  const onBoard=new Set(played);
+  const mid=r.path.slice(1,-1);
+  const missing=mid.filter(p=>!onBoard.has(p.id));
+  const sexCls=p=>p.sex==='M'?'m':p.sex==='F'?'f':'';
+  const LINK={parent:'parent of',child:'child of',spouse:'married to'};
+
+  let headline, sub;
+  if(r.blood){
+    headline=`<em>${esc(r.b.name)}</em> is ${esc(r.a.name)}'s <em>${esc(r.relationship)}</em>`;
+    sub=`${r.side?r.side+' side · ':''}${r.steps} step${r.steps===1?'':'s'} apart`;
+  }else if(r.connected){
+    headline=`Joined by marriage, not by blood`;
+    sub=`${esc(r.a.name)} and ${esc(r.b.name)} — ${r.steps} steps apart`;
+  }else{
+    headline=`No line between them`;
+    sub=`Nothing in your family joins these two.`;
+  }
+
+  const chain=r.path.map((p,i)=>
+    (i?`<span class="lk">${LINK[p.link]||''}</span>`:'')+
+    `<span class="pn ${sexCls(p)} ${onBoard.has(p.id)?'':'off'}"
+       title="${onBoard.has(p.id)?'on the timeline':'a Missing Link'}">${esc(p.name)}</span>`
+  ).join('');
+
+  let need='';
+  if(missing.length && missing.length<=2){
+    need=`<div class="need">Missing Link: connect
+      <b>${missing.map(m=>esc(m.name)).join('</b> and <b>')}</b> and the line is whole.${
+      missing.some(m=>!m.playable)
+        ? ' <br>One of them has no birth year yet — add it in the Archive first.' : ''}</div>`;
+  }else if(missing.length>2){
+    need=`<div class="need">${missing.length} Missing Links stand between them.</div>`;
+  }
+
+  $('#rel').innerHTML=`<span class="x" onclick="closeRel()">✕</span>
+    <div class="hd">The line between them</div>
+    <div class="big">${headline}</div>
+    <div class="sub">${sub}</div>
+    ${r.path.length?`<div class="chain">${chain}</div>`:''}
+    ${need}`;
+  const R=$('#rel'); R.classList.add('on');
+  const w=R.offsetWidth, h=R.offsetHeight;
+  R.style.left=Math.max(8,Math.min((e?e.clientX:200)-w/2, innerWidth-w-8))+'px';
+  R.style.top=Math.max(8,Math.min((e?e.clientY:200)+16, innerHeight-h-8))+'px';
+
+  // trace the route on the board
+  document.querySelectorAll('#cards .card').forEach(c=>{
+    const on=r.path.some(p=>p.id===c.dataset.id);
+    c.classList.toggle('onpath', on);
+    c.style.opacity = on ? '1' : '.35';
+  });
+}
+
+function closeRel(){
+  $('#rel').classList.remove('on');
+  document.querySelectorAll('#cards .card').forEach(c=>{
+    c.classList.remove('onpath'); c.style.opacity='';
+  });
+}
+
+function spotlight(id, force){
+  document.querySelectorAll('#links .kin, #links .mar').forEach(n=>{
+    n.classList.remove('dim','hot');
+    if(!id) return;
+    n.classList.add((n.dataset.a===id||n.dataset.b===id)?'hot':'dim');
+  });
+  document.querySelectorAll('#cards .card').forEach(c=>{
+    c.style.opacity=(!id||c.dataset.id===id||isKin(id,c.dataset.id))?'1':(force?'.55':'.4');
+  });
+}
+function isKin(a,b){ const A=byId[a]; if(!A) return false;
+  return (A.parent_ids||[]).includes(b)||(A.children_ids||[]).includes(b)||(A.spouse_ids||[]).includes(b); }
+
+/* What would this card be worth right now? Shown on the hand card. */
+/* What playing this whole group would add. A pair shows the pair's value on
+   both its cards, because that is what the click actually does. */
+function gainOfGroup(ids){
+  const now=window.scoreBoard(played.map(x=>byId[x]),byId,bonuses).total;
+  const next=window.scoreBoard(played.concat(ids).map(x=>byId[x]),byId,bonuses).total;
+  return next-now;
+}
+function gainOf(id){
+  const now=window.scoreBoard(played.map(x=>byId[x]),byId,bonuses).total;
+  const next=window.scoreBoard(played.concat(id).map(x=>byId[x]),byId,bonuses).total;
+  return next-now;
+}
+
+/* Line-by-line difference the card would make, so the number is explainable. */
+function gainBreakdown(ids){
+  if(!Array.isArray(ids)) ids=[ids];
+  const a=window.scoreBoard(played.map(x=>byId[x]),byId,bonuses);
+  const b=window.scoreBoard(played.concat(ids).map(x=>byId[x]),byId,bonuses);
+  const was={}; a.lines.forEach(l=>was[l.label]=l.pts);
+  return b.lines.map(l=>({label:l.label, d:l.pts-(was[l.label]||0)}))
+                .filter(x=>x.d>0);
+}
+
+/* Which cards already on the table it would touch. */
+function connectionsOf(p){
+  const on=new Set(played), out=[];
+  for(const sid of (p.spouse_ids||[])) if(on.has(sid))
+    out.push({how:'spouse', who:byId[sid].name});
+  for(const pid of (p.parent_ids||[])) if(on.has(pid))
+    out.push({how:'parent', who:byId[pid].name});
+  for(const cid of (p.children_ids||[])) if(on.has(cid))
+    out.push({how:'child', who:byId[cid].name});
+  return out;
+}
+
+/* One details panel for both the hand and the board. `inHand` adds the things
+   that only matter before a card is down -- what it would score, and where it
+   would land -- and the board version drops them. */
+function showPop(id, inHand, group){
+  group = group && group.length ? group : [id];
+  const p=byId[id], el=$('#insp');
+  const conn=connectionsOf(p);
+  // `traits` already carries Children when a real count exists, so anything
+  // added here has to check the key or the row appears twice.
+  const rows=(p.traits||[]).slice();
+  const hasKey=k=>rows.some(t=>t.k===k);
+  if(p.burial_place && !hasKey('Buried'))
+    rows.push({k:'Buried', v:p.burial_place.split(',').slice(0,2).join(',')});
+  if(p.child_count!=null && !hasKey('Children'))
+    rows.push({k:'Children', v:String(p.child_count)});
+  const facts=rows.map(t=>
+    `<span>${esc(t.k)}</span><span>${esc(t.v)}</span>`).join('');
+
+  /* ---- their Gift, right here on them ----------------------------------
+     A Gift belongs to a person, so it is offered where you are already looking
+     at that person rather than in a list on the other side of the screen. It
+     always shows if they have one; the button only appears when it can fire. */
+  let gift='';
+  const gs = giftStatus(p);
+  const ab = gs ? gs.ab : null;
+  if(ab){
+    const usable = gs.ok, spent = usedAbil.has(id), why = gs.why;
+    gift=`<div class="gift ${usable?'live':''} ${spent?'spent':''}">
+      <div class="gn">✦ ${esc(ab.name)}</div>
+      <div class="ge">${esc(ab.effect)}</div>
+      ${ab.why||ab.story?`<div class="gw">${esc(ab.why||ab.story)}</div>`:''}
+      <div class="gm">${usable
+        ? 'Ready — the ✦ at the end of their life is lit.'
+        : esc(why)}</div>
+    </div>`;
+  }
+
+  let tail='';
+  if(inHand){
+    tail = showsPreview(SET)
+      ? `<div class="gainbig"><span>Connect ${group.length>1?'them both':'them'} now</span>
+           <b>+${gainOfGroup(group)} Legacy</b></div>`
+        + (()=>{ const br=gainBreakdown(group);
+            return br.length?`<div class="hintrow">${br.map(x=>`${esc(x.label)} +${x.d}`).join(' · ')}</div>`:''; })()
+      : `<div class="gainbig blind"><span>Connect ${group.length>1?'them both':'them'} now</span>
+           <span>you work it out</span></div>`;
+    tail += `<div class="hintrow">The dashed outline${group.length>1?'s show':' shows'} where
+      ${group.length>1?'they':'they'} would sit.</div>`;
+  }
+  el.innerHTML=`
+    <div class="who">
+      <div class="rel">${esc(p.relationship_to_root||'')}${p.relationship_side?' · '+p.relationship_side:''}</div>
+      <h4 class="${p.sex==='M'?'m':p.sex==='F'?'f':''}">${esc(p.name)}</h4>
+      <div class="life">${startY(p)}–${p.living?'living':(p.death_year||'?')}${
+        p.age_at_death?` · ${p.age_at_death} years`:''} · ${esc(tierOf(p))}</div>
+      ${p.story?`<div class="story">${esc(p.story)}</div>`:''}
+    </div>
+    <div class="facts">${facts}</div>
+    <div class="extra">
+      ${gift}
+      <div class="conn">${conn.length
+        ? (inHand?'Would join ':'Joined to ')
+          + conn.map(c=>`<b>${esc(c.who)}</b> <span>(${c.how})</span>`).join(', ')
+        : (inHand?'None of their family is on the timeline yet — they would stand alone.'
+                :'None of their family is on the timeline with them.')}</div>
+      ${tail}
+      ${TOUCH?`<button id="inspmore" data-id="${id}">See everything about them</button>`:''}
+    </div>`;
+  el.style.setProperty('--accent', sideOf(p)==='mat'?'var(--mat)'
+    :sideOf(p)==='self'?'var(--self)':'var(--pat)');
+  clearTimeout(popTimer);
+  el.classList.add('on');
+  const more=$('#inspmore');
+  if(more) more.onclick=()=>{ inspecting=null; hidePop(); openCard(byId[id]); };
+  const act=el.querySelector('.act');
+  if(act){ act.onmouseenter=()=>clearTimeout(popTimer);
+           act.onmouseleave=()=>hidePop(true); }
+}
+let popTimer=null;
+/* The Gift button. Hovering it explains the Gift without opening anything
+   else; clicking a lit one fires it. It sits inside the card, so every handler
+   has to stop the event reaching the card's own click and drag handlers --
+   otherwise using a Gift would also open that Kin's full sheet. */
+function wireGift(btn, p, ab, state, st){
+  const show=()=>{
+    const r=btn.getBoundingClientRect(), t=$('#gtip');
+    t.innerHTML=`<div class="n">✦ ${esc(ab.name)}</div>
+      <div class="e">${esc(ab.effect)}</div>
+      ${ab.why||ab.story?`<div class="w">${esc(ab.why||ab.story)}</div>`:''}
+      ${state==='live' ? '<div class="go">Click to use it</div>'
+        : `<div class="m">${esc((st&&st.why) || 'Not right now.')}</div>`}`;
+    t.classList.add('on');
+    const w=t.offsetWidth, h=t.offsetHeight;
+    // Clamp to the window only when the window has a size to clamp to -- a
+    // zero-width read would otherwise fling the tip to the left edge.
+    let x=r.left+r.width/2-w/2;
+    if(innerWidth>0) x=Math.max(8, Math.min(x, innerWidth-w-8));
+    t.style.left=x+'px';
+    t.style.top=(r.top-h-9 < 8 ? r.bottom+9 : r.top-h-9)+'px';
+  };
+  const hide=()=>$('#gtip').classList.remove('on');
+  btn.onmouseenter=()=>{ if(TOUCH) return;
+    show();
+    if(state==='live' && ab.kind==='time') previewMove(-(ab.n||0)); };
+  btn.onmouseleave=()=>{ if(TOUCH) return; hide(); previewMove(null); };
+  btn.onpointerdown=e=>e.stopPropagation();     // never starts a drag
+  btn.onclick=e=>{
+    e.stopPropagation();
+    if(state!=='live'){ if(TOUCH) { show(); setTimeout(hide, 2600); } return; }
+    // On a touch screen the first tap explains it and the second uses it, the
+    // same two-tap rule the rest of the board follows.
+    if(TOUCH && giftTapped!==p.id){ giftTapped=p.id; show(); return; }
+    giftTapped=null; hide(); useAbility(p.id);
+  };
+}
+let giftTapped=null;
+
+function hidePop(soft){
+  clearTimeout(popTimer);
+  const go=()=>$('#insp').classList.remove('on');
+  if(soft) popTimer=setTimeout(go, 220); else go();
+}
+
+/* Scroll the timeline so a card you just played is actually visible. The board
+   is wider than any screen and much wider than a phone, so without this the
+   card lands off to the right and the turn appears to have done nothing. */
+function revealCard(id){
+  const el=nodes.get(id), st=$('#stage'); if(!el) return;
+  const left=parseFloat(el.style.left), w=parseFloat(el.style.width)||MINW;
+  const pad=40, view=st.clientWidth;
+  if(left >= st.scrollLeft + pad && left + w <= st.scrollLeft + view - pad) return;
+  /* Aim at the START of the bar, not its middle. A long life is a bar wider
+     than a phone screen, and centring it pushes the left edge -- which is
+     where the name is -- off the side. Centre only what actually fits. */
+  const target = (w + pad*2 > view) ? left - pad : left + w/2 - view/2;
+  // Smooth scrolling is driven by the frame loop, which does not run while the
+  // tab is hidden -- the scroll would simply never happen. Jump instead.
+  st.scrollTo({ left: Math.max(0, target),
+                behavior: (prefersStill() || document.hidden) ? 'auto' : 'smooth' });
+}
+
+function renderHand(){
+  const h=$('#hand');
+  if(over){
+    const why = overWhy || 'The Archive and your hand are empty';
+    h.innerHTML=`<span class="msg"><b>That is the whole span.</b> ${why}.
+      Final Legacy: ${window.scoreBoard(played.map(x=>byId[x]),byId,bonuses).total},
+      over ${turn-1} turns.</span>`;
+    return;
+  }
+  let html='';
+  if(!dealt){
+    // Before the deal there is no turn to take, so offer no buttons rather than
+    // live ones sitting behind the draft.
+    h.innerHTML='<span class="msg turnmsg">Legacy cards first. Your Kin come once you have chosen.</span>';
+    return;
+  }
+  if(mustDiscard){
+    // The turn is already spent; the hand just has to come back under the
+    // limit before anything else can happen.
+    html=`<span class="msg turnmsg"><b>Your hand is full.</b> Return
+      ${mustDiscard} Kin to the Archive to get back to ${SET.handLimit}.</span>`;
+  }else{
+    // Every button says what the move costs in years -- the clock is the real
+    // budget now, so a turn's price belongs on the button that spends it.
+    const yr=n=>SET.clockOn?` · ${n}y`:'';
+    html+=`<button id="draw" ${!deck.length?'disabled':''}
+        title="Pull ${SET.drawCount} Kin from the Archive${SET.clockOn?`. Costs you ${SET.costDraw} years`:''}. Hold more than ${SET.handLimit} and you return some.">
+        Pull ${SET.drawCount}${yr(SET.costDraw)} (${deck.length})</button>`;
+    if(SET.drawBonus){
+      const full=held().length>=SET.maxBonuses;
+      const none=!bonusPool().length;
+      const swap=full && SET.swapAtCap;
+      // A disabled button labelled "Swap" advertises a move you cannot make.
+      // Full-with-swapping-off just stays "Take bonus", greyed, and says why.
+      html+=`<button id="takeb" ${(none||(full&&!SET.swapAtCap))?'disabled':''}
+        title="${none?'No Legacy cards left to claim'
+                :swap?'Your hands are full — a new one takes the place of another'
+                :full?'You are holding all the Legacy cards this game allows'
+                :'Spend this turn on a Legacy card instead of a Kin'}">
+        ${swap?'Swap Legacy':'Claim Legacy'}${yr(SET.costBonus)} (${held().length}/${SET.maxBonuses})</button>`;
+    }
+  }
+
+  // Discarding is per CARD, so a pair has to come apart for it -- you owe a
+  // number of cards, not a number of couples.
+  const groups = mustDiscard ? hand.map(id=>({ids:[id]})) : handGroups();
+  html += groups.map(gp=>{
+    const cards = gp.ids.map(id=>handCard(id, gp)).join(
+      gp.link ? `<span class="join ${gp.link==='spouse'?'wed':'kid'}"
+                   title="${gp.link==='spouse'?'Married — they play together'
+                                              :'Parent and child — they play together'}">
+                   ${gp.link==='spouse'?HEART:FIGURE}</span>` : '');
+    return gp.ids.length>1
+      ? `<div class="pair" data-ids="${gp.ids.join(',')}">${cards}</div>`
+      : cards;
+  }).join('');
+  if(!hand.length && !mustDiscard) html+='<span class="msg">Your hand is empty. Pull some Kin.</span>';
+  // Keyed like the timeline: unchanged markup is left alone, so the card you
+  // are hovering survives the render and its transition keeps running.
+  if(!setHTML(h, html)) return;
+  h.querySelectorAll('.hc,.pair').forEach(el=>el.classList.add('in'));
+
+  const d=$('#draw');
+  if(d){ d.onclick=doDraw;
+    d.onmouseenter=()=>{ if(!d.disabled) previewMove(SET.costDraw); };
+    d.onmouseleave=()=>previewMove(null); }
+  const tb=$('#takeb');
+  if(tb){ tb.onclick=doTakeBonus;
+    tb.onmouseenter=()=>{ if(!tb.disabled) previewMove(SET.costBonus); };
+    tb.onmouseleave=()=>previewMove(null); }
+  h.querySelectorAll('.hc').forEach(el=>{
+    const id=el.dataset.id;
+    const grp=el.closest('.pair');
+    const ids=grp ? grp.dataset.ids.split(',') : [id];
+    el.onclick=()=>{
+      if(mustDiscard) return doDiscard(id);
+      // Same two-tap rule as the board: look first, commit second. Playing a
+      // card you only meant to read is not a mistake you can take back.
+      if(TOUCH && inspecting!==id){ inspecting=id; showPop(id,true,ids); render(ids); return; }
+      inspecting=null; doPlay(ids);
+    };
+    el.onmouseenter=()=>{ if(TOUCH) return;
+      showPop(id, true, ids);
+      if(!mustDiscard){ render(ids);
+        // A relative granted by a Gift, or a banked free Connect, costs nothing.
+        const free = (kinFrom && kinIsFree(ids)) || freePlay>0;
+        previewMove(mustDiscard ? null : (free ? null : SET.costPlay)); } };
+    el.onmouseleave=()=>{ if(TOUCH) return;
+      hidePop(true); spotlight(null); previewMove(null); render(); };
+  });
+}
+
+function handCard(id, gp){
+  const p=byId[id];
+  // An armed playkin ability makes exactly its own relatives free; say which,
+  // or the offer is invisible and you spend the years anyway.
+  const free = !mustDiscard && kinFrom && kinIsFree(gp.ids);
+  const note = mustDiscard ? '<span class="gain drop">return</span>'
+    : free ? '<span class="gain">free</span>'
+    : showsPreview(SET) ? `<span class="gain">+${gainOfGroup(gp.ids)}</span>` : '';
+  return `<div class="hc ${sideOf(p)} ${mustDiscard?'todiscard':''} ${free?'pairable':''}" data-id="${id}">
+      <div class="n ${p.sex==='M'?'m':p.sex==='F'?'f':''}">${esc(p.name)}</div>
+      <small>${startY(p)}–${p.living?'':(p.death_year||'?')} · ${esc(tierOf(p))} ${note}</small></div>`;
+}
+
+let tt=null;
+function toast(m){
+  const e=$('#toast'); e.textContent=m; e.classList.add('on');
+  clearTimeout(tt); tt=setTimeout(()=>e.classList.remove('on'), 2600);
+}
+function toastHand(m){ $('#hand').innerHTML=`<span class="msg">${esc(m)}</span>`; }
+
+function openCard(p){
+  $('#sheet').innerHTML=`
+    <div class="rel">${esc(p.relationship_to_root||'')}${p.relationship_side?' · '+p.relationship_side:''}</div>
+    <h2>${esc(p.name)}</h2>
+    ${p.photo_url?`<img src="${esc(p.photo_url)}" alt="">`:''}
+    <div class="traits">${(p.traits||[]).map(t=>
+      `<div class="trait"><div class="k">${esc(t.k)}</div><div>${esc(t.v)}</div></div>`).join('')}</div>
+    ${(()=>{ const g=(p.abilities||[]).length ? p.abilities : (p.gen_ability?[p.gen_ability]:[]);
+      return g.length ? g.map(a=>`
+        <div class="abil"><div class="n">${esc(a.name)}</div><div>${esc(a.effect)}</div>
+          ${a.story||a.why?`<div class="s">${esc(a.story||a.why)}</div>`:''}</div>`).join('')
+      :`<div class="trait" style="margin-bottom:10px"><div class="k">No Gift yet</div>
+         <div style="font-size:13px">Learn something about them in the Archive and they will have one.</div></div>`;
+    })()}
+    ${p.story?`<div class="story">${esc(p.story)}</div>`:''}
+    <button onclick="document.getElementById('modal').classList.remove('on')"
+      style="width:100%">Close</button>`;
+  $('#modal').classList.add('on');
+}
+
+$('#modal').onclick=e=>{ if(e.target.id==='modal') e.currentTarget.classList.remove('on'); };
+$('#stage').addEventListener('pointerdown', e=>{
+  if(e.target.closest('.card') || e.target.closest('#rel')) return;
+  closeRel();
+  if(TOUCH && inspecting){ inspecting=null; spotlight(null); hidePop(); }
+});
+$('#score').onclick=()=>{ $('#side').classList.toggle('on'); render(); };
+$('#sideclose').onclick=()=>{ $('#side').classList.remove('on'); render(); };
+/* The sidebar is a column on a desktop and a pull-up sheet on a phone, so it
+   starts open on one and closed on the other. Keyed off the SAME media query
+   the CSS uses -- reading innerWidth directly disagreed with the stylesheet
+   whenever the window reported an odd size, and left the desktop sidebar shut. */
+const NARROW=matchMedia('(max-width: 760px)');
+const syncSide=()=>{ $('#side').classList.toggle('on', !NARROW.matches); if(people.length) render(); };
+NARROW.addEventListener('change', syncSide);
+syncSide();
+$('#newgame').onclick=()=>{closeRel(); newGame();};
+/* The file IS the save. The autosave in localStorage is only a crash net --
+   per-browser, and a cleared cache takes it with no warning -- so the download
+   has to stay one obvious click away from the game itself. */
+$('#savefam').onclick=()=>{
+  try{ toast('Saved '+FAMILY.download(fam)+' — keep it somewhere safe.'); }
+  catch(err){ toast('Could not save: '+(err.message||err)); }
+};
+$('#bonusbtn').onclick=()=>{closeRel(); openBonuses();};
+$('#bmodal').onclick=e=>{ if(e.target.id==='bmodal') closeBonuses(); };
+$('#practice').onchange=newGame;
+addEventListener('resize',()=>{fit();render();});
+addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ $('#modal').classList.remove('on'); closeBonuses(); }
+  if(e.key==='Escape' && $('#imodal').classList.contains('on')){
+    $('#imodal').classList.remove('on'); beginRound();   // skip the words, not the round
+  }
+  if(e.key==='d') doDraw();
+});
+load();
+</script>

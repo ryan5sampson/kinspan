@@ -1,0 +1,274 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Kinspan">
+<meta name="theme-color" content="#f7f4ef">
+<meta name="description" content="A hand of your own family. Bring your family file, put people back on the timeline, and earn Legacy.">
+<title>Kinspan</title>
+<script src="tree.js"></script>
+<script src="family.js"></script>
+<style>
+  :root{
+    --bg:#f7f4ef; --panel:#ffffff; --edge:#ddd5c9; --ink:#2b2621; --dim:#7d7368;
+    --gold:#9a7212; --pat:#2f6f9e; --mat:#a8552a;
+    --ease:cubic-bezier(.34,1.24,.44,1);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+    touch-action:manipulation;
+    padding:0 20px calc(40px + env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;align-items:center}
+  main{width:100%;max-width:640px}
+
+  .hero{padding:11vh 0 22px;text-align:center}
+  .kicker{font-size:11.5px;letter-spacing:.19em;text-transform:uppercase;
+    color:var(--gold);font-weight:600;margin-bottom:10px}
+  h1{margin:0;font-size:clamp(42px,11vw,68px);letter-spacing:-.025em;font-weight:650;line-height:1}
+  .tag{margin:14px auto 0;max-width:33em;color:var(--dim);font-size:16px}
+
+  h2{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
+    font-weight:650;margin:28px 0 10px}
+
+  #drop{border:1.5px dashed var(--edge);border-radius:14px;padding:26px 18px;
+    text-align:center;background:var(--panel);
+    transition:border-color .16s,background .16s}
+  #drop.over{border-color:var(--gold);background:#faf6ec}
+  #drop .t{font-weight:640;font-size:17px}
+  #drop .b{color:var(--dim);font-size:13.5px;margin-top:5px}
+  input[type=file]{display:none}
+
+  .btn{appearance:none;border:1px solid var(--edge);background:var(--panel);
+    color:var(--ink);font:inherit;font-weight:600;border-radius:9px;
+    padding:10px 16px;cursor:pointer;min-height:44px}
+  .btn:hover{border-color:#c0b4a4}
+  .btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .btn.primary:disabled{opacity:.4;cursor:default}
+  .row{display:flex;gap:9px;align-items:center;margin-top:12px;flex-wrap:wrap}
+  .row.mid{justify-content:center}
+
+  .card{display:block;width:100%;text-align:left;background:var(--panel);
+    border:1px solid var(--edge);border-radius:13px;padding:15px 17px;
+    font:inherit;color:inherit;cursor:pointer;margin-bottom:10px;
+    transition:transform .16s var(--ease),box-shadow .16s ease,border-color .16s ease}
+  .card:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(80,66,48,.11);
+    border-color:#c9bdac}
+  .card .t{font-weight:640;font-size:16.5px}
+  .card .b{color:var(--dim);font-size:13.5px;margin-top:3px}
+
+  .priv{color:var(--dim);font-size:12.5px;margin-top:10px;text-align:center}
+  .priv b{color:var(--ink);font-weight:620}
+  .err{color:#a4262c;font-size:13.5px;margin-top:10px}
+  .note{background:#fdf9f0;border:1px solid #e9dcc0;border-radius:10px;
+    padding:11px 13px;color:#6b5c3e;font-size:13px;margin-top:12px}
+
+  #picker{display:none}
+  #picker.on{display:block}
+  .who{display:flex;gap:10px;align-items:center;width:100%;text-align:left;
+    background:var(--panel);border:1px solid var(--edge);border-radius:10px;
+    padding:10px 12px;margin-bottom:7px;font:inherit;color:inherit;cursor:pointer}
+  .who:hover{border-color:#c0b4a4}
+  .who.sel{border-color:var(--gold);box-shadow:0 0 0 2px #f0e6cd}
+  .who .n{font-weight:600}
+  .who .d{color:var(--dim);font-size:12.5px}
+  .who .dot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--dim)}
+  .who .dot.m{background:var(--pat)} .who .dot.f{background:var(--mat)}
+  #search{width:100%;padding:11px 12px;border:1px solid var(--edge);border-radius:9px;
+    font:inherit;font-size:16px;margin-bottom:9px;background:var(--panel);color:var(--ink)}
+  #wholist{max-height:42vh;overflow:auto;-webkit-overflow-scrolling:touch;margin:0 -2px;padding:0 2px}
+
+  .foot{color:var(--dim);font-size:12.5px;text-align:center;margin-top:32px}
+  .foot a{color:var(--gold)}
+  @media (max-width:520px){ .hero{padding:7vh 0 18px} }
+</style>
+
+<main>
+  <div class="hero">
+    <div class="kicker">A hand of your own family</div>
+    <h1>Kinspan</h1>
+    <p class="tag">Every Kin is a real person from your own family tree. Put them
+      back on the timeline where they lived and earn Legacy for what you reconnect.</p>
+  </div>
+
+  <div id="start">
+    <div id="resume" hidden>
+      <h2>Carry on</h2>
+      <button class="card" id="resumebtn">
+        <div class="t" id="resumetitle">…</div>
+        <div class="b" id="resumesub"></div>
+      </button>
+    </div>
+
+    <h2 id="bringhead">Bring your family</h2>
+    <div id="drop">
+      <div class="t">Drop your family file here</div>
+      <div class="b">A <b>.kinspan</b> file you saved before, or a <b>.ged</b> export
+        from FamilySearch, Ancestry, MyHeritage or RootsMagic.</div>
+      <div class="row mid">
+        <button class="btn primary" id="pick">Choose a file</button>
+      </div>
+      <input type="file" id="file" accept=".kinspan,.json,.ged,.gedcom,text/plain,application/json">
+    </div>
+    <p class="priv"><b>Your file never leaves this device.</b> It is read here, in
+      your browser. There is no account, no server, and nothing is uploaded.</p>
+    <div class="err" id="err" hidden></div>
+
+    <div class="note">
+      <b>Your file is your save.</b> Play, write people's stories, fix what the
+      records got wrong, add anyone who is missing — then save it back out. That
+      one file is what you keep, and what you send to your family.
+    </div>
+  </div>
+
+  <div id="picker">
+    <h2>Who is this family centred on?</h2>
+    <p class="tag" style="margin:0 0 12px;text-align:left;max-width:none">
+      Kinspan describes everyone in relation to one person — <em>your grandmother</em>,
+      <em>her second cousin</em>. Pick whoever the tree is built around, usually you.
+      <span id="pcount"></span></p>
+    <input id="search" type="search" placeholder="Search by name" autocomplete="off">
+    <div id="wholist"></div>
+    <div class="row">
+      <button class="btn primary" id="go" disabled>Start playing</button>
+      <button class="btn" id="back">Back</button>
+    </div>
+  </div>
+
+  <p class="foot">Made from a real family tree.
+    <a href="settings.html">How you want to play</a></p>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+const fail = m => { const e=$('#err'); e.textContent=m; e.hidden=false; };
+const clearFail = () => { $('#err').hidden = true; };
+
+/* -------------------- carry on from the autosave -------------------- */
+
+const auto = FAMILY.hasAutosave();
+if (auto) {
+  $('#resume').hidden = false;
+  $('#resumetitle').textContent = auto.title || 'Your family';
+  const when = auto.saved ? new Date(auto.saved) : null;
+  $('#resumesub').textContent =
+    `${auto.playable} Kin ready` + (when ? ` · last open ${when.toLocaleDateString()}` : '');
+  $('#bringhead').textContent = 'Or start from a file';
+  $('#resumebtn').onclick = () => {
+    try { FAMILY.loadAutosave(); location.href = 'play.html'; }
+    catch (err) { fail('That saved session could not be reopened. Load your file instead.');
+                  FAMILY.clearAutosave(); $('#resume').hidden = true; }
+  };
+}
+
+/* -------------------- taking a file -------------------- */
+
+let pending = null;   // a .ged waiting on a root choice
+
+$('#pick').onclick = () => $('#file').click();
+$('#file').onchange = e => { if (e.target.files[0]) read(e.target.files[0]); };
+
+const drop = $('#drop');
+['dragenter','dragover'].forEach(t => drop.addEventListener(t, e => {
+  e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(t => drop.addEventListener(t, e => {
+  e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => {
+  const f = e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f) read(f);
+});
+
+function read(file) {
+  clearFail();
+  if (file.size > 40 * 1024 * 1024) {
+    return fail('That file is over 40MB — too big for the browser to hold. '
+      + 'Export a smaller branch of the tree.');
+  }
+  const fr = new FileReader();
+  fr.onerror = () => fail('The file could not be read.');
+  fr.onload = () => {
+    const text = String(fr.result);
+    // Decide by content, not by extension: people rename files, and a .json
+    // and a .kinspan are the same thing.
+    const looksJson = /^\s*[{[]/.test(text);
+    if (looksJson) return openSave(text, file.name);
+    return openGedcom(text, file.name);
+  };
+  fr.readAsText(file);
+}
+
+function openSave(text, name) {
+  let fam;
+  try { fam = FAMILY.readSave(text, name); }
+  catch (err) { return fail(err.message || String(err)); }
+  FAMILY.use(fam);
+  location.href = 'play.html';
+}
+
+function openGedcom(text, name) {
+  let parsed;
+  try { parsed = TREE.parseGedcom(text); }
+  catch (err) { return fail('That file could not be read as a GEDCOM: ' + (err.message||err)); }
+  const n = Object.keys(parsed.ind).length;
+  if (!n) return fail('No people found in that file. A family file is a .kinspan '
+    + 'or a GEDCOM (.ged) export.');
+  const withYear = Object.values(parsed.ind)
+    .filter(p => (p.events.BIRT || p.events.CHR || {}).year).length;
+  if (!withYear) return fail('Nobody in that file has a birth year, so there is no '
+    + 'timeline to build. Kinspan needs birth years to place people.');
+  pending = { text, name, roots: TREE.guessRoots(parsed, 500), total: n, withYear };
+  showPicker();
+}
+
+/* -------------------- who is it centred on -------------------- */
+
+let chosen = null;
+
+function showPicker() {
+  chosen = pending.roots.length ? pending.roots[0].id : null;
+  $('#pcount').textContent =
+    `${pending.total} people in ${pending.name}, ${pending.withYear} with a birth year.`;
+  $('#start').style.display = 'none';
+  $('#picker').classList.add('on');
+  $('#search').value = '';
+  renderWho('');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderWho(q) {
+  const term = q.trim().toLowerCase();
+  const list = pending.roots.filter(r => !term || r.name.toLowerCase().includes(term))
+                            .slice(0, 120);
+  $('#wholist').innerHTML = list.length ? list.map(r => `
+    <button class="who ${r.id===chosen?'sel':''}" data-id="${esc(r.id)}">
+      <span class="dot ${r.sex==='M'?'m':r.sex==='F'?'f':''}"></span>
+      <span><span class="n">${esc(r.name)}</span><br>
+      <span class="d">${r.birth_year ? 'b. '+r.birth_year+' · ' : ''}${r.reach} relatives in reach</span></span>
+    </button>`).join('')
+    : '<p style="color:var(--dim)">Nobody by that name.</p>';
+  $('#wholist').querySelectorAll('.who').forEach(b => {
+    b.onclick = () => { chosen = b.dataset.id; renderWho($('#search').value); };
+  });
+  $('#go').disabled = !chosen;
+}
+
+$('#search').oninput = e => renderWho(e.target.value);
+$('#back').onclick = () => {
+  $('#picker').classList.remove('on');
+  $('#start').style.display = '';
+  pending = null; chosen = null;
+};
+$('#go').onclick = () => {
+  if (!chosen) return;
+  let fam;
+  try { fam = FAMILY.fromGedcom(pending.text, chosen, null); }
+  catch (err) { return fail(err.message || String(err)); }
+  FAMILY.use(fam);
+  location.href = 'play.html';
+};
+</script>

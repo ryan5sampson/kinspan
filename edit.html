@@ -1,0 +1,610 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Kinspan">
+<meta name="theme-color" content="#ffffff">
+<title>Kinspan — your family</title>
+<script src="tree.js"></script>
+<script src="family.js"></script>
+<style>
+  :root{
+    --bg:#f7f4ef; --panel:#ffffff; --edge:#ddd5c9; --ink:#2b2621; --dim:#7d7368;
+    --gold:#9a7212; --pat:#2f6f9e; --mat:#a8552a; --self:#2f7a45;
+    --bad:#a4262c;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);height:100dvh;
+    display:flex;flex-direction:column;overflow:hidden;touch-action:manipulation;
+    font:15px/1.55 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif}
+
+  header{flex:none;background:var(--panel);border-bottom:1px solid var(--edge);
+    padding:9px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+    padding-top:calc(9px + env(safe-area-inset-top))}
+  header h1{margin:0;font-size:16px;font-weight:650;letter-spacing:-.01em}
+  header a{color:var(--gold);text-decoration:none;font-size:13.5px}
+  header a:hover{text-decoration:underline}
+  .sp{flex:1}
+  .who-root{font-size:12.5px;color:var(--dim)}
+  .who-root b{color:var(--ink)}
+
+  .btn{appearance:none;border:1px solid var(--edge);background:var(--panel);
+    color:var(--ink);font:inherit;font-size:13.5px;font-weight:600;border-radius:8px;
+    padding:8px 13px;cursor:pointer;min-height:40px}
+  .btn:hover{border-color:#c0b4a4}
+  .btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .btn.gold{background:var(--gold);color:#fff;border-color:var(--gold)}
+  .btn.danger{color:var(--bad);border-color:#e7c9c9}
+  .btn.sm{min-height:32px;padding:5px 10px;font-size:12.5px}
+  .btn:disabled{opacity:.45;cursor:default}
+
+  main{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;
+    padding:14px 14px calc(28px + env(safe-area-inset-bottom))}
+  .wrap{max-width:680px;margin:0 auto}
+
+  .bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  #q{flex:1;min-width:160px;padding:10px 12px;border:1px solid var(--edge);
+    border-radius:9px;font:inherit;font-size:16px;background:var(--panel);color:var(--ink)}
+
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .person{display:flex;gap:10px;align-items:center;width:100%;text-align:left;
+    background:var(--panel);border:1px solid var(--edge);border-radius:10px;
+    padding:10px 12px;margin-bottom:7px;font:inherit;color:inherit;cursor:pointer}
+  .person:hover{border-color:#c0b4a4}
+  .person .dot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--dim)}
+  .person .dot.m{background:var(--pat)} .person .dot.f{background:var(--mat)}
+  .person .grow{flex:1;min-width:0}
+  .person .n{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .person .d{color:var(--dim);font-size:12.5px}
+  .tags{display:flex;gap:4px;flex:none}
+  .tag{font-size:10px;letter-spacing:.05em;text-transform:uppercase;font-weight:650;
+    border-radius:99px;padding:2px 7px;border:1px solid}
+  .tag.story{background:#eef4ee;color:var(--self);border-color:#cfe3d3}
+  .tag.gift{background:#f0eadf;color:var(--gold);border-color:#e6dcc2}
+  .tag.new{background:#eef2f7;color:var(--pat);border-color:#d3e0ec}
+  .tag.noyear{background:#fdf1e4;color:#b4671d;border-color:#f0dcc0}
+
+  h2{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
+    font-weight:650;margin:22px 0 9px}
+  h2:first-child{margin-top:0}
+  .field{margin-bottom:10px}
+  .field label{display:block;font-size:12.5px;color:var(--dim);margin-bottom:3px}
+  input[type=text],input[type=number],textarea,select{
+    width:100%;padding:9px 11px;border:1px solid var(--edge);border-radius:8px;
+    font:inherit;font-size:16px;background:var(--panel);color:var(--ink)}
+  textarea{min-height:96px;resize:vertical;line-height:1.5}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .check{display:flex;gap:8px;align-items:center;margin:10px 0;font-size:14px}
+  .check input{width:18px;height:18px}
+  .hint{color:var(--dim);font-size:12.5px;margin:4px 0 0}
+  .card{background:var(--panel);border:1px solid var(--edge);border-radius:12px;
+    padding:14px;margin-bottom:12px}
+
+  .link{display:flex;gap:8px;align-items:center;background:var(--panel);
+    border:1px solid var(--edge);border-radius:9px;padding:8px 10px;margin-bottom:6px}
+  .link .grow{flex:1;min-width:0}
+  .link .n{font-weight:600;font-size:14px}
+  .link .d{color:var(--dim);font-size:12px}
+  .x{appearance:none;border:0;background:transparent;color:var(--dim);
+    font-size:17px;cursor:pointer;padding:4px 7px;line-height:1;border-radius:6px}
+  .x:hover{color:var(--bad);background:#faf0f0}
+
+  #modal{position:fixed;inset:0;background:rgba(60,50,40,.34);display:none;
+    z-index:50;align-items:flex-end;justify-content:center}
+  #modal.on{display:flex}
+  .sheet{background:var(--panel);width:100%;max-width:520px;border-radius:14px 14px 0 0;
+    padding:16px 16px calc(20px + env(safe-area-inset-bottom));max-height:86vh;
+    overflow:auto;-webkit-overflow-scrolling:touch}
+  @media (min-width:560px){
+    #modal{align-items:center}
+    .sheet{border-radius:14px}
+  }
+
+  .toast{position:fixed;left:50%;transform:translateX(-50%);
+    bottom:calc(22px + env(safe-area-inset-bottom));z-index:60;
+    background:var(--ink);color:#fff;padding:10px 16px;border-radius:9px;
+    font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .2s}
+  .toast.on{opacity:1}
+  .dirty{color:var(--gold);font-size:12px;font-weight:600}
+  .empty{color:var(--dim);text-align:center;padding:34px 0}
+</style>
+
+<header>
+  <h1>Your family</h1>
+  <a href="play.html">Play</a>
+  <a href="./">Files</a>
+  <div class="sp"></div>
+  <span class="who-root" id="rootline"></span>
+  <span class="dirty" id="dirty" hidden>unsaved</span>
+  <button class="btn gold" id="save">Save file</button>
+</header>
+
+<main><div class="wrap">
+  <div id="list-view">
+    <div class="bar">
+      <input id="q" type="search" placeholder="Search your family" autocomplete="off">
+      <button class="btn primary" id="add">Add someone</button>
+    </div>
+    <p class="hint" id="count"></p>
+    <div id="list"></div>
+  </div>
+
+  <div id="edit-view" hidden></div>
+</div></main>
+
+<div id="modal"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+let fam = null;
+let editing = null;      // id of the person open in the edit view
+
+/* ------------------------------------------------ load or send them home -- */
+
+(async function () {
+  fam = await FAMILY.load();
+  if (!fam) { location.href = './'; return; }
+  render();
+})();
+
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg; t.classList.add('on');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('on'), 2200);
+}
+
+/* Any change goes through here: re-derive, re-render, mark unsaved. */
+function changed(msg) {
+  fam = FAMILY.touched();
+  if (msg) toast(msg);
+  render();
+}
+
+function render() {
+  $('#dirty').hidden = !fam.dirty;
+  $('#rootline').innerHTML = fam.meta.root_name
+    ? `centred on <b>${esc(fam.meta.root_name)}</b>` : '';
+  if (editing && fam.byId[editing]) renderEdit();
+  else { editing = null; renderList(); }
+}
+
+/* ----------------------------------------------------------- the list ---- */
+
+function renderList() {
+  $('#list-view').hidden = false;
+  $('#edit-view').hidden = true;
+
+  const term = ($('#q').value || '').trim().toLowerCase();
+  const all = fam.people;
+  const list = term ? all.filter(p => p.name.toLowerCase().includes(term)) : all;
+
+  const playable = all.filter(p => p.playable).length;
+  const stories = all.filter(p => (p.story || '').trim()).length;
+  const gifts = all.filter(p => (p.abilities || []).length).length;
+  $('#count').textContent =
+    `${all.length} people · ${playable} can be played · ${stories} with a story · ${gifts} with a Gift`
+    + (term ? ` · showing ${list.length}` : '');
+
+  $('#list').innerHTML = list.length ? list.map(p => {
+    const yrs = p.birth_year
+      ? `${p.birth_year}–${p.living ? 'present' : (p.death_year || '?')}`
+      : 'no dates';
+    return `<button class="person" data-id="${esc(p.id)}">
+      <span class="dot ${p.sex==='M'?'m':p.sex==='F'?'f':''}"></span>
+      <span class="grow">
+        <span class="n">${esc(p.name)}</span>
+        <span class="d">${esc(yrs)}${p.relationship_to_root ? ' · '+esc(p.relationship_to_root) : ''}</span>
+      </span>
+      <span class="tags">
+        ${!p.birth_year ? '<span class="tag noyear">no year</span>' : ''}
+        ${p.added ? '<span class="tag new">added</span>' : ''}
+        ${(p.story||'').trim() ? '<span class="tag story">story</span>' : ''}
+        ${(p.abilities||[]).length ? `<span class="tag gift">${p.abilities.length} gift</span>` : ''}
+      </span></button>`;
+  }).join('') : '<p class="empty">Nobody by that name.</p>';
+
+  $('#list').querySelectorAll('.person').forEach(b => {
+    b.onclick = () => { editing = b.dataset.id; render(); window.scrollTo(0,0); };
+  });
+}
+
+$('#q').oninput = () => { if (!editing) renderList(); };
+
+/* ------------------------------------------------------- the edit view ---- */
+
+function renderEdit() {
+  const p = fam.byId[editing];
+  $('#list-view').hidden = true;
+  const v = $('#edit-view');
+  v.hidden = false;
+
+  const isRoot = fam.meta.root_id === p.id;
+  const ab = p.abilities || [];
+
+  v.innerHTML = `
+    <div class="row" style="margin-bottom:14px">
+      <button class="btn" id="back">← Everyone</button>
+      <div class="sp" style="flex:1"></div>
+      ${isRoot ? '<span class="tag story">this is you</span>'
+               : '<button class="btn sm" id="mkroot">Centre on them</button>'}
+    </div>
+
+    <h2>Who they are</h2>
+    <div class="card">
+      <div class="two">
+        <div class="field"><label>First names</label>
+          <input type="text" id="f-given" value="${esc(p.given||'')}"></div>
+        <div class="field"><label>Surname</label>
+          <input type="text" id="f-surname" value="${esc(p.surname||'')}"></div>
+      </div>
+      <div class="two">
+        <div class="field"><label>Suffix</label>
+          <input type="text" id="f-suffix" value="${esc(p.suffix||'')}" placeholder="Jr, III"></div>
+        <div class="field"><label>Sex</label>
+          <select id="f-sex">
+            <option value=""${!p.sex?' selected':''}>Not recorded</option>
+            <option value="F"${p.sex==='F'?' selected':''}>Female</option>
+            <option value="M"${p.sex==='M'?' selected':''}>Male</option>
+          </select></div>
+      </div>
+    </div>
+
+    <h2>What the records say</h2>
+    <div class="card">
+      <p class="hint" style="margin-bottom:10px">A birth year is what puts someone on
+        the timeline. Without one they stay in your family but cannot be played.</p>
+      <div class="two">
+        <div class="field"><label>Born — year</label>
+          <input type="number" id="f-by" value="${p.birth_year ?? ''}" placeholder="1902"></div>
+        <div class="field"><label>Born — place</label>
+          <input type="text" id="f-bp" value="${esc(p.birth_place||'')}" placeholder="Ogden, Utah"></div>
+      </div>
+      <div class="check">
+        <input type="checkbox" id="f-living" ${p.living?'checked':''}>
+        <label for="f-living" style="margin:0">Still living</label>
+      </div>
+      <div id="deathfields" ${p.living?'hidden':''}>
+        <div class="two">
+          <div class="field"><label>Died — year</label>
+            <input type="number" id="f-dy" value="${p.death_year ?? ''}"></div>
+          <div class="field"><label>Died — place</label>
+            <input type="text" id="f-dp" value="${esc(p.death_place||'')}"></div>
+        </div>
+        <div class="field"><label>Buried</label>
+          <input type="text" id="f-bu" value="${esc(p.burial_place||'')}"></div>
+      </div>
+      <div class="field"><label>Children they had (if you know the real number)</label>
+        <input type="number" id="f-kids" value="${p.child_count ?? ''}"
+          placeholder="${p.children_in_tree} in this file"></div>
+    </div>
+
+    ${renderMarriages(p)}
+
+    <h2>Family</h2>
+    <div class="card">
+      ${linkBlock('Parents', p.parent_ids, 'parent')}
+      ${linkBlock('Spouses', p.spouse_ids, 'spouse')}
+      ${linkBlock('Children', p.children_ids, 'child')}
+    </div>
+
+    <h2>Their story</h2>
+    <div class="card">
+      <div class="field">
+        <textarea id="f-story" placeholder="What do you know about them? A job, a journey, something they said, how they are remembered.">${esc(p.story||'')}</textarea>
+      </div>
+      <p class="hint">This shows on their Kin when you play.</p>
+    </div>
+
+    <h2>Gifts</h2>
+    <div class="card">
+      <p class="hint" style="margin-bottom:10px">Up to two. A Gift is something this
+        person lets you do in the game. Writing one makes their Kin rarer —
+        none is a Sketch, one a Story, two a Biography.</p>
+      ${[0,1].map(i => `
+        <div class="field">
+          <label>Gift ${i+1}${i===1&&ab.length<1?' (write the first one first)':''}</label>
+          <input type="text" id="f-gn${i}" value="${esc((ab[i]||{}).name||'')}"
+            placeholder="What it is called" ${i===1&&ab.length<1?'disabled':''}>
+          <input type="text" id="f-gt${i}" value="${esc((ab[i]||{}).text||'')}"
+            placeholder="What it does" style="margin-top:6px"
+            ${i===1&&ab.length<1?'disabled':''}>
+        </div>`).join('')}
+      <p class="hint">Written Gifts show on the Kin but do not yet drive a game
+        effect — the generated ones do. That gap is known.</p>
+    </div>
+
+    <h2>In the game</h2>
+    <div class="card">
+      <div class="check">
+        <input type="checkbox" id="f-ready" ${p.ready?'checked':''} ${p.birth_year?'':'disabled'}>
+        <label for="f-ready" style="margin:0">Ready to play${p.birth_year?'':' — needs a birth year first'}</label>
+      </div>
+      <p class="hint">Kinspan can play everyone, or only the Kin you have marked
+        ready. The toggle for that is in the game's header.</p>
+    </div>
+
+    <div class="row" style="margin:18px 0 10px">
+      <button class="btn primary" id="apply">Done</button>
+      <div style="flex:1"></div>
+      <button class="btn danger" id="del">Remove from family</button>
+    </div>
+  `;
+
+  // --- wiring ---
+  $('#back').onclick = () => { commit(); editing = null; render(); };
+  $('#apply').onclick = () => { commit(); editing = null; render(); };
+  const mk = $('#mkroot');
+  if (mk) mk.onclick = () => {
+    commit();
+    fam.meta.root_id = p.id;
+    changed(`Everyone is now described relative to ${p.name}.`);
+  };
+  $('#f-living').onchange = e => { $('#deathfields').hidden = e.target.checked; };
+  $('#del').onclick = () => confirmDelete(p);
+
+  v.querySelectorAll('[data-unlink]').forEach(b => {
+    b.onclick = () => {
+      commit();
+      const [kind, other] = b.dataset.unlink.split(':');
+      if (kind === 'spouse') TREE.unlinkSpouse(fam.byId, p.id, other);
+      if (kind === 'parent') TREE.unlinkChild(fam.byId, other, p.id);
+      if (kind === 'child')  TREE.unlinkChild(fam.byId, p.id, other);
+      changed('Unlinked.');
+    };
+  });
+  v.querySelectorAll('[data-addlink]').forEach(b => {
+    b.onclick = () => { commit(); pickPerson(p, b.dataset.addlink); };
+  });
+}
+
+function renderMarriages(p) {
+  const mars = (p.marriages || []).filter(m => m.spouse_id);
+  if (!mars.length) return '';
+  return `<h2>Marriages</h2><div class="card">` + mars.map((m, i) => `
+    <div class="field">
+      <label>${esc(m.spouse_name || 'Spouse')}</label>
+      <div class="two">
+        <input type="number" id="f-my${i}" value="${m.year ?? ''}" placeholder="Year">
+        <input type="text" id="f-mp${i}" value="${esc(m.place||'')}" placeholder="Place">
+      </div>
+    </div>`).join('') + `</div>`;
+}
+
+function linkBlock(title, ids, kind) {
+  const rows = (ids || []).map(id => {
+    const q = fam.byId[id];
+    if (!q) return '';
+    const yrs = q.birth_year ? `b. ${q.birth_year}` : 'no dates';
+    return `<div class="link">
+      <span class="dot ${q.sex==='M'?'m':q.sex==='F'?'f':''}"
+        style="width:8px;height:8px;border-radius:50%;background:${q.sex==='M'?'var(--pat)':q.sex==='F'?'var(--mat)':'var(--dim)'}"></span>
+      <span class="grow"><span class="n">${esc(q.name)}</span>
+        <span class="d"> · ${esc(yrs)}</span></span>
+      <button class="x" data-unlink="${kind}:${esc(id)}" title="Unlink">✕</button>
+    </div>`;
+  }).join('');
+  return `<div style="margin-bottom:12px">
+    <label style="display:block;font-size:12.5px;color:var(--dim);margin-bottom:5px">${title}</label>
+    ${rows || '<p class="hint" style="margin:0 0 6px">None recorded.</p>'}
+    <button class="btn sm" data-addlink="${kind}">Add a ${kind}</button>
+  </div>`;
+}
+
+/* Read every field back onto the person. Called before any action that
+ * re-renders, so nothing typed is silently thrown away. */
+function commit() {
+  const p = fam.byId[editing];
+  if (!p) return;
+  const val = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
+  const num = id => { const v = val(id); if (v === '') return null;
+                      const n = parseInt(v, 10); return Number.isFinite(n) ? n : null; };
+  const chk = id => { const e = document.getElementById(id); return e ? e.checked : false; };
+
+  p.given = val('f-given') || null;
+  p.surname = val('f-surname') || null;
+  p.suffix = val('f-suffix') || null;
+  p.sex = val('f-sex') || null;
+
+  p.birth_year = num('f-by');
+  p.birth_place = val('f-bp') || null;
+  p.living = chk('f-living');
+  if (p.living) {
+    p.death_year = null; p.death_place = null; p.burial_place = null;
+  } else {
+    p.death_year = num('f-dy');
+    p.death_place = val('f-dp') || null;
+    p.burial_place = val('f-bu') || null;
+  }
+  p.child_count = num('f-kids');
+
+  (p.marriages || []).filter(m => m.spouse_id).forEach((m, i) => {
+    if (document.getElementById('f-my' + i)) {
+      m.year = num('f-my' + i);
+      m.place = val('f-mp' + i) || null;
+    }
+  });
+
+  p.story = (document.getElementById('f-story') || {}).value || '';
+  const ab = [];
+  for (const i of [0, 1]) {
+    const name = val('f-gn' + i), text = val('f-gt' + i);
+    if (name) ab.push({ name, text });
+  }
+  p.abilities = ab;
+  p.ready = chk('f-ready');
+  // A person who has been written about is no longer untouched.
+  if ((p.story || '').trim() || ab.length) p.status = 'drafted';
+
+  fam = FAMILY.touched();
+}
+
+/* ------------------------------------------------------- pick a person ---- */
+
+function pickPerson(p, kind) {
+  const banned = new Set([p.id]);
+  const already = kind === 'spouse' ? p.spouse_ids
+                : kind === 'parent' ? p.parent_ids : p.children_ids;
+  (already || []).forEach(i => banned.add(i));
+
+  const choices = fam.people.filter(q => {
+    if (banned.has(q.id)) return false;
+    // Refuse anything that would make someone their own ancestor.
+    if (kind === 'parent' && TREE.isAncestorOf(fam.byId, p.id, q.id)) return false;
+    if (kind === 'child' && TREE.isAncestorOf(fam.byId, q.id, p.id)) return false;
+    return true;
+  });
+
+  openSheet(`
+    <h2 style="margin-top:0">Add a ${kind} for ${esc(p.name)}</h2>
+    <input id="pq" type="search" placeholder="Search" autocomplete="off"
+      style="width:100%;padding:10px 12px;border:1px solid var(--edge);border-radius:9px;
+             font:inherit;font-size:16px;margin-bottom:9px">
+    <div id="plist" style="max-height:46vh;overflow:auto"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="pnew">They are not here — add them</button>
+      <div style="flex:1"></div>
+      <button class="btn" id="pcancel">Cancel</button>
+    </div>
+  `);
+
+  const draw = term => {
+    const t = (term || '').trim().toLowerCase();
+    const list = choices.filter(q => !t || q.name.toLowerCase().includes(t)).slice(0, 80);
+    $('#plist').innerHTML = list.length ? list.map(q => `
+      <button class="person" data-id="${esc(q.id)}">
+        <span class="dot ${q.sex==='M'?'m':q.sex==='F'?'f':''}"></span>
+        <span class="grow"><span class="n">${esc(q.name)}</span>
+          <span class="d">${q.birth_year ? 'b. '+q.birth_year : 'no dates'}</span></span>
+      </button>`).join('')
+      : '<p class="empty">Nobody available.</p>';
+    $('#plist').querySelectorAll('.person').forEach(b => {
+      b.onclick = () => { doLink(p, kind, b.dataset.id); closeSheet(); };
+    });
+  };
+  draw('');
+  $('#pq').oninput = e => draw(e.target.value);
+  $('#pcancel').onclick = closeSheet;
+  $('#pnew').onclick = () => { closeSheet(); newPerson(p, kind); };
+}
+
+function doLink(p, kind, otherId) {
+  let ok = false;
+  if (kind === 'spouse') ok = TREE.linkSpouse(fam.byId, p.id, otherId);
+  if (kind === 'parent') ok = TREE.linkChild(fam.byId, otherId, p.id);
+  if (kind === 'child')  ok = TREE.linkChild(fam.byId, p.id, otherId);
+  if (!ok) return toast('That link would put someone in their own family line.');
+  changed(`Linked ${fam.byId[otherId].name}.`);
+}
+
+/* ---------------------------------------------------------- add someone ---- */
+
+function newPerson(relativeTo, kind) {
+  openSheet(`
+    <h2 style="margin-top:0">Add someone${relativeTo ? ` as a ${kind} of ${esc(relativeTo.name)}` : ''}</h2>
+    <div class="two">
+      <div class="field"><label>First names</label><input type="text" id="n-given" autofocus></div>
+      <div class="field"><label>Surname</label><input type="text" id="n-surname"></div>
+    </div>
+    <div class="two">
+      <div class="field"><label>Born — year</label><input type="number" id="n-by" placeholder="1902"></div>
+      <div class="field"><label>Sex</label>
+        <select id="n-sex"><option value="">Not recorded</option>
+          <option value="F">Female</option><option value="M">Male</option></select></div>
+    </div>
+    <div class="field"><label>Born — place</label><input type="text" id="n-bp"></div>
+    <div class="check"><input type="checkbox" id="n-living">
+      <label for="n-living" style="margin:0">Still living</label></div>
+    <p class="hint">You can fill in the rest afterwards. A birth year is what lets
+      them be played.</p>
+    <div class="row" style="margin-top:12px">
+      <button class="btn primary" id="ncreate">Add them</button>
+      <div style="flex:1"></div>
+      <button class="btn" id="ncancel">Cancel</button>
+    </div>
+  `);
+  $('#ncancel').onclick = closeSheet;
+  $('#ncreate').onclick = () => {
+    const g = $('#n-given').value.trim(), s = $('#n-surname').value.trim();
+    if (!g && !s) return toast('Give them at least one name.');
+    const by = parseInt($('#n-by').value, 10);
+    const p = TREE.addPerson(fam.people, {
+      given: g || null, surname: s || null,
+      sex: $('#n-sex').value || null,
+      birth_year: Number.isFinite(by) ? by : null,
+      birth_place: $('#n-bp').value.trim() || null,
+      living: $('#n-living').checked,
+    });
+    fam.byId[p.id] = p;
+    if (relativeTo) {
+      if (kind === 'spouse') TREE.linkSpouse(fam.byId, relativeTo.id, p.id);
+      if (kind === 'parent') TREE.linkChild(fam.byId, p.id, relativeTo.id);
+      if (kind === 'child')  TREE.linkChild(fam.byId, relativeTo.id, p.id);
+    }
+    closeSheet();
+    changed(`${p.name} added.`);
+  };
+}
+
+$('#add').onclick = () => newPerson(null, null);
+
+/* ------------------------------------------------------------- removing ---- */
+
+function confirmDelete(p) {
+  const isRoot = fam.meta.root_id === p.id;
+  openSheet(`
+    <h2 style="margin-top:0">Remove ${esc(p.name)}?</h2>
+    <p>They will be taken out of your family file, along with every link to them.
+      ${isRoot ? '<b>They are who this family is centred on</b> — everyone else’s '
+               + 'relationship will be recalculated from whoever comes first.' : ''}</p>
+    <p class="hint">This only changes your file. Nothing anywhere else is touched,
+      and you can always reload your last saved file.</p>
+    <div class="row" style="margin-top:14px">
+      <button class="btn danger" id="dyes">Remove them</button>
+      <div style="flex:1"></div>
+      <button class="btn" id="dno">Keep them</button>
+    </div>
+  `);
+  $('#dno').onclick = closeSheet;
+  $('#dyes').onclick = () => {
+    const name = p.name;
+    TREE.removePerson(fam.people, p.id);
+    delete fam.byId[p.id];
+    if (fam.meta.root_id === p.id) fam.meta.root_id = fam.people.length ? fam.people[0].id : null;
+    editing = null;
+    closeSheet();
+    changed(`${name} removed.`);
+  };
+}
+
+/* ---------------------------------------------------------------- sheet ---- */
+
+function openSheet(html) {
+  $('#sheet').innerHTML = html;
+  $('#modal').classList.add('on');
+}
+function closeSheet() { $('#modal').classList.remove('on'); $('#sheet').innerHTML = ''; }
+$('#modal').onclick = e => { if (e.target.id === 'modal') closeSheet(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+
+/* ----------------------------------------------------------------- save ---- */
+
+$('#save').onclick = () => {
+  if (editing) commit();
+  const name = FAMILY.download(fam);
+  render();
+  toast(`Saved ${name}. Keep it somewhere safe.`);
+};
+
+/* The autosave is a crash net, not their file. Say so on the way out rather
+ * than letting someone assume an hour of writing is safely stored. */
+window.addEventListener('beforeunload', e => {
+  if (fam && fam.dirty) { e.preventDefault(); e.returnValue = ''; }
+});
+</script>
