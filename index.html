@@ -132,7 +132,7 @@
     <input id="search" type="search" placeholder="Search by name" autocomplete="off">
     <div id="wholist"></div>
     <div class="row">
-      <button class="btn primary" id="go" disabled>Start playing</button>
+      <button class="btn primary" id="go" disabled>Open your family</button>
       <button class="btn" id="back">Back</button>
     </div>
   </div>
@@ -160,7 +160,7 @@ if (auto) {
     `${auto.playable} Kin ready` + (when ? ` · last open ${when.toLocaleDateString()}` : '');
   $('#bringhead').textContent = 'Or start from a file';
   $('#resumebtn').onclick = () => {
-    try { FAMILY.loadAutosave(); location.href = 'play.html'; }
+    try { FAMILY.loadAutosave(); location.href = 'edit.html'; }
     catch (err) { fail('That saved session could not be reopened. Load your file instead.');
                   FAMILY.clearAutosave(); $('#resume').hidden = true; }
   };
@@ -207,7 +207,7 @@ function openSave(text, name) {
   try { fam = FAMILY.readSave(text, name); }
   catch (err) { return fail(err.message || String(err)); }
   FAMILY.use(fam);
-  location.href = 'play.html';
+  location.href = 'edit.html';
 }
 
 function openGedcom(text, name) {
@@ -269,6 +269,6 @@ $('#go').onclick = () => {
   try { fam = FAMILY.fromGedcom(pending.text, chosen, null); }
   catch (err) { return fail(err.message || String(err)); }
   FAMILY.use(fam);
-  location.href = 'play.html';
+  location.href = 'edit.html';
 };
 </script>

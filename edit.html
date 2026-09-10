@@ -114,12 +114,13 @@
 
 <header>
   <h1>Your family</h1>
-  <a href="play.html">Play</a>
   <a href="./">Files</a>
+  <a href="settings.html">How to play</a>
   <div class="sp"></div>
   <span class="who-root" id="rootline"></span>
   <span class="dirty" id="dirty" hidden>unsaved</span>
   <button class="btn gold" id="save">Save file</button>
+  <button class="btn primary" id="play">Start a game</button>
 </header>
 
 <main><div class="wrap">
@@ -602,9 +603,24 @@ $('#save').onclick = () => {
   toast(`Saved ${name}. Keep it somewhere safe.`);
 };
 
+/* ------------------------------------------------------------ the game ---- */
+
+/* This page is where the family is built and kept; the board only reads it.
+ * So the game is entered from here, and an edit in flight is committed on the
+ * way in rather than lost. */
+let leaving = false;
+$('#play').onclick = () => {
+  if (editing) commit();
+  leaving = true;
+  location.href = 'play.html';
+};
+
 /* The autosave is a crash net, not their file. Say so on the way out rather
- * than letting someone assume an hour of writing is safely stored. */
+ * than letting someone assume an hour of writing is safely stored -- but not
+ * when they are only stepping over to the board, which carries the same
+ * unsaved family with it and comes straight back here. */
 window.addEventListener('beforeunload', e => {
+  if (leaving) return;
   if (fam && fam.dirty) { e.preventDefault(); e.returnValue = ''; }
 });
 </script>

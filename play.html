@@ -515,7 +515,7 @@
   <!-- Links are relative: this build is static files, and a host may serve it
        from a subpath. An absolute "/" would leave the site. -->
   <a href="./" title="Load a different family file">← Files</a>
-  <a href="edit.html" title="Write stories, fix records, add people">Your family</a>
+  <a href="edit.html" title="Write stories, fix records, add people, save your file">← Your family</a>
   <span class="stat" id="famname"></span>
   <span class="stat">Turn <b id="turn">–</b></span>
   <span class="stat">Archive <b id="deckn">–</b></span>
@@ -530,7 +530,6 @@
   <a href="settings.html">How to play</a>
   <button id="fanbtn" title="See your direct line as a fan, and where the gaps are">Fan chart</button>
   <button id="bonusbtn">Legacy cards</button>
-  <button id="savefam" title="Download your family file">Save file</button>
   <button id="newgame" class="primary">Start again</button>
 </header>
 
@@ -542,7 +541,7 @@
     <div id="clockline"><span id="clockyear"></span></div><svg id="drag"></svg>
   </div></div>
   <div id="side" class="on"><span id="sideclose">✕</span>
-    <div id="sidenav"><a href="./">← Files</a><a href="edit.html">Your family</a><a href="settings.html">How to play</a></div>
+    <div id="sidenav"><a href="edit.html">← Your family</a><a href="./">Files</a><a href="settings.html">How to play</a></div>
     <div id="legacytotal"><b id="ltot">0</b><span>Legacy</span></div>
     <div id="clockbox"></div>
     <h3>Legacy cards</h3><div id="bl"></div>
@@ -1909,9 +1908,11 @@ function renderHand(){
   const h=$('#hand');
   if(over){
     const why = overWhy || 'The Archive and your hand are empty';
+    // A round changes nothing about the family, so the way on from here is the
+    // builder -- that is where writing, fixing and saving live.
     h.innerHTML=`<span class="msg"><b>That is the whole span.</b> ${why}.
       Final Legacy: ${window.scoreBoard(played.map(x=>byId[x]),byId,bonuses).total},
-      over ${turn-1} turns.</span>`;
+      over ${turn-1} turns. <a href="edit.html">Back to your family</a></span>`;
     return;
   }
   let html='';
@@ -2143,13 +2144,6 @@ const syncSide=()=>{ $('#side').classList.toggle('on', !NARROW.matches); if(peop
 NARROW.addEventListener('change', syncSide);
 syncSide();
 $('#newgame').onclick=()=>{closeRel(); newGame();};
-/* The file IS the save. The autosave in localStorage is only a crash net --
-   per-browser, and a cleared cache takes it with no warning -- so the download
-   has to stay one obvious click away from the game itself. */
-$('#savefam').onclick=()=>{
-  try{ toast('Saved '+FAMILY.download(fam)+' — keep it somewhere safe.'); }
-  catch(err){ toast('Could not save: '+(err.message||err)); }
-};
 $('#fanbtn').onclick=()=>{closeRel(); openFan();};
 $('#fmodal').onclick=e=>{
   if(e.target.id==='fmodal'||e.target.id==='fclose') return closeFan();
