@@ -264,7 +264,7 @@ function renderEdit() {
         <div class="field"><label>Born — year</label>
           <input type="number" id="f-by" value="${p.birth_year ?? ''}" placeholder="1902"></div>
         <div class="field"><label>Born — place</label>
-          <input type="text" id="f-bp" value="${esc(p.birth_place||'')}" placeholder="Ogden, Utah"></div>
+          <input type="text" id="f-bp" value="${esc(p.birth_place||'')}" placeholder="Town, County, Country"></div>
       </div>
       <div class="check">
         <input type="checkbox" id="f-living" ${p.living?'checked':''}>
