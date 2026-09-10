@@ -2,19 +2,20 @@
  *
  * The game used to need card_builder.py for two things: /api/people (the Kin)
  * and /api/relate (trace the line). Both are pure computation over a GEDCOM,
- * so both can run client-side, and then the whole game is static files that
- * any host — Lovable included — can serve with no backend at all.
+ * so both run here instead, and the whole game is static files any host can
+ * serve with no backend at all.
  *
  * This is a deliberate port, not a reimplementation. It mirrors, in order:
  *   gedcom_model.py   -> parseGedcom()
  *   kinship.py        -> Graph, describe(), connectionPath()
  *   build_ancestors.py-> buildPeople()
  *   card_builder.py   -> deriveTraits(), applyDerived(), relate()
- * Keep them in step. tools/check_tree_port.py diffs this file's output against
- * the Python server's for the bundled family and fails on any drift.
+ * Keep them in step. web/test/port.html diffs this file's output against a
+ * Python build of the same GEDCOM and fails on any drift.
  *
- * An uploaded file is parsed in the browser and never sent anywhere. That is a
- * privacy property worth keeping — do not "helpfully" add an upload endpoint.
+ * A file the player brings is parsed in the browser and never sent anywhere.
+ * That is a privacy property the site promises in writing — do not
+ * "helpfully" add an upload endpoint.
  */
 (function () {
 'use strict';
@@ -411,8 +412,12 @@ const TIERS = ['basic', 'uncommon', 'rare'];   // index = number of Gifts
 /* ------------------------------------------------------------ the records */
 
 /* Same signature as ancestors.json + the server's merge step, in one pass.
- * `curation` is the optional cards.json layer (stories, written Gifts); an
- * uploaded file simply has none. */
+ *
+ * `curation` is a cards.json-shaped layer of stories and written Gifts, keyed
+ * on fs_id. Nothing passes one today — a player's writing lives in their save
+ * file, not here. It is kept because it is the seam for re-importing: when
+ * your tree grows and you export a fresh .ged, this is where your existing
+ * writing gets laid back over it. Delete it only when that is ruled out. */
 function buildPeople(parsed, rootId, curation) {
   const { ind, fam } = parsed;
   const graph = new Graph(ind, fam);
@@ -422,8 +427,8 @@ function buildPeople(parsed, rootId, curation) {
   const reachable = graph.connected(rootId);
   const rootAnc = graph.ancestors(rootId);
 
-  // Numeric order where the ids are @I<n>@, so the bundled family keeps the
-  // same order the Python build produced; anything else falls back to text.
+  // Numeric order where the ids are @I<n>@, so a tree keeps the same order the
+  // Python build produced; anything else falls back to text.
   const order = Object.keys(ind).sort((a, b) => {
     const na = +(/@I?(\d+)@/.exec(a) || [])[1], nb = +(/@I?(\d+)@/.exec(b) || [])[1];
     if (Number.isFinite(na) && Number.isFinite(nb)) return na - nb;

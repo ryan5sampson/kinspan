@@ -34,8 +34,9 @@ function makeSave(fam) {
   };
 }
 
-/* Accepts a save file, and also the older baked-bundle shape (which had no
- * `kinspan` field) so anything already handed out keeps working. */
+/* Accepts a save file. Also accepts one with no `kinspan` version field —
+ * that was the shape bake_web_data.py wrote before the format was versioned,
+ * and files handed out then should keep opening. */
 function readSave(text, name) {
   let doc;
   try {
@@ -206,7 +207,6 @@ window.FAMILY = {
   makeSave, download, fileName,
   hasAutosave, loadAutosave, clearAutosave, autosave,
   playable, relate,
-  graphFrom: (people) => window.TREE.graphFrom(people),
   get current() { return cache; },
 };
 
