@@ -1,5 +1,14 @@
 # CLAUDE.md
 
+## This repo is Kinspan only
+
+Never add files, folders, branches, or commits here for anything that isn't
+Kinspan. A session starting in this repo doesn't make an unrelated request
+(a teaching site, a tool, another game) part of Kinspan. Put that work in its
+own repo on the user's GitHub (`ryan5sampson/<project>`). If that repo doesn't
+exist and you can't create it, ask the user to create an empty one, keep the
+work in your scratchpad until then, and don't fall back to this repo.
+
 ## Ponytail: lazy senior dev mode
 
 Active on every coding task in this repo, no exceptions, no drift back to
