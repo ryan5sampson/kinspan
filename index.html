@@ -164,21 +164,21 @@
   </div>
   <button class="play" id="play">Play</button>
   <div class="subs">
-    <button class="sub" id="builder"><i>✦</i>Card builder</button>
-    <button class="sub" id="settings"><i>⚙</i>Settings</button>
+    <button class="sub" id="builder"><i data-ic="spark"></i>Card builder</button>
+    <button class="sub" id="settings"><i data-ic="sliders"></i>Settings</button>
   </div>
 </section>
 
 <!-- ======================= mode ======================= -->
 <section class="screen" id="s-mode">
-  <div class="top"><button class="back" data-go="title" aria-label="Back">←</button><h2>Choose a game</h2></div>
+  <div class="top"><button class="back" data-go="title" aria-label="Back"><i data-ic="back"></i></button><h2>Choose a game</h2></div>
   <div id="modes"></div>
-  <button class="custom" id="custom">⚙ Set up a custom game</button>
+  <button class="custom" id="custom"><i data-ic="sliders"></i> Set up a custom game</button>
 </section>
 
 <!-- ======================= bring a family ======================= -->
 <section class="screen" id="s-bring">
-  <div class="top"><button class="back" data-go="title" aria-label="Back">←</button><h2>Bring your family</h2></div>
+  <div class="top"><button class="back" data-go="title" aria-label="Back"><i data-ic="back"></i></button><h2>Bring your family</h2></div>
   <div id="drop">
     <div class="t">Drop your family file here</div>
     <div class="b">A <b>.kinspan</b> save, or a <b>.ged</b> export from FamilySearch,
@@ -192,7 +192,7 @@
 
 <!-- ======================= who is it centred on ======================= -->
 <section class="screen" id="s-picker">
-  <div class="top"><button class="back" data-go="bring" aria-label="Back">←</button><h2>Who is it centred on?</h2></div>
+  <div class="top"><button class="back" data-go="bring" aria-label="Back"><i data-ic="back"></i></button><h2>Who is it centred on?</h2></div>
   <p class="lead">Usually you. Everyone is described relative to them. <span id="pcount"></span></p>
   <input id="search" type="search" placeholder="Search by name" autocomplete="off">
   <div id="wholist"></div>
@@ -201,13 +201,13 @@
 
 <div id="modal"><div class="sheet">
   <h2>Settings</h2>
-  <button class="set" id="st-save"><i>⤓</i><span><b>Save your family file</b>
+  <button class="set" id="st-save"><i data-ic="save"></i><span><b>Save your family file</b>
     <span>Stories, Gifts, and fixes live in it. Keep it safe.</span></span></button>
-  <button class="set" id="st-load"><i>⇄</i><span><b>Load a different family</b>
+  <button class="set" id="st-load"><i data-ic="swap"></i><span><b>Load a different family</b>
     <span>A .kinspan save or a .ged export</span></span></button>
-  <button class="set" id="st-rules"><i>⚙</i><span><b>Custom game rules</b>
+  <button class="set" id="st-rules"><i data-ic="sliders"></i><span><b>Custom game rules</b>
     <span>Every rule, for when you want to tinker</span></span></button>
-  <button class="set" id="st-tour"><i>▶</i><span><b>Play the tutorial</b>
+  <button class="set" id="st-tour"><i data-ic="play"></i><span><b>Play the tutorial</b>
     <span>A one-minute guided game</span></span></button>
   <button class="btn done" id="st-close">Done</button>
 </div></div>
@@ -252,7 +252,7 @@ if (auto) {
 const tourSeen = () => { try { return !!localStorage.getItem('kinspan.tutorial'); } catch (e) { return true; } };
 function renderModes() {
   const tut = `<button class="mode tut" data-mode="tutorial">
-      <span class="mi">▶</span><span><span class="mt">Tutorial${tourSeen() ? '' : '<span class="new">Start here</span>'}</span>
+      <span class="mi">${icon('play')}</span><span><span class="mt">Tutorial${tourSeen() ? '' : '<span class="new">Start here</span>'}</span>
       <span class="md">Learn by playing. One minute, with pointers.</span></span></button>`;
   const modes = MODES.map(m => `<button class="mode" data-mode="${m.id}">
       <span class="mi">${m.icon}</span><span><span class="mt">${esc(m.name)}</span>

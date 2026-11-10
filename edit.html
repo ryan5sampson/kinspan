@@ -207,7 +207,7 @@
 </style>
 
 <header>
-  <button class="round" id="home" aria-label="Main menu">←</button>
+  <button class="round" id="home" aria-label="Main menu"><i data-ic="back"></i></button>
   <h1>Card builder</h1>
   <div class="sp"></div>
   <span class="dirty" id="dirty" title="Changes not saved to your file" hidden></span>
@@ -282,7 +282,7 @@ const TIER = ['Sketch', 'Story', 'Biography'];
 function kinCard(p, i) {
   const ab = p.abilities || [];
   const slots = [0, 1].map(k => { const a = ab[k], fx = a && ABILITY_EFFECTS[a.kind];
-    return a ? `<span class="g on" title="${esc(a.name)}">${fx ? fx.icon : '✦'}</span>` : '<span class="g">+</span>'; }).join('');
+    return a ? `<span class="g on" title="${esc(a.name)}">${fx ? fx.icon : icon('spark')}</span>` : `<span class="g">${icon('plus')}</span>`; }).join('');
   return `<button class="kc ${sideOf(p)} ${p.birth_year ? '' : 'noyear'}" data-id="${esc(p.id)}"
       style="animation-delay:${Math.min(i, 24) * 22}ms">
     <span class="band"><span class="mono">${esc(initials(p))}</span>
@@ -327,7 +327,7 @@ function renderGrid(quiet) {
   $('#count').textContent = `${fam.people.length} Kin · ${gifted} with a Gift`
     + (list.length !== fam.people.length ? ` · showing ${list.length}` : '');
   $('#grid').innerHTML = (list.length ? list.map(kinCard).join('') : '<p class="empty">Nobody here.</p>')
-    + `<button class="kc add" id="add"><b>+</b>Add someone</button>`;
+    + `<button class="kc add" id="add"><b>${icon('plus')}</b>Add someone</button>`;
   $('#grid').querySelectorAll('.kc[data-id]').forEach(b => {
     b.onclick = () => { editing = b.dataset.id; picking = false; renderFocus(); };
   });
@@ -353,21 +353,21 @@ function renderFocus() {
     // borrows the one their life suggests, so say that rather than nothing.
     const own = ABILITY_EFFECTS[a.kind], fx = own || ABILITY_EFFECTS[(sug || {}).kind];
     return `<div class="slot">
-      <span class="gi">${fx ? fx.icon : '✦'}</span>
+      <span class="gi">${fx ? fx.icon : icon('spark')}</span>
       <div class="grow">
         <input type="text" class="gname" id="f-gn${i}" value="${esc(a.name)}" aria-label="Gift name">
         <div class="gfx">${fx ? esc(fx.verb(own ? a.n || 1 : sug.n)) : ''}</div>
         <input type="text" class="gwhy" id="f-gw${i}" value="${esc(a.why || a.text || '')}"
           placeholder="Why them? A line from their story" aria-label="Why they have it">
       </div>
-      <button class="x" data-ungift="${i}" aria-label="Remove this Gift">✕</button>
+      <button class="x" data-ungift="${i}" aria-label="Remove this Gift">${icon('close')}</button>
     </div>`; }).join('');
   const add = ab.length >= 2 ? '' : picking ? `<div class="picker">
       ${sug && !taken.has(sug.gift) ? `<div class="gg"><span>Their life suggests</span>${chip(sug.gift, true)}</div>` : ''}
       ${[...new Set(GIFTS.map(g => g.group))].map(grp => `<div class="gg"><span>${esc(grp)}</span>${
         GIFTS.filter(g => g.group === grp && !taken.has(g.id)).map(g => chip(g.id)).join('')}</div>`).join('')}
       <button class="btn sm" id="unpick">Close</button></div>`
-    : `<button class="addslot" id="pick">+ Add a Gift${sug && !taken.has(sug.gift) ? ` · try <b>${esc(GIFT_BY_ID[sug.gift].name)}</b>` : ''}</button>`;
+    : `<button class="addslot" id="pick">${icon('plus')} Add a Gift${sug && !taken.has(sug.gift) ? ` · try <b>${esc(GIFT_BY_ID[sug.gift].name)}</b>` : ''}</button>`;
 
   f.innerHTML = `<div class="fx ${shown === p.id ? 'still' : ''}">
     ${kinCard(p, 0).replace('<button', '<div').replace(/<\/button>\s*$/, '</div>')}
@@ -480,7 +480,7 @@ function linkBlock(title, ids, kind) {
         style="width:8px;height:8px;border-radius:50%;background:${q.sex==='M'?'var(--pat)':q.sex==='F'?'var(--mat)':'var(--dim)'}"></span>
       <span class="grow"><span class="n">${esc(q.name)}</span>
         <span class="d"> · ${esc(yrs)}</span></span>
-      <button class="x" data-unlink="${kind}:${esc(id)}" title="Unlink">✕</button>
+      <button class="x" data-unlink="${kind}:${esc(id)}" title="Unlink">${icon('close')}</button>
     </div>`;
   }).join('');
   return `<div style="margin-bottom:12px">

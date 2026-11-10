@@ -270,7 +270,8 @@
   .menu{display:flex;flex-direction:column;gap:8px}
   .menu button{padding:13px;font-size:15px;font-weight:600;border-radius:11px;text-align:left}
   .menu button.primary{text-align:center}
-  .menu button i{font-style:normal;display:inline-block;width:26px;color:var(--gold)}
+  .menu button .ic{margin-right:10px;color:var(--gold)}
+  .move .ic{color:var(--gold)}
   .menu hr{border:0;border-top:1px solid var(--edge);margin:4px 0}
   .final{text-align:center}
   .final .big{font-size:64px;font-weight:720;color:var(--gold);line-height:1;letter-spacing:-.02em;
@@ -542,7 +543,7 @@
 </style>
 
 <header>
-  <button id="menubtn" class="icon" title="Menu" aria-label="Menu">☰</button>
+  <button id="menubtn" class="icon" title="Menu" aria-label="Menu"><i data-ic="menu"></i></button>
   <span class="modename" id="modename"></span>
   <span class="stat">Turn <b id="turn">–</b></span>
   <span class="stat">Archive <b id="deckn">–</b></span>
@@ -558,7 +559,7 @@
     <div id="clockghost"><span id="ghostyear"></span></div>
     <div id="clockline"><span id="clockyear"></span></div><svg id="drag"></svg>
   </div></div>
-  <div id="side" class="on"><span id="sideclose">✕</span>
+  <div id="side" class="on"><span id="sideclose"><i data-ic="close"></i></span>
     <div id="legacytotal"><b id="ltot">0</b><span>Legacy</span></div>
     <div id="clockbox"></div>
     <h3>Legacy cards</h3><div id="bl"></div>
@@ -726,7 +727,7 @@ const TOUR=[
   {at:['#draw'],
    say:()=>`Need more family? <b>Pull</b> brings ${SET.drawCount} Kin from the Archive. It costs years too.`},
   {at:['.pair'],
-   say:()=>`<b>♥ Couples</b> and parents with a child play together: two Kin for one move.`},
+   say:()=>`<b>${icon('heart')} Couples</b> and parents with a child play together: two Kin for one move.`},
   {at:['#legacytotal','#score'],
    say:()=>`Your <b>Legacy</b>. Each card under it shows what it is earning.`},
   {at:['.gbtn'],
@@ -794,13 +795,13 @@ function tourFrame(){
 function openMenu(){
   sheetI(`<h2>Paused</h2><div class="menu">
     <button class="primary" data-m="resume">Resume</button>
-    <button data-m="legacy"><i>◈</i>Legacy cards</button>
-    <button data-m="fan"><i>◐</i>Fan chart</button>
-    <button data-m="help"><i>?</i>How to play</button>
+    <button data-m="legacy">${icon('diamond')}Legacy cards</button>
+    <button data-m="fan">${icon('fan')}Fan chart</button>
+    <button data-m="help">${icon('help')}How to play</button>
     <hr>
-    <button data-m="restart"><i>↺</i>Restart this game</button>
-    <button data-m="builder"><i>✦</i>Card builder</button>
-    <button data-m="home"><i>⌂</i>Main menu</button></div>`);
+    <button data-m="restart">${icon('restart')}Restart this game</button>
+    <button data-m="builder">${icon('spark')}Card builder</button>
+    <button data-m="home">${icon('home')}Main menu</button></div>`);
   const go={resume:()=>{}, legacy:openBonuses, fan:openFan, help:openHelp,
     restart:()=>{ endTour(); newGame(); },
     builder:()=>location.href='edit.html', home:()=>location.href='./'};
@@ -826,15 +827,15 @@ function sheetI(html){
 function openHelp(){
   const both=SET.clockDir==='forwardback'||SET.clockDir==='backwardforward';
   const tiles=[
-    ['🃏', `Connect a Kin`, `+${RULES.PRESENCE} Legacy each`],
-    ['◈', `Legacy cards`, SET.selection==='all'?'take any you like':SET.selection==='random'?`${SET.keep} dealt to you`:`keep ${SET.keep} of ${SET.deal}`],
-    ['♥', `Couples & children`, SET.pairPlay?'play together, one move':'play one at a time'],
-    SET.defaults && ['⛓', `Family ties`, '+1 parent & child · +2 couple · lines 3/9/27'],
-    SET.reveal==='poker' && ['🂡', `More cards flip`, `${SET.pokerFlips} more, every ${SET.pokerEvery} turns${SET.river?', last is double':''}`],
-    SET.clockOn && ['⏱', `Every move costs years`, `Pull ${SET.costDraw} · Connect ${SET.costPlay}${SET.drawBonus?` · Claim ${SET.costBonus}`:''}`],
-    ['✋', `Hand`, `hold up to ${limit()}`],
-    ['✦', `Gifts`, SET.clockOn?'gold while the marker is in their life':'once each'],
-    ['🏁', `Game ends`, SET.clockOn?`at ${clockSpan[1]}${both?', after the way back':''}`:'when the Archive runs dry'],
+    [icon('cards'), `Connect a Kin`, `+${RULES.PRESENCE} Legacy each`],
+    [icon('diamond'), `Legacy cards`, SET.selection==='all'?'take any you like':SET.selection==='random'?`${SET.keep} dealt to you`:`keep ${SET.keep} of ${SET.deal}`],
+    [icon('heart'), `Couples & children`, SET.pairPlay?'play together, one move':'play one at a time'],
+    SET.defaults && [icon('link'), `Family ties`, '+1 parent & child · +2 couple · lines 3/9/27'],
+    SET.reveal==='poker' && [icon('cards'), `More cards flip`, `${SET.pokerFlips} more, every ${SET.pokerEvery} turns${SET.river?', last is double':''}`],
+    SET.clockOn && [icon('clock'), `Every move costs years`, `Pull ${SET.costDraw} · Connect ${SET.costPlay}${SET.drawBonus?` · Claim ${SET.costBonus}`:''}`],
+    [icon('hand'), `Hand`, `hold up to ${limit()}`],
+    [icon('spark'), `Gifts`, SET.clockOn?'gold while the marker is in their life':'once each'],
+    [icon('flag'), `Game ends`, SET.clockOn?`at ${clockSpan[1]}${both?', after the way back':''}`:'when the Archive runs dry'],
     SET.difficulty!=='normal' && ['?', `Hidden scores`, SET.difficulty==='brutal'?'all of it, until the end':'no previews'],
   ].filter(Boolean);
   $('#isheet').innerHTML=`
@@ -846,7 +847,7 @@ function openHelp(){
     <div class="brow">
       <span class="sp"></span>
       <button id="hclose">Close</button>
-      <button id="htour" class="primary">▶ Show me the tour</button>
+      <button id="htour" class="primary">${icon('play')} Show me the tour</button>
     </div>`;
   $('#isheet').classList.add('wide'); $('#imodal').classList.add('on');
   $('#hclose').onclick=()=>$('#imodal').classList.remove('on');
@@ -1488,7 +1489,7 @@ function render(ghost){
   if(over && !endShown){ endShown=true; setTimeout(()=>openEnd(sc.total), 700); }
   if(!list.length){
     nodes.forEach(el=>el.remove()); nodes.clear();
-    $('#cards').innerHTML=`<div class="empty">${dealt?`<b>${tap} a Kin below</b> to put them on the timeline<span class="down">↓</span>`:''}</div>`;
+    $('#cards').innerHTML=`<div class="empty">${dealt?`<b>${tap} a Kin below</b> to put them on the timeline<span class="down">${icon('down')}</span>`:''}</div>`;
     $('#links').innerHTML=''; $('#axis').innerHTML=''; $('#axis').dataset.w='';
     $('#inner').style.height='auto'; return;
   }
@@ -1849,7 +1850,7 @@ async function showRelation(a, b, e){
     need=`<div class="need">${missing.length} Missing Links stand between them.</div>`;
   }
 
-  $('#rel').innerHTML=`<span class="x" onclick="closeRel()">✕</span>
+  $('#rel').innerHTML=`<span class="x" onclick="closeRel()">${icon('close')}</span>
     <div class="hd">The line between them</div>
     <div class="big">${headline}</div>
     <div class="sub">${sub}</div>
@@ -2076,7 +2077,7 @@ function renderHand(total){
     return;
   }
   if(swapLeft){
-    html=`<span class="armed">⇄ Tap up to <b>${swapLeft}</b> Kin to send back</span>
+    html=`<span class="armed">${icon('swap')} Tap up to <b>${swapLeft}</b> Kin to send back</span>
       <button id="swapdone">Done</button>`;
   }else if(mustDiscard){
     // The turn is already spent; the hand just has to come back under the
@@ -2089,7 +2090,7 @@ function renderHand(total){
     const yr=n=>SET.clockOn?`${n} yrs`:'';
     html+=`<button id="draw" class="move" ${!deck.length?'disabled':''}
         title="Pull ${SET.drawCount} Kin from the Archive${SET.clockOn?`. Costs you ${SET.costDraw} years`:''}. Hold more than ${limit()} and you return some.">
-        <b>🂠 Pull ${SET.drawCount}</b><small>${yr(SET.costDraw)}${SET.clockOn?' · ':''}${deck.length} left</small></button>`;
+        <b>${icon('cards')} Pull ${SET.drawCount}</b><small>${yr(SET.costDraw)}${SET.clockOn?' · ':''}${deck.length} left</small></button>`;
     if(SET.drawBonus){
       const full=held().length>=SET.maxBonuses;
       const none=!bonusPool().length;
@@ -2101,18 +2102,18 @@ function renderHand(total){
                 :swap?'Your hands are full — a new one takes the place of another'
                 :full?'You are holding all the Legacy cards this game allows'
                 :'Spend this turn on a Legacy card instead of a Kin'}">
-        <b>◈ ${swap?'Swap Legacy':'Claim Legacy'}</b><small>${yr(SET.costBonus)}${SET.clockOn?' · ':''}${held().length} of ${SET.maxBonuses} held</small></button>`;
+        <b>${icon('diamond')} ${swap?'Swap Legacy':'Claim Legacy'}</b><small>${yr(SET.costBonus)}${SET.clockOn?' · ':''}${held().length} of ${SET.maxBonuses} held</small></button>`;
     }
     // Gifts that change the NEXT move sit here, by the moves they change, so
     // a banked free Connect is something you can see rather than remember.
     const armed=[
-      [freePlay, `⚡ Next Connect free${freePlay>1?` ×${freePlay}`:''}`],
-      [halfPlay, `½ Next Connect half price`],
-      [pauseN, `⏸ Marker holds for ${pauseN} move${pauseN===1?'':'s'}`],
-      [kinFrom, `♥ ${kinFrom&&byId[kinFrom].given||'Their'} family connects free`],
-      [reunionOn, `⌂ Two-family Kin connect free`],
-      [doubleNext, `⧉ Connect one, get one free`],
-    ].filter(a=>a[0]).map(a=>`<span class="armed">${esc(a[1])}</span>`).join('');
+      [freePlay, 'bolt', `Next Connect free${freePlay>1?` ×${freePlay}`:''}`],
+      [halfPlay, 'half', `Next Connect half price`],
+      [pauseN, 'pause', `Marker holds for ${pauseN} move${pauseN===1?'':'s'}`],
+      [kinFrom, 'heart', `${kinFrom&&byId[kinFrom].given||'Their'} family connects free`],
+      [reunionOn, 'home', `Two-family Kin connect free`],
+      [doubleNext, 'double', `Connect one, get one free`],
+    ].filter(a=>a[0]).map(a=>`<span class="armed">${icon(a[1])} ${esc(a[2])}</span>`).join('');
     html+=armed;
   }
 
