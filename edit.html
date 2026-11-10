@@ -4,158 +4,232 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Kinspan">
-<meta name="theme-color" content="#ffffff">
-<title>Kinspan — your family</title>
+<meta name="theme-color" content="#f7f4ef">
+<title>Kinspan — card builder</title>
 <script src="tree.js"></script>
 <script src="family.js"></script>
 <script src="rules.js"></script>
 <style>
   :root{
     --bg:#f7f4ef; --panel:#ffffff; --edge:#ddd5c9; --ink:#2b2621; --dim:#7d7368;
-    --gold:#9a7212; --pat:#2f6f9e; --mat:#a8552a; --self:#2f7a45;
-    --bad:#a4262c;
+    --gold:#9a7212; --pat:#2f6f9e; --mat:#a8552a; --self:#2f7a45; --bad:#a4262c;
+    --patbg:#e4f0f8; --matbg:#fbeade; --selfbg:#e2f3e6;
+    --ease:cubic-bezier(.34,1.24,.44,1);
   }
   *{box-sizing:border-box}
   html,body{height:100%}
   body{margin:0;background:var(--bg);color:var(--ink);height:100dvh;
     display:flex;flex-direction:column;overflow:hidden;touch-action:manipulation;
-    font:15px/1.55 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif}
+    font:15px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif}
+  button{font:inherit;color:inherit;cursor:pointer}
 
-  header{flex:none;background:var(--panel);border-bottom:1px solid var(--edge);
-    padding:9px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;
-    padding-top:calc(9px + env(safe-area-inset-top))}
-  header h1{margin:0;font-size:16px;font-weight:650;letter-spacing:-.01em}
-  header a{color:var(--gold);text-decoration:none;font-size:13.5px}
-  header a:hover{text-decoration:underline}
+  header{flex:none;display:flex;gap:10px;align-items:center;
+    padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top));
+    background:var(--panel);border-bottom:1px solid var(--edge)}
+  header h1{margin:0;font-size:18px;font-weight:680;letter-spacing:-.01em}
   .sp{flex:1}
-  .who-root{font-size:12.5px;color:var(--dim)}
-  .who-root b{color:var(--ink)}
-
+  .round{border:1px solid var(--edge);background:var(--panel);border-radius:99px;
+    width:40px;height:40px;font-size:18px;flex:none}
+  .round:hover{border-color:#c9b184}
   .btn{appearance:none;border:1px solid var(--edge);background:var(--panel);
-    color:var(--ink);font:inherit;font-size:13.5px;font-weight:600;border-radius:8px;
-    padding:8px 13px;cursor:pointer;min-height:40px}
+    font-size:14px;font-weight:620;border-radius:10px;padding:8px 14px;min-height:40px}
   .btn:hover{border-color:#c0b4a4}
   .btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
   .btn.gold{background:var(--gold);color:#fff;border-color:var(--gold)}
   .btn.danger{color:var(--bad);border-color:#e7c9c9}
   .btn.sm{min-height:32px;padding:5px 10px;font-size:12.5px}
-  .btn:disabled{opacity:.45;cursor:default}
+  .dirty{width:8px;height:8px;border-radius:50%;background:var(--gold)}
 
+  /* ---- toolbar ---- */
+  .tools{flex:none;display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+    padding:12px 14px 4px;max-width:1100px;width:100%;margin:0 auto}
+  #q{flex:1 1 180px;padding:9px 12px;border:1px solid var(--edge);border-radius:99px;
+    font:inherit;font-size:15px;background:var(--panel);color:var(--ink)}
+  .chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+  .chip{border:1px solid var(--edge);background:var(--panel);border-radius:99px;
+    padding:6px 12px;font-size:13px;font-weight:600;white-space:nowrap}
+  .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  #sort{width:auto;border:1px solid var(--edge);border-radius:99px;padding:7px 10px;font:inherit;
+    font-size:13px;background:var(--panel);color:var(--ink)}
+
+  /* ---- the deck ---- */
   main{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;
-    padding:14px 14px calc(28px + env(safe-area-inset-bottom))}
-  .wrap{max-width:680px;margin:0 auto}
+    padding:10px 14px calc(30px + env(safe-area-inset-bottom))}
+  #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;
+    max-width:1100px;margin:0 auto;perspective:900px}
+  .kc{position:relative;aspect-ratio:5/7;border-radius:14px;border:1.5px solid;
+    background:var(--panel);overflow:hidden;cursor:pointer;text-align:left;padding:0;
+    display:flex;flex-direction:column;content-visibility:auto;contain-intrinsic-size:150px 210px;
+    box-shadow:0 2px 0 rgba(0,0,0,.04);
+    animation:deal .42s var(--ease) both;
+    transition:transform .2s var(--ease),box-shadow .2s}
+  @keyframes deal{from{opacity:0;transform:translateY(24px) rotate(-3deg) scale(.92)}to{opacity:1;transform:none}}
+  #grid.quiet .kc{animation:none}
+  .kc:hover{transform:translateY(-6px) rotate(-1deg);box-shadow:0 16px 30px rgba(80,60,30,.18)}
+  .kc.pat{border-color:var(--pat)} .kc.mat{border-color:var(--mat)} .kc.self{border-color:var(--self)}
+  .kc .band{height:38%;display:flex;align-items:center;justify-content:center;position:relative}
+  .kc.pat .band{background:var(--patbg);color:var(--pat)}
+  .kc.mat .band{background:var(--matbg);color:var(--mat)}
+  .kc.self .band{background:var(--selfbg);color:var(--self)}
+  .kc .mono{width:52px;height:52px;border-radius:50%;border:2px solid currentColor;
+    display:grid;place-items:center;font-weight:700;font-size:19px;background:rgba(255,255,255,.6)}
+  .kc .tier{position:absolute;top:7px;right:8px;font-size:9.5px;letter-spacing:.09em;
+    text-transform:uppercase;font-weight:700;opacity:.8}
+  .kc .body{flex:1;padding:9px 11px;display:flex;flex-direction:column;min-height:0}
+  .kc .nm{font-weight:680;font-size:14px;line-height:1.25;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .kc .yr{color:var(--dim);font-size:12px;margin-top:2px;font-variant-numeric:tabular-nums}
+  .kc .rl{color:var(--dim);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .kc .gs{margin-top:auto;display:flex;gap:6px}
+  .kc .g{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:14px;
+    border:1.5px dashed var(--edge);color:var(--edge)}
+  .kc .g.on{border:1.5px solid #ddc487;background:#fdf5e0;color:var(--gold)}
+  .kc.noyear{opacity:.55}
+  .kc.noyear .tier{color:#b4671d}
+  .kc.add{border:2px dashed var(--edge);background:transparent;align-items:center;
+    justify-content:center;color:var(--dim);font-weight:620;gap:6px}
+  .kc.add b{font-size:34px;font-weight:300;line-height:1}
+  .kc.add:hover{border-color:var(--gold);color:var(--gold)}
+  .count{max-width:1100px;margin:0 auto 10px;color:var(--dim);font-size:12.5px}
+  .empty{color:var(--dim);text-align:center;padding:34px 0;grid-column:1/-1}
 
-  .bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-  #q{flex:1;min-width:160px;padding:10px 12px;border:1px solid var(--edge);
-    border-radius:9px;font:inherit;font-size:16px;background:var(--panel);color:var(--ink)}
+  /* ---- one card, up close ---- */
+  #focus{position:fixed;inset:0;z-index:40;background:rgba(43,38,33,.5);display:none;
+    align-items:center;justify-content:center;padding:16px}
+  #focus.on{display:flex;animation:fade .2s both}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .fx{display:flex;gap:22px;align-items:flex-start;width:100%;max-width:860px;max-height:100%}
+  .fx>.kc{width:240px;flex:none;cursor:default;animation:flip .5s var(--ease) both;
+    box-shadow:0 24px 60px rgba(0,0,0,.3)}
+  .fx>.kc:hover{transform:none}
+  .fx.still>.kc,.fx.still>.panel{animation:none}
+  .fx>.kc .nm{font-size:19px}
+  .fx>.kc .yr{font-size:14px}
+  .fx>.kc .rl{font-size:13px}
+  .fx>.kc .mono{width:76px;height:76px;font-size:27px}
+  .fx>.kc .g{width:38px;height:38px;font-size:19px}
+  @keyframes flip{from{transform:rotateY(80deg) scale(.8);opacity:0}to{transform:none;opacity:1}}
+  .panel{flex:1;min-width:0;background:var(--panel);border-radius:18px;padding:18px;
+    max-height:calc(100dvh - 32px);overflow:auto;animation:slide .4s var(--ease) .08s both}
+  @keyframes slide{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+  .panel h2{font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);
+    font-weight:680;margin:18px 0 8px}
+  .panel h2:first-child{margin-top:0}
 
+  .slot{display:flex;gap:10px;align-items:flex-start;border-radius:12px;padding:11px;margin-bottom:8px;
+    background:#fdf7e6;border:1.5px solid #ddc487;animation:deal .35s var(--ease) both}
+  .slot .gi{font-size:24px;width:32px;text-align:center;color:var(--gold);flex:none;line-height:34px}
+  .slot .grow{flex:1;min-width:0}
+  .slot input{width:100%;border:0;background:transparent;font:inherit;color:var(--ink);padding:2px 0}
+  .slot input:focus{outline:0;border-bottom:1px solid #ddc487}
+  .slot .gname{font-weight:680;color:var(--gold);font-size:16px}
+  .slot .gfx{font-size:13px;color:#5c5348;margin:1px 0 3px}
+  .slot .gwhy{font-size:13px;font-style:italic;color:var(--dim)}
+  .addslot{width:100%;border:1.5px dashed var(--edge);background:transparent;border-radius:12px;
+    padding:13px;color:var(--dim);font-weight:620;margin-bottom:8px}
+  .addslot:hover{border-color:var(--gold);color:var(--gold)}
+  .picker{border:1px solid var(--edge);border-radius:12px;padding:10px;margin-bottom:8px;
+    animation:deal .3s var(--ease) both}
+  .gg{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px}
+  .gg>span{flex-basis:100%;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+  .gg{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+  .gg>span{grid-column:1/-1}
+  .gchip{display:flex;gap:8px;align-items:flex-start;text-align:left;border:1px solid var(--edge);
+    background:var(--panel);border-radius:10px;padding:8px 10px;font-size:13px;
+    transition:transform .12s var(--ease),border-color .12s}
+  .gchip i{font-style:normal;color:var(--gold);font-size:17px;width:20px;text-align:center;flex:none}
+  .gchip b{display:block;font-weight:650}
+  .gchip small{display:block;color:var(--dim);font-size:11.5px;line-height:1.35}
+  .gchip:hover{border-color:var(--gold);transform:translateY(-1px)}
+  .gchip.sug{border-color:var(--gold);background:#fdf5e0;color:var(--gold);font-weight:650}
+  textarea{width:100%;min-height:90px;padding:10px 12px;border:1px solid var(--edge);border-radius:10px;
+    font:inherit;font-size:15px;line-height:1.5;resize:vertical;background:var(--panel);color:var(--ink)}
+  .done{display:flex;gap:8px;margin-top:16px}
+
+  details.rec{margin-top:16px;border-top:1px solid var(--edge);padding-top:10px}
+  details.rec summary{cursor:pointer;color:var(--dim);font-weight:620;font-size:14px;padding:6px 0}
+  .field{margin-bottom:10px}
+  .field label{display:block;font-size:12.5px;color:var(--dim);margin-bottom:3px}
+  input[type=text],input[type=number],select,#pq{
+    width:100%;padding:9px 11px;border:1px solid var(--edge);border-radius:8px;
+    font:inherit;font-size:16px;background:var(--panel);color:var(--ink)}
+  .slot input[type=text]{border:0;padding:2px 0;font-size:inherit;background:transparent}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .check{display:flex;gap:8px;align-items:center;margin:10px 0;font-size:14px}
+  .check input{width:18px;height:18px}
+  .hint{color:var(--dim);font-size:12.5px;margin:4px 0 0}
   .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .link{display:flex;gap:8px;align-items:center;border:1px solid var(--edge);border-radius:9px;
+    padding:7px 10px;margin-bottom:6px}
+  .link .grow{flex:1;min-width:0}
+  .link .n{font-weight:600;font-size:14px}
+  .link .d{color:var(--dim);font-size:12px}
+  .x{border:0;background:transparent;color:var(--dim);font-size:17px;padding:4px 7px;line-height:1;border-radius:6px}
+  .x:hover{color:var(--bad);background:#faf0f0}
   .person{display:flex;gap:10px;align-items:center;width:100%;text-align:left;
-    background:var(--panel);border:1px solid var(--edge);border-radius:10px;
-    padding:10px 12px;margin-bottom:7px;font:inherit;color:inherit;cursor:pointer}
+    background:var(--panel);border:1px solid var(--edge);border-radius:10px;padding:10px 12px;margin-bottom:7px}
   .person:hover{border-color:#c0b4a4}
   .person .dot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--dim)}
   .person .dot.m{background:var(--pat)} .person .dot.f{background:var(--mat)}
   .person .grow{flex:1;min-width:0}
-  .person .n{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .person .n{font-weight:600}
   .person .d{color:var(--dim);font-size:12.5px}
-  .tags{display:flex;gap:4px;flex:none}
   .tag{font-size:10px;letter-spacing:.05em;text-transform:uppercase;font-weight:650;
-    border-radius:99px;padding:2px 7px;border:1px solid}
-  .tag.story{background:#eef4ee;color:var(--self);border-color:#cfe3d3}
-  .tag.gift{background:#f0eadf;color:var(--gold);border-color:#e6dcc2}
-  .tag.new{background:#eef2f7;color:var(--pat);border-color:#d3e0ec}
-  .tag.noyear{background:#fdf1e4;color:#b4671d;border-color:#f0dcc0}
+    border-radius:99px;padding:2px 7px;background:#eef4ee;color:var(--self)}
 
-  h2{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
-    font-weight:650;margin:22px 0 9px}
-  h2:first-child{margin-top:0}
-  .field{margin-bottom:10px}
-  .field label{display:block;font-size:12.5px;color:var(--dim);margin-bottom:3px}
-  input[type=text],input[type=number],textarea,select{
-    width:100%;padding:9px 11px;border:1px solid var(--edge);border-radius:8px;
-    font:inherit;font-size:16px;background:var(--panel);color:var(--ink)}
-  textarea{min-height:96px;resize:vertical;line-height:1.5}
-  .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-  .check{display:flex;gap:8px;align-items:center;margin:10px 0;font-size:14px}
-  .check input{width:18px;height:18px}
-  .hint{color:var(--dim);font-size:12.5px;margin:4px 0 0}
-  .card{background:var(--panel);border:1px solid var(--edge);border-radius:12px;
-    padding:14px;margin-bottom:12px}
-
-  .link{display:flex;gap:8px;align-items:center;background:var(--panel);
-    border:1px solid var(--edge);border-radius:9px;padding:8px 10px;margin-bottom:6px}
-  .link .grow{flex:1;min-width:0}
-  .link .n{font-weight:600;font-size:14px}
-  .link .d{color:var(--dim);font-size:12px}
-  .x{appearance:none;border:0;background:transparent;color:var(--dim);
-    font-size:17px;cursor:pointer;padding:4px 7px;line-height:1;border-radius:6px}
-  .x:hover{color:var(--bad);background:#faf0f0}
-
-  #modal{position:fixed;inset:0;background:rgba(60,50,40,.34);display:none;
-    z-index:50;align-items:flex-end;justify-content:center}
+  #modal{position:fixed;inset:0;background:rgba(43,38,33,.4);display:none;z-index:50;
+    align-items:flex-end;justify-content:center}
   #modal.on{display:flex}
-  .sheet{background:var(--panel);width:100%;max-width:520px;border-radius:14px 14px 0 0;
-    padding:16px 16px calc(20px + env(safe-area-inset-bottom));max-height:86vh;
-    overflow:auto;-webkit-overflow-scrolling:touch}
-  @media (min-width:560px){
-    #modal{align-items:center}
-    .sheet{border-radius:14px}
-  }
-
+  .sheet{background:var(--panel);width:100%;max-width:520px;border-radius:16px 16px 0 0;
+    padding:16px 16px calc(20px + env(safe-area-inset-bottom));max-height:86vh;overflow:auto;
+    animation:deal .3s var(--ease) both}
+  .sheet h2{font-size:18px}
   .toast{position:fixed;left:50%;transform:translateX(-50%);
     bottom:calc(22px + env(safe-area-inset-bottom));z-index:60;
     background:var(--ink);color:#fff;padding:10px 16px;border-radius:9px;
     font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .2s}
   .toast.on{opacity:1}
-  .dirty{color:var(--gold);font-size:12px;font-weight:600}
-  .empty{color:var(--dim);text-align:center;padding:34px 0}
 
-  /* Gifts: what they have, as gold cards, then every Gift as a chip to tap. */
-  .h2n{letter-spacing:0;text-transform:none;font-weight:500;margin-left:6px}
-  .gcard{display:flex;gap:10px;align-items:flex-start;background:#fdf7e6;
-    border:1px solid #ddc487;border-radius:10px;padding:10px;margin-bottom:8px}
-  .gcard .gi{font-size:22px;line-height:38px;width:30px;text-align:center;color:var(--gold);flex:none}
-  .gcard .grow{flex:1;min-width:0}
-  .gcard input{background:#fff}
-  .gcard input:first-child{font-weight:650;color:var(--gold)}
-  .gfx{font-size:13px;color:#5c5348;margin:5px 2px 7px}
-  .gpick{margin-top:6px}
-  .gg{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:9px}
-  .gg>span{flex-basis:100%;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
-  .gchip{appearance:none;font:inherit;font-size:13px;border:1px solid var(--edge);
-    background:var(--panel);color:var(--ink);border-radius:99px;padding:6px 11px;
-    cursor:pointer;min-height:34px}
-  .gchip:hover{border-color:#c9b184}
-  .gchip.on{background:var(--gold);border-color:var(--gold);color:#fff}
-  .gchip.sug:not(.on){border-color:var(--gold);background:#fdf5e0;color:var(--gold);font-weight:600}
+  @media (min-width:560px){ #modal{align-items:center} .sheet{border-radius:16px} }
+  @media (max-width:640px){
+    #grid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
+    .kc .mono{width:38px;height:38px;font-size:15px}
+    .kc .nm{font-size:12.5px} .kc .rl,#grid .kc .tier{display:none}
+    .kc .g{width:22px;height:22px;font-size:11px}
+    .kc .body{padding:7px 8px}
+    #focus{padding:0;align-items:stretch}
+    .fx{flex-direction:column;align-items:stretch;gap:0;overflow:auto;max-height:none;min-height:100%;
+      padding:14px 12px calc(16px + env(safe-area-inset-bottom))}
+    .fx>.kc{width:150px;align-self:center;margin-bottom:-24px;z-index:1}
+    .panel{flex:1;max-height:none;overflow:visible;padding-top:34px}
+  }
+  @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
 </style>
 
 <header>
-  <h1>Your family</h1>
-  <a href="./">Files</a>
-  <a href="settings.html">How to play</a>
+  <button class="round" id="home" aria-label="Main menu">←</button>
+  <h1>Card builder</h1>
   <div class="sp"></div>
-  <span class="who-root" id="rootline"></span>
-  <span class="dirty" id="dirty" hidden>unsaved</span>
+  <span class="dirty" id="dirty" title="Changes not saved to your file" hidden></span>
   <button class="btn gold" id="save">Save file</button>
-  <button class="btn primary" id="play">Start a game</button>
 </header>
 
-<main><div class="wrap">
-  <div id="list-view">
-    <div class="bar">
-      <input id="q" type="search" placeholder="Search your family" autocomplete="off">
-      <button class="btn primary" id="add">Add someone</button>
-    </div>
-    <p class="hint" id="count"></p>
-    <div id="list"></div>
-  </div>
+<div class="tools">
+  <input id="q" type="search" placeholder="Find someone" autocomplete="off">
+  <div class="chips" id="chips"></div>
+  <select id="sort" aria-label="Sort">
+    <option value="old">Oldest first</option>
+    <option value="young">Youngest first</option>
+    <option value="az">A to Z</option>
+  </select>
+</div>
 
-  <div id="edit-view" hidden></div>
-</div></main>
+<main>
+  <p class="count" id="count"></p>
+  <div id="grid"></div>
+</main>
 
+<div id="focus"></div>
 <div id="modal"><div class="sheet" id="sheet"></div></div>
 <div class="toast" id="toast"></div>
 
@@ -165,9 +239,10 @@ const esc = s => String(s ?? '').replace(/[&<>"]/g, c =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 let fam = null;
-let editing = null;      // id of the person open in the edit view
-
-/* ------------------------------------------------ load or send them home -- */
+let editing = null;      // id of the card open up close
+let picking = false;     // the Gift menu is open on that card
+let filter = 'all';
+let shown = null;     // the card already flipped open, so a redraw does not flip it again
 
 (async function () {
   fam = await FAMILY.load();
@@ -188,218 +263,186 @@ function changed(msg) {
   render();
 }
 
+let drawn = false;   // the deck deals in once, then redraws quietly
 function render() {
   $('#dirty').hidden = !fam.dirty;
-  $('#rootline').innerHTML = fam.meta.root_name
-    ? `centred on <b>${esc(fam.meta.root_name)}</b>` : '';
-  if (editing && fam.byId[editing]) renderEdit();
-  else { editing = null; renderList(); }
+  if (editing && !fam.byId[editing]) editing = null;
+  renderGrid(drawn); drawn = true;
+  renderFocus();
 }
 
-/* ----------------------------------------------------------- the list ---- */
+/* ------------------------------------------------------------- a card ---- */
 
-function renderList() {
-  $('#list-view').hidden = false;
-  $('#edit-view').hidden = true;
+const sideOf = p => p.relationship_to_root === 'self' ? 'self'
+  : p.relationship_side === 'maternal' ? 'mat' : 'pat';
+const initials = p => ((p.given || p.name || '?')[0] + ((p.surname || '')[0] || '')).toUpperCase();
+const years = p => p.birth_year ? `${p.birth_year}–${p.living ? 'now' : (p.death_year || '?')}` : 'No birth year';
+const TIER = ['Sketch', 'Story', 'Biography'];
 
-  const term = ($('#q').value || '').trim().toLowerCase();
-  const all = fam.people;
-  const list = term ? all.filter(p => p.name.toLowerCase().includes(term)) : all;
-
-  const playable = all.filter(p => p.playable).length;
-  const stories = all.filter(p => (p.story || '').trim()).length;
-  const gifts = all.filter(p => (p.abilities || []).length).length;
-  $('#count').textContent =
-    `${all.length} people · ${playable} can be played · ${stories} with a story · ${gifts} with a Gift`
-    + (term ? ` · showing ${list.length}` : '');
-
-  $('#list').innerHTML = list.length ? list.map(p => {
-    const yrs = p.birth_year
-      ? `${p.birth_year}–${p.living ? 'present' : (p.death_year || '?')}`
-      : 'no dates';
-    return `<button class="person" data-id="${esc(p.id)}">
-      <span class="dot ${p.sex==='M'?'m':p.sex==='F'?'f':''}"></span>
-      <span class="grow">
-        <span class="n">${esc(p.name)}</span>
-        <span class="d">${esc(yrs)}${p.relationship_to_root ? ' · '+esc(p.relationship_to_root) : ''}</span>
-      </span>
-      <span class="tags">
-        ${!p.birth_year ? '<span class="tag noyear">no year</span>' : ''}
-        ${p.added ? '<span class="tag new">added</span>' : ''}
-        ${(p.story||'').trim() ? '<span class="tag story">story</span>' : ''}
-        ${(p.abilities||[]).length ? `<span class="tag gift">${p.abilities.length} gift</span>` : ''}
-      </span></button>`;
-  }).join('') : '<p class="empty">Nobody by that name.</p>';
-
-  $('#list').querySelectorAll('.person').forEach(b => {
-    b.onclick = () => { editing = b.dataset.id; render(); window.scrollTo(0,0); };
-  });
-}
-
-$('#q').oninput = () => { if (!editing) renderList(); };
-
-/* ------------------------------------------------------- the edit view ---- */
-
-function renderEdit() {
-  const p = fam.byId[editing];
-  $('#list-view').hidden = true;
-  const v = $('#edit-view');
-  v.hidden = false;
-
-  const isRoot = fam.meta.root_id === p.id;
+function kinCard(p, i) {
   const ab = p.abilities || [];
-  // What their life on the record suggests, and a chip for every Gift.
+  const slots = [0, 1].map(k => { const a = ab[k], fx = a && ABILITY_EFFECTS[a.kind];
+    return a ? `<span class="g on" title="${esc(a.name)}">${fx ? fx.icon : '✦'}</span>` : '<span class="g">+</span>'; }).join('');
+  return `<button class="kc ${sideOf(p)} ${p.birth_year ? '' : 'noyear'}" data-id="${esc(p.id)}"
+      style="animation-delay:${Math.min(i, 24) * 22}ms">
+    <span class="band"><span class="mono">${esc(initials(p))}</span>
+      <span class="tier">${p.birth_year ? TIER[ab.length] : 'Not playable'}</span></span>
+    <span class="body"><span class="nm">${esc(p.name)}</span>
+      <span class="yr">${esc(years(p))}</span>
+      <span class="rl">${esc(p.relationship_to_root || '')}</span>
+      <span class="gs">${slots}</span></span>
+  </button>`;
+}
+
+/* ------------------------------------------------------------- the deck -- */
+
+const FILTERS = [
+  ['all', 'Everyone', () => true],
+  ['gift', 'With Gifts', p => (p.abilities || []).length],
+  ['none', 'No Gift yet', p => !(p.abilities || []).length],
+  ['pat', "Father's side", p => sideOf(p) === 'pat'],
+  ['mat', "Mother's side", p => sideOf(p) === 'mat'],
+];
+const SORTS = {
+  old: (a, b) => (a.birth_year || 9999) - (b.birth_year || 9999),
+  young: (a, b) => (b.birth_year || 0) - (a.birth_year || 0),
+  az: (a, b) => a.name.localeCompare(b.name),
+};
+$('#chips').innerHTML = FILTERS.map(([id, label]) =>
+  `<button class="chip ${id === filter ? 'on' : ''}" data-f="${id}">${label}</button>`).join('');
+$('#chips').onclick = e => { const b = e.target.closest('[data-f]'); if (!b) return;
+  filter = b.dataset.f;
+  $('#chips').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b));
+  renderGrid(); };
+$('#q').oninput = () => renderGrid();
+$('#sort').onchange = () => renderGrid();
+
+function renderGrid(quiet) {
+  $('#grid').classList.toggle('quiet', !!quiet);
+  const term = ($('#q').value || '').trim().toLowerCase();
+  const keep = FILTERS.find(f => f[0] === filter)[2];
+  const list = fam.people.filter(p => keep(p) && (!term || p.name.toLowerCase().includes(term)))
+    .sort(SORTS[$('#sort').value]);
+  const gifted = fam.people.filter(p => (p.abilities || []).length).length;
+  $('#count').textContent = `${fam.people.length} Kin · ${gifted} with a Gift`
+    + (list.length !== fam.people.length ? ` · showing ${list.length}` : '');
+  $('#grid').innerHTML = (list.length ? list.map(kinCard).join('') : '<p class="empty">Nobody here.</p>')
+    + `<button class="kc add" id="add"><b>+</b>Add someone</button>`;
+  $('#grid').querySelectorAll('.kc[data-id]').forEach(b => {
+    b.onclick = () => { editing = b.dataset.id; picking = false; renderFocus(); };
+  });
+  $('#add').onclick = () => newPerson(null, null);
+}
+
+/* ------------------------------------------------------ one card, up close */
+
+function renderFocus() {
+  const f = $('#focus');
+  const p = editing && fam.byId[editing];
+  if (!p) { f.classList.remove('on'); f.innerHTML = ''; shown = null; return; }
+  const ab = p.abilities || [];
   const sug = suggestGift(p, giftContext(fam.people));
+  const isRoot = fam.meta.root_id === p.id;
   const chip = (id, hot) => { const g = GIFT_BY_ID[id], fx = ABILITY_EFFECTS[g.kind];
-    return `<button class="gchip ${ab.some(a => a.gift === id) ? 'on' : ''} ${hot ? 'sug' : ''}"
-      data-gift="${id}" title="${esc(fx.verb(g.n || 1))}">${fx.icon} ${esc(g.name)}</button>`; };
+    return `<button class="gchip ${hot ? 'sug' : ''}" data-gift="${id}"
+      ><i>${fx.icon}</i><span><b>${esc(g.name)}</b><small>${esc(fx.verb(g.n || 1))}</small></span></button>`; };
+  const taken = new Set(ab.map(a => a.gift));
 
-  v.innerHTML = `
-    <div class="row" style="margin-bottom:14px">
-      <button class="btn" id="back">← Everyone</button>
-      <div class="sp" style="flex:1"></div>
-      ${isRoot ? '<span class="tag story">this is you</span>'
-               : '<button class="btn sm" id="mkroot">Centre on them</button>'}
-    </div>
-
-    <h2>Who they are</h2>
-    <div class="card">
-      <div class="two">
-        <div class="field"><label>First names</label>
-          <input type="text" id="f-given" value="${esc(p.given||'')}"></div>
-        <div class="field"><label>Surname</label>
-          <input type="text" id="f-surname" value="${esc(p.surname||'')}"></div>
+  const slots = ab.map((a, i) => {
+    // A Gift written before the menu has no effect of its own; in play it
+    // borrows the one their life suggests, so say that rather than nothing.
+    const own = ABILITY_EFFECTS[a.kind], fx = own || ABILITY_EFFECTS[(sug || {}).kind];
+    return `<div class="slot">
+      <span class="gi">${fx ? fx.icon : '✦'}</span>
+      <div class="grow">
+        <input type="text" class="gname" id="f-gn${i}" value="${esc(a.name)}" aria-label="Gift name">
+        <div class="gfx">${fx ? esc(fx.verb(own ? a.n || 1 : sug.n)) : ''}</div>
+        <input type="text" class="gwhy" id="f-gw${i}" value="${esc(a.why || a.text || '')}"
+          placeholder="Why them? A line from their story" aria-label="Why they have it">
       </div>
-      <div class="two">
-        <div class="field"><label>Suffix</label>
-          <input type="text" id="f-suffix" value="${esc(p.suffix||'')}" placeholder="Jr, III"></div>
-        <div class="field"><label>Sex</label>
-          <select id="f-sex">
+      <button class="x" data-ungift="${i}" aria-label="Remove this Gift">✕</button>
+    </div>`; }).join('');
+  const add = ab.length >= 2 ? '' : picking ? `<div class="picker">
+      ${sug && !taken.has(sug.gift) ? `<div class="gg"><span>Their life suggests</span>${chip(sug.gift, true)}</div>` : ''}
+      ${[...new Set(GIFTS.map(g => g.group))].map(grp => `<div class="gg"><span>${esc(grp)}</span>${
+        GIFTS.filter(g => g.group === grp && !taken.has(g.id)).map(g => chip(g.id)).join('')}</div>`).join('')}
+      <button class="btn sm" id="unpick">Close</button></div>`
+    : `<button class="addslot" id="pick">+ Add a Gift${sug && !taken.has(sug.gift) ? ` · try <b>${esc(GIFT_BY_ID[sug.gift].name)}</b>` : ''}</button>`;
+
+  f.innerHTML = `<div class="fx ${shown === p.id ? 'still' : ''}">
+    ${kinCard(p, 0).replace('<button', '<div').replace(/<\/button>\s*$/, '</div>')}
+    <div class="panel">
+      <h2>Gifts · ${ab.length} of 2</h2>
+      ${slots}${add}
+      <h2>Their story</h2>
+      <textarea id="f-story" placeholder="A job, a journey, something they said, how they are remembered.">${esc(p.story || '')}</textarea>
+
+      <details class="rec"><summary>Fix the record</summary>
+        <div class="two" style="margin-top:8px">
+          <div class="field"><label>First names</label><input type="text" id="f-given" value="${esc(p.given||'')}"></div>
+          <div class="field"><label>Surname</label><input type="text" id="f-surname" value="${esc(p.surname||'')}"></div>
+        </div>
+        <div class="two">
+          <div class="field"><label>Suffix</label><input type="text" id="f-suffix" value="${esc(p.suffix||'')}" placeholder="Jr, III"></div>
+          <div class="field"><label>Sex</label><select id="f-sex">
             <option value=""${!p.sex?' selected':''}>Not recorded</option>
             <option value="F"${p.sex==='F'?' selected':''}>Female</option>
-            <option value="M"${p.sex==='M'?' selected':''}>Male</option>
-          </select></div>
-      </div>
-    </div>
-
-    <h2>What the records say</h2>
-    <div class="card">
-      <p class="hint" style="margin-bottom:10px">A birth year is what puts someone on
-        the timeline. Without one they stay in your family but cannot be played.</p>
-      <div class="two">
-        <div class="field"><label>Born — year</label>
-          <input type="number" id="f-by" value="${p.birth_year ?? ''}" placeholder="1902"></div>
-        <div class="field"><label>Born — place</label>
-          <input type="text" id="f-bp" value="${esc(p.birth_place||'')}" placeholder="Town, County, Country"></div>
-      </div>
-      <div class="check">
-        <input type="checkbox" id="f-living" ${p.living?'checked':''}>
-        <label for="f-living" style="margin:0">Still living</label>
-      </div>
-      <div id="deathfields" ${p.living?'hidden':''}>
-        <div class="two">
-          <div class="field"><label>Died — year</label>
-            <input type="number" id="f-dy" value="${p.death_year ?? ''}"></div>
-          <div class="field"><label>Died — place</label>
-            <input type="text" id="f-dp" value="${esc(p.death_place||'')}"></div>
+            <option value="M"${p.sex==='M'?' selected':''}>Male</option></select></div>
         </div>
-        <div class="field"><label>Buried</label>
-          <input type="text" id="f-bu" value="${esc(p.burial_place||'')}"></div>
-      </div>
-      <div class="field"><label>Children they had (if you know the real number)</label>
-        <input type="number" id="f-kids" value="${p.child_count ?? ''}"
-          placeholder="${p.children_in_tree} in this file"></div>
-    </div>
-
-    ${renderMarriages(p)}
-
-    <h2>Family</h2>
-    <div class="card">
-      ${linkBlock('Parents', p.parent_ids, 'parent')}
-      ${linkBlock('Spouses', p.spouse_ids, 'spouse')}
-      ${linkBlock('Children', p.children_ids, 'child')}
-    </div>
-
-    <h2>Their story</h2>
-    <div class="card">
-      <div class="field">
-        <textarea id="f-story" placeholder="What do you know about them? A job, a journey, something they said, how they are remembered.">${esc(p.story||'')}</textarea>
-      </div>
-      <p class="hint">This shows on their Kin when you play.</p>
-    </div>
-
-    <h2>Gifts <span class="h2n">${ab.length} of 2 · ${['Sketch','Story','Biography'][ab.length]}</span></h2>
-    <div class="card">
-      ${ab.map((a, i) => {
-        // A Gift written before the menu has no effect of its own; in play it
-        // borrows the one their life suggests, so say that rather than nothing.
-        const own = ABILITY_EFFECTS[a.kind], fx = own || ABILITY_EFFECTS[(sug || {}).kind];
-        return `<div class="gcard">
-          <span class="gi">${fx ? fx.icon : '✦'}</span>
-          <div class="grow">
-            <input type="text" id="f-gn${i}" value="${esc(a.name)}" aria-label="Gift name">
-            <div class="gfx">${fx ? esc(fx.verb(own ? a.n || 1 : sug.n)) : ''}${own ? ''
-              : ' <i>Taken from their life. Tap a Gift below to choose instead.</i>'}</div>
-            <input type="text" id="f-gw${i}" value="${esc(a.why || a.text || '')}"
-              placeholder="A line from their story" aria-label="Why they have it">
+        <div class="two">
+          <div class="field"><label>Born — year</label><input type="number" id="f-by" value="${p.birth_year ?? ''}" placeholder="1902"></div>
+          <div class="field"><label>Born — place</label><input type="text" id="f-bp" value="${esc(p.birth_place||'')}"></div>
+        </div>
+        <div class="check"><input type="checkbox" id="f-living" ${p.living?'checked':''}>
+          <label for="f-living">Still living</label></div>
+        <div id="deathfields" ${p.living?'hidden':''}>
+          <div class="two">
+            <div class="field"><label>Died — year</label><input type="number" id="f-dy" value="${p.death_year ?? ''}"></div>
+            <div class="field"><label>Died — place</label><input type="text" id="f-dp" value="${esc(p.death_place||'')}"></div>
           </div>
-          <button class="x" data-ungift="${i}" aria-label="Remove this Gift">✕</button>
-        </div>`; }).join('')}
-      <div class="gpick">
-        ${sug ? `<div class="gg"><span>Their life suggests</span>${chip(sug.gift, true)}</div>` : ''}
-        ${[...new Set(GIFTS.map(g => g.group))].map(grp => `<div class="gg"><span>${esc(grp)}</span>${
-          GIFTS.filter(g => g.group === grp).map(g => chip(g.id)).join('')}</div>`).join('')}
-      </div>
-      <p class="hint">Tap a Gift to give it to them, up to two. Each one makes their Kin
-        rarer, and you can rename it to something only your family would say.</p>
-    </div>
+          <div class="field"><label>Buried</label><input type="text" id="f-bu" value="${esc(p.burial_place||'')}"></div>
+        </div>
+        <div class="field"><label>Children they had</label>
+          <input type="number" id="f-kids" value="${p.child_count ?? ''}" placeholder="${p.children_in_tree} in this file"></div>
+        ${renderMarriages(p)}
+        ${linkBlock('Parents', p.parent_ids, 'parent')}
+        ${linkBlock('Spouses', p.spouse_ids, 'spouse')}
+        ${linkBlock('Children', p.children_ids, 'child')}
+        <div class="row" style="margin-top:12px">
+          ${isRoot ? '<span class="tag">Everyone is related to them</span>'
+                   : '<button class="btn sm" id="mkroot">Centre the family on them</button>'}
+          <div class="sp"></div>
+          <button class="btn sm danger" id="del">Remove</button>
+        </div>
+      </details>
 
-    <h2>In the game</h2>
-    <div class="card">
-      <div class="check">
-        <input type="checkbox" id="f-ready" ${p.ready?'checked':''} ${p.birth_year?'':'disabled'}>
-        <label for="f-ready" style="margin:0">Ready to play${p.birth_year?'':' — needs a birth year first'}</label>
-      </div>
-      <p class="hint">Kinspan can play everyone, or only the Kin you have marked
-        ready. The toggle for that is in the game's header.</p>
-    </div>
+      <div class="done"><div class="sp"></div><button class="btn primary" id="apply">Done</button></div>
+    </div></div>`;
+  f.classList.add('on'); shown = p.id;
 
-    <div class="row" style="margin:18px 0 10px">
-      <button class="btn primary" id="apply">Done</button>
-      <div style="flex:1"></div>
-      <button class="btn danger" id="del">Remove from family</button>
-    </div>
-  `;
-
-  // --- wiring ---
-  $('#back').onclick = () => { commit(); editing = null; render(); };
-  $('#apply').onclick = () => { commit(); editing = null; render(); };
+  const close = () => { commit(); editing = null; render(); };
+  $('#apply').onclick = close;
+  f.onclick = e => { if (e.target === f || e.target.classList.contains('fx')) close(); };
+  const pk = $('#pick'); if (pk) pk.onclick = () => { commit(); picking = true; renderFocus(); };
+  const up = $('#unpick'); if (up) up.onclick = () => { commit(); picking = false; renderFocus(); };
   const mk = $('#mkroot');
-  if (mk) mk.onclick = () => {
-    commit();
-    fam.meta.root_id = p.id;
-    changed(`Everyone is now described relative to ${p.name}.`);
-  };
+  if (mk) mk.onclick = () => { commit(); fam.meta.root_id = p.id;
+    changed(`Everyone is now described relative to ${p.name}.`); };
   $('#f-living').onchange = e => { $('#deathfields').hidden = e.target.checked; };
   $('#del').onclick = () => confirmDelete(p);
-  v.querySelectorAll('[data-gift]').forEach(b => {
+  f.querySelectorAll('[data-gift]').forEach(b => {
     b.onclick = () => {
       commit();
-      const id = b.dataset.gift, g = GIFT_BY_ID[id], own = p.abilities;
-      const at = own.findIndex(a => a.gift === id);
-      if (at >= 0) own.splice(at, 1);
-      else {
-        if (own.length >= 2) own.pop();        // the newest pick takes the second slot
-        own.push({ gift: id, kind: g.kind, n: g.n || 1, name: g.name, why: '' });
-      }
-      changed();
+      const id = b.dataset.gift, g = GIFT_BY_ID[id];
+      p.abilities.push({ gift: id, kind: g.kind, n: g.n || 1, name: g.name, why: '' });
+      picking = false;
+      changed(`${g.name} given to ${p.given || p.name}.`);
     };
   });
-  v.querySelectorAll('[data-ungift]').forEach(b => {
+  f.querySelectorAll('[data-ungift]').forEach(b => {
     b.onclick = () => { commit(); p.abilities.splice(+b.dataset.ungift, 1); changed(); };
   });
-
-  v.querySelectorAll('[data-unlink]').forEach(b => {
+  f.querySelectorAll('[data-unlink]').forEach(b => {
     b.onclick = () => {
       commit();
       const [kind, other] = b.dataset.unlink.split(':');
@@ -409,7 +452,7 @@ function renderEdit() {
       changed('Unlinked.');
     };
   });
-  v.querySelectorAll('[data-addlink]').forEach(b => {
+  f.querySelectorAll('[data-addlink]').forEach(b => {
     b.onclick = () => { commit(); pickPerson(p, b.dataset.addlink); };
   });
 }
@@ -488,7 +531,6 @@ function commit() {
   p.abilities = (p.abilities || []).map(({ text, ...a }, i) => ({ ...a,
     name: val('f-gn' + i) || (GIFT_BY_ID[a.gift] || {}).name || a.name,
     why: document.getElementById('f-gw' + i) ? val('f-gw' + i) : (a.why || text || '') }));
-  p.ready = chk('f-ready');
   // A person who has been written about is no longer untouched.
   if ((p.story || '').trim() || p.abilities.length) p.status = 'drafted';
 
@@ -598,11 +640,11 @@ function newPerson(relativeTo, kind) {
       if (kind === 'child')  TREE.linkChild(fam.byId, relativeTo.id, p.id);
     }
     closeSheet();
+    if (!relativeTo) editing = p.id;
     changed(`${p.name} added.`);
   };
 }
 
-$('#add').onclick = () => newPerson(null, null);
 
 /* ------------------------------------------------------------- removing ---- */
 
@@ -641,7 +683,11 @@ function openSheet(html) {
 }
 function closeSheet() { $('#modal').classList.remove('on'); $('#sheet').innerHTML = ''; }
 $('#modal').onclick = e => { if (e.target.id === 'modal') closeSheet(); };
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if ($('#modal').classList.contains('on')) closeSheet();
+  else if (editing) { commit(); editing = null; render(); }
+});
 
 /* ----------------------------------------------------------------- save ---- */
 
@@ -654,14 +700,13 @@ $('#save').onclick = () => {
 
 /* ------------------------------------------------------------ the game ---- */
 
-/* This page is where the family is built and kept; the board only reads it.
- * So the game is entered from here, and an edit in flight is committed on the
- * way in rather than lost. */
+/* Back to the title screen. The autosave carries the family across, so this
+ * is not a place to warn about unsaved changes. */
 let leaving = false;
-$('#play').onclick = () => {
+$('#home').onclick = () => {
   if (editing) commit();
   leaving = true;
-  location.href = 'play.html';
+  location.href = './';
 };
 
 /* The autosave is a crash net, not their file. Say so on the way out rather
