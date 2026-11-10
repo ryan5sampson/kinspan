@@ -474,6 +474,24 @@ window.saveSettings = function (s){
   try { localStorage.setItem(SKEY, JSON.stringify(s)); } catch (e) {}
   return s;
 };
+/* ---- game modes --------------------------------------------------------
+ * A mode is a named set of overrides on the defaults. The title screen lists
+ * them; play.html?mode=<id> plays one. 'custom' is whatever the rules page
+ * saved, and 'tutorial' is Classic with the tour running over it. */
+window.MODES = [
+  { id:'classic', icon:'⏳', name:'Classic', blurb:'Pick 2 of 5 Legacy cards, then walk the timeline forward.', set:{} },
+  { id:'quick', icon:'⚡', name:'Quick', blurb:'Legacy cards dealt for you. Every move costs 20 years.',
+    set:{ selection:'random', costDraw:20, costPlay:20, costBonus:25 } },
+  { id:'saga', icon:'⟲', name:'There and back', blurb:'Forward, then back again. New Legacy cards flip as you go.',
+    set:{ clockDir:'forwardback', reveal:'poker' } },
+];
+window.MODE_BY_ID = Object.fromEntries(window.MODES.map(m => [m.id, m]));
+window.modeSettings = function (id){
+  if (id === 'custom') return window.loadSettings();
+  const m = window.MODE_BY_ID[id] || window.MODES[0];
+  return Object.assign({}, window.DEFAULT_SETTINGS, m.set);
+};
+
 /* The pool a draft may deal from: everything, minus whatever the baseline is
  * already scoring for free. */
 window.draftPool = function (s){

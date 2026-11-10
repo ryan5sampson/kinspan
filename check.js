@@ -34,4 +34,8 @@ const [a] = abilitiesOf(legacy);
 assert.equal(a.kind, 'time', 'an old effect-less Gift borrows the one its life suggests');
 assert.equal(a.why, 'She baked.');
 assert(abilitiesOf(people[0]).length === 0, 'rate 0 gives no generated Gift');
-console.log(`ok — ${GIFTS.length} Gifts, ${Object.keys(ABILITY_EFFECTS).length} effects`);
+for (const m of MODES) for (const k of Object.keys(m.set))
+  assert(k in DEFAULT_SETTINGS, `mode ${m.id}: unknown setting ${k}`);
+assert.equal(modeSettings('quick').selection, 'random');
+assert.equal(modeSettings('nope').selection, DEFAULT_SETTINGS.selection, 'an unknown mode plays Classic');
+console.log(`ok — ${MODES.length} modes, ${GIFTS.length} Gifts, ${Object.keys(ABILITY_EFFECTS).length} effects`);

@@ -136,10 +136,7 @@
   #insp.on{animation:inspin .22s var(--ease) both}
   @keyframes inspin{ from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
   #score{transition:transform .2s var(--ease),background .2s}
-  #sideclose,#inspmore,#sidenav{display:none}
-  #sidenav{gap:16px;padding:0 0 12px;margin-bottom:10px;
-    border-bottom:1px solid var(--edge)}
-  #sidenav a{font-size:14px;padding:6px 0}
+  #sideclose,#inspmore{display:none}
   #sideclose{position:absolute;top:10px;right:12px;font-size:20px;line-height:1;
     color:var(--dim);cursor:pointer;padding:4px 8px}
   #inspmore{margin-top:8px;width:100%;text-align:center;font-size:12.5px;
@@ -269,6 +266,17 @@
   /* A Gift waiting to change your next move. */
   .armed{flex:none;background:var(--gold);color:#fff;border-radius:16px;padding:5px 11px;
     font-size:12.5px;font-weight:600;white-space:nowrap}
+  .modename{font-weight:680;font-size:14.5px}
+  .menu{display:flex;flex-direction:column;gap:8px}
+  .menu button{padding:13px;font-size:15px;font-weight:600;border-radius:11px;text-align:left}
+  .menu button.primary{text-align:center}
+  .menu button i{font-style:normal;display:inline-block;width:26px;color:var(--gold)}
+  .menu hr{border:0;border-top:1px solid var(--edge);margin:4px 0}
+  .final{text-align:center}
+  .final .big{font-size:64px;font-weight:720;color:var(--gold);line-height:1;letter-spacing:-.02em;
+    animation:pop .5s var(--ease) both}
+  .final .why{color:var(--dim);margin:8px 0 18px}
+  @keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
   button.icon{width:34px;height:34px;padding:0;border-radius:50%;font-weight:700;font-size:15px}
   /* Years spent, as a bar: how much game is left, read at a glance. */
   .yrbar{height:6px;border-radius:3px;background:#e6eef5;overflow:hidden;margin:-2px 0 8px}
@@ -472,24 +480,8 @@
     /* Two deliberate rows -- identity and score on top, controls beneath.
        Letting it wrap on its own gave three rows and 137px of a 812px screen,
        with the score chip landing wherever the wrap happened to put it. */
-    header{padding:6px 10px;gap:7px;row-gap:5px;align-items:center}
-    h1{font-size:14px;flex:0 0 auto;order:1}
-    header a{display:none}
-    header .stat{order:2}
-    header #score{order:3;margin-left:auto;padding:4px 11px;min-height:32px;
-      display:flex;align-items:center}
-    header .sp{display:none}
-    /* Force the break: everything from here starts row two. */
-    header::after{content:'';flex-basis:100%;height:0;order:3}
-    header #bonusbtn,header #helpbtn{order:5} header #newgame{order:6}
-    /* Row one is name, turn and score; the family name and the fan chart
-       live in the pull-up sheet on a phone, where there is room for them. */
-    header #famname,header #fanbtn{display:none}
-    #sidenav{display:flex}
-    header label.stat{order:5;font-size:11px}
-    /* "use every Kin" is most of a phone row on its own. */
-    header label.stat{font-size:0}
-    header label.stat::after{content:'every Kin';font-size:11px;margin-left:4px}
+    header{padding:6px 10px;gap:8px}
+    header .modename{display:none}
     button{padding:7px 11px;min-height:36px;font-size:13px}
 
     /* The sidebar becomes a sheet. It already toggles on the score chip, so
@@ -550,22 +542,13 @@
 </style>
 
 <header>
-  <h1>Kinspan</h1>
-  <!-- Links are relative: this build is static files, and a host may serve it
-       from a subpath. An absolute "/" would leave the site. -->
-  <a href="./" title="Load a different family file">← Files</a>
-  <a href="edit.html" title="Write stories, fix records, add people, save your file">← Your family</a>
-  <span class="stat" id="famname"></span>
+  <button id="menubtn" class="icon" title="Menu" aria-label="Menu">☰</button>
+  <span class="modename" id="modename"></span>
   <span class="stat">Turn <b id="turn">–</b></span>
   <span class="stat">Archive <b id="deckn">–</b></span>
-  <button id="score" title="Show or hide your Legacy">Legacy</button>
   <div class="sp"></div>
-  <label class="stat" style="cursor:pointer" title="Play with everyone, not only the Kin you have marked ready">
-    <input type="checkbox" id="practice" checked> use every Kin</label>
-  <button id="fanbtn" title="See your direct line as a fan, and where the gaps are">Fan chart</button>
-  <button id="bonusbtn">Legacy cards</button>
-  <button id="helpbtn" class="icon" title="How to play, and the tour" aria-label="How to play">?</button>
-  <button id="newgame" class="primary">Start again</button>
+  <button id="score" title="Show or hide your Legacy">Legacy</button>
+  <button id="helpbtn" class="icon" title="How to play" aria-label="How to play">?</button>
 </header>
 
 <div id="wrap">
@@ -576,7 +559,6 @@
     <div id="clockline"><span id="clockyear"></span></div><svg id="drag"></svg>
   </div></div>
   <div id="side" class="on"><span id="sideclose">✕</span>
-    <div id="sidenav"><a href="edit.html">← Your family</a><a href="./">Files</a><a href="settings.html">Settings</a><a id="fan2" href="#">Fan chart</a></div>
     <div id="legacytotal"><b id="ltot">0</b><span>Legacy</span></div>
     <div id="clockbox"></div>
     <h3>Legacy cards</h3><div id="bl"></div>
@@ -607,14 +589,15 @@ let deck=[], hand=[], played=[], turn=0, fresh=null, over=false;
 /* Entries are {id, baseline?, mult?, faceDown?} -- richer than a bare id
    because poker mode, the doubled river and the always-on family defaults all
    need to say something about a card beyond which one it is. */
-let bonuses=[], offer=[], pickAll=false, pending=[], dealt=false, SET=loadSettings();
+const MODE=new URLSearchParams(location.search).get('mode')||'classic';
+let bonuses=[], offer=[], pickAll=false, pending=[], dealt=false, SET=modeSettings(MODE);
 
 /* ---- the clock --------------------------------------------------------
    A marker walking the timeline. Actions cost years; the game ends when it
    runs off the end. Abilities are gated on it standing inside a person's
    lifetime, which is what makes WHEN you play someone matter. */
 let clock=0, clockDir=1, clockSpan=[0,0], turned=false, usedAbil=new Set(), freePlay=0;
-let overWhy=null;   // why the game ended, recorded where it happens
+let overWhy=null, endShown=false;   // why the game ended, recorded where it happens
 const bonusIds=()=>bonuses.map(b=>b.id);
 /* Cards YOU are holding: not the always-on family defaults, and not the ones
    poker mode turned face up at you. The cap governs what you chose to take --
@@ -654,8 +637,7 @@ async function load(){
   if(!people.length){
     toast('No one in this family has a birth year, so there is no timeline to build.');
   }
-  const nameEl=$('#famname');
-  if(nameEl) nameEl.textContent=fam.meta.title||'';
+  $('#modename').textContent=MODE==='tutorial'?'Tutorial':MODE==='custom'?'Custom game':MODE_BY_ID[MODE]?.name||'';
   // Place bonuses are built from THIS tree, so they name real places from it.
   buildBonuses(people);
   const ys=people.flatMap(p=>[startY(p),endY(p)]);
@@ -666,15 +648,15 @@ function fit(){ pxYear=Math.max(4.5,($('#stage').clientWidth-28)/(span[1]-span[0
 
 /* ---------------- game ---------------- */
 function newGame(){
-  SET=loadSettings();
-  const pool=people.filter(p=>$('#practice').checked ? true : p.ready);
+  SET=modeSettings(MODE);
+  const pool=people;
   deck=shuffle(pool.map(p=>p.id));
   // The hand is NOT dealt yet. You pick your bonuses first and are dealt into
   // them, so the opening hand is something you read against objectives you
   // already know -- dealing first made the draft an afterthought.
   hand=[]; played=[]; turn=1; over=false; fresh=null; pickAll=false;
   mustDiscard=0; dealt=false; lastPts={}; shownScore=null; inspecting=null; giftTapped=null;
-  abilPts=0; kinFrom=null; overWhy=null; handBonus=0; halfPlay=0; pauseN=0; keepsakes=[];
+  endShown=false; abilPts=0; kinFrom=null; overWhy=null; handBonus=0; halfPlay=0; pauseN=0; keepsakes=[];
   freeTake=null; swapLeft=0; doubleNext=false; reunionOn=false;
   buildAbilities(people, SET.abilityRate);
   clockInit();
@@ -702,11 +684,9 @@ function newGame(){
       mult:(SET.river && i===SET.pokerFlips-1) ? 2 : 1 }));
   }
   render();
-  if(!pool.length){
-    toastHand('No Kin are marked ready yet. Tick some in the Archive, or leave “use every Kin” on.');
-    return;
-  }
-  if(tourSeen()) beginRound(); else askTour();
+  if(!pool.length) return;
+  beginRound();
+  if(MODE==='tutorial' && !tour) startTour();
 }
 
 /* Bonuses first, then the deal. */
@@ -809,23 +789,37 @@ function tourFrame(){
   requestAnimationFrame(tourFrame);
 }
 
-/* First game ever: offer the tour, one tap either way. */
-function askTour(){
-  $('#isheet').innerHTML=`
-    <div class="hello">A hand of your own family</div>
-    <h2>Kinspan</h2>
-    <p class="sub">Put your family back on the timeline where they lived.</p>
-    <div class="brow">
-      <button id="inope">I know how to play</button><span class="sp"></span>
-      <button id="iyes" class="primary">Show me — 1 minute</button>
-    </div>`;
-  $('#isheet').classList.remove('wide'); $('#imodal').classList.add('on');
-  const go=yes=>{ try{ localStorage.setItem(TOUR_KEY,'1'); }catch(e){}
-    $('#imodal').classList.remove('on'); beginRound(); if(yes) startTour(); };
-  $('#iyes').onclick=()=>go(true);
-  $('#inope').onclick=()=>go(false);
+/* The pause menu: everything that is not a move lives here, so the header
+   carries only what you read every turn. */
+function openMenu(){
+  sheetI(`<h2>Paused</h2><div class="menu">
+    <button class="primary" data-m="resume">Resume</button>
+    <button data-m="legacy"><i>◈</i>Legacy cards</button>
+    <button data-m="fan"><i>◐</i>Fan chart</button>
+    <button data-m="help"><i>?</i>How to play</button>
+    <hr>
+    <button data-m="restart"><i>↺</i>Restart this game</button>
+    <button data-m="builder"><i>✦</i>Card builder</button>
+    <button data-m="home"><i>⌂</i>Main menu</button></div>`);
+  const go={resume:()=>{}, legacy:openBonuses, fan:openFan, help:openHelp,
+    restart:()=>{ endTour(); newGame(); },
+    builder:()=>location.href='edit.html', home:()=>location.href='./'};
+  $('#isheet').querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{
+    $('#imodal').classList.remove('on'); go[b.dataset.m](); });
 }
-const tourSeen=()=>{ try{ return !!localStorage.getItem(TOUR_KEY); }catch(e){ return true; } };
+function openEnd(total){
+  sheetI(`<div class="final"><div class="hello">${esc(overWhy||'The game is over')}</div>
+    <div class="big">${total}</div><div>Legacy</div>
+    <div class="why">${played.length} Kin connected in ${turn-1} turns</div>
+    <div class="menu"><button class="primary" id="eagain">Play again</button>
+      <button id="ehome" style="text-align:center">Main menu</button></div></div>`);
+  $('#eagain').onclick=()=>{ $('#imodal').classList.remove('on'); newGame(); };
+  $('#ehome').onclick=()=>location.href='./#mode';
+}
+function sheetI(html){
+  $('#isheet').innerHTML=html; $('#isheet').classList.remove('wide'); $('#imodal').classList.add('on');
+  $('#toast').classList.remove('on');
+}
 
 /* The ? button: the tour again, and THIS game's rules as tiles you can take in
    at a glance, read back from settings rather than written once and left. */
@@ -850,7 +844,7 @@ function openHelp(){
     <div class="key"><span><i class="sw pat"></i>father's side</span><span><i class="sw mat"></i>mother's side</span>
       <span><i class="sw self"></i>you</span><span>${HEART} married</span><span>${FIGURE} child</span></div>
     <div class="brow">
-      <a href="settings.html">All the rules and settings →</a><span class="sp"></span>
+      <span class="sp"></span>
       <button id="hclose">Close</button>
       <button id="htour" class="primary">▶ Show me the tour</button>
     </div>`;
@@ -1491,6 +1485,7 @@ function render(ghost){
   // every hover would leave the sidebar flashing at real values it never had.
   if(!ghostId) for(const b of sc.bonuses) lastPts[b.id]=b.pts;
   if(!ghostId) renderHand(sc.total);
+  if(over && !endShown){ endShown=true; setTimeout(()=>openEnd(sc.total), 700); }
   if(!list.length){
     nodes.forEach(el=>el.remove()); nodes.clear();
     $('#cards').innerHTML=`<div class="empty">${dealt?`<b>${tap} a Kin below</b> to put them on the timeline<span class="down">↓</span>`:''}</div>`;
@@ -2068,12 +2063,9 @@ function revealCard(id){
 function renderHand(total){
   const h=$('#hand');
   if(over){
-    const why = overWhy || 'The Archive and your hand are empty';
-    // A round changes nothing about the family, so the way on from here is the
-    // builder -- that is where writing, fixing and saving live.
-    h.innerHTML=`<span class="msg"><b>That is the whole span.</b> ${why}.
-      Final Legacy: ${total},
-      over ${turn-1} turns. <a href="edit.html">Back to your family</a></span>`;
+    h.innerHTML=`<span class="msg"><b>Game over.</b> Final Legacy ${total}.</span>
+      <button class="primary" id="again">Play again</button>`;
+    $('#again').onclick=()=>{ $('#imodal').classList.remove('on'); newGame(); };
     return;
   }
   let html='';
@@ -2323,24 +2315,19 @@ const NARROW=matchMedia('(max-width: 760px)');
 const syncSide=()=>{ $('#side').classList.toggle('on', !NARROW.matches); if(people.length) render(); };
 NARROW.addEventListener('change', syncSide);
 syncSide();
-$('#newgame').onclick=()=>{closeRel(); newGame();};
-$('#fanbtn').onclick=$('#fan2').onclick=e=>{e.preventDefault(); closeRel(); openFan();};
+$('#menubtn').onclick=()=>{closeRel(); openMenu();};
 $('#fmodal').onclick=e=>{
   if(e.target.id==='fmodal'||e.target.id==='fclose') return closeFan();
   const w=e.target.closest('.fw[data-id]');
   if(w) openCard(fam.people.find(p=>p.id===w.dataset.id));
 };
-$('#bonusbtn').onclick=()=>{closeRel(); openBonuses();};
+$('#imodal').onclick=e=>{ if(e.target.id==='imodal' && !over) e.currentTarget.classList.remove('on'); };
 $('#helpbtn').onclick=()=>{closeRel(); openHelp();};
 $('#bmodal').onclick=e=>{ if(e.target.id==='bmodal') closeBonuses(); };
-$('#practice').onchange=newGame;
 addEventListener('resize',()=>{fit();render();});
 addEventListener('keydown',e=>{
   if(e.key==='Escape'){ $('#modal').classList.remove('on'); closeBonuses(); closeFan(); endTour(); }
-  if(e.key==='Escape' && $('#imodal').classList.contains('on')){
-    $('#imodal').classList.remove('on');
-    if(!dealt && !$('#bmodal').classList.contains('on')) beginRound();   // skip the words, not the round
-  }
+  if(e.key==='Escape') $('#imodal').classList.remove('on');
   if(e.key==='d') doDraw();
 });
 load();

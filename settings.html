@@ -4,7 +4,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Kinspan">
 <meta name="theme-color" content="#ffffff">
-<title>Kinspan — how to play it</title>
+<title>Kinspan — custom game</title>
 <script src="tree.js"></script>
 <script src="family.js"></script>
 <script src="rules.js"></script>
@@ -22,6 +22,8 @@
     display:flex;align-items:center;gap:14px;padding:9px 14px;position:sticky;top:0;z-index:5}
   header h1{font-size:15px;margin:0;letter-spacing:-.01em}
   header a{color:var(--gold);text-decoration:none;font-size:13px}
+  header a.back{width:36px;height:36px;border:1px solid var(--edge);border-radius:99px;
+    display:grid;place-items:center;color:var(--ink);font-size:17px;flex:none}
   header .sp{flex:1}
   button{font:inherit;border:1px solid var(--edge);background:var(--panel);color:var(--ink);
     border-radius:7px;padding:5px 12px;cursor:pointer}
@@ -80,9 +82,10 @@
      the button is a way back to the game, not a commit. */
   @media (max-width: 760px){
     header{flex-wrap:wrap;row-gap:6px;padding:8px 10px;gap:10px}
-    header h1{flex:1 1 100%;font-size:15px}
+    header h1{font-size:15px}
     header .sp{display:none}
     #save{display:none}
+    #famname{display:none}
     #reset{order:9;font-size:12.5px;padding:7px 10px}
     header a{padding:6px 0;font-size:14px}
     main{padding:14px 10px 96px}
@@ -99,10 +102,8 @@
 </style>
 
 <header>
-  <h1>How you want to play</h1>
-  <a href="play.html">← The timeline</a>
-  <a href="edit.html">Your family</a>
-  <a href="./">Files</a>
+  <a href="./#mode" class="back" aria-label="Back">←</a>
+  <h1>Custom game</h1>
   <span id="famname" class="fam"></span>
   <span class="sp"></span>
   <button id="reset">Put it all back</button>
@@ -261,19 +262,6 @@
   </section>
 
   <section>
-    <h2>Before you start</h2>
-    <div class="opt">
-      <span class="txt">
-        <span class="t">The tour</span>
-        <span class="d">A one-minute walk through your first turns, pointing at the real
-          buttons. It is offered on your first game, and the <b>?</b> button in a game has
-          it any time.</span>
-      </span>
-      <button id="retour">Offer it again</button>
-    </div>
-  </section>
-
-  <section>
     <h2>How much help you want</h2>
     <div class="modes" id="diff"></div>
   </section>
@@ -285,7 +273,7 @@
 
   <div class="foot">
     <span class="sp"></span>
-    <button id="save2" class="primary">Play</button>
+    <button id="save2" class="primary">Play this game</button>
   </div>
 </div></main>
 
@@ -464,8 +452,6 @@ function flash(){ const e=$('#saved'); e.classList.add('on');
 // Settings save as you change them -- the buttons only take you to the game.
 document.addEventListener('change', e=>{ if(e.target.dataset.k) commit(); });
 $('#reset').onclick=()=>{ S=Object.assign({},DEFAULT_SETTINGS); saveSettings(S); flash(); render(); };
-$('#save').onclick=$('#save2').onclick=()=>{ commit(); location.href='play.html'; };
-$('#retour').onclick=e=>{ try{ localStorage.removeItem('kinspan.tutorial'); }catch(_){}
-  e.target.textContent='It will be offered next game'; e.target.disabled=true; };
+$('#save').onclick=$('#save2').onclick=()=>{ commit(); location.href='play.html?mode=custom'; };
 render();
 </script>
