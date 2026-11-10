@@ -474,15 +474,63 @@ window.saveSettings = function (s){
   try { localStorage.setItem(SKEY, JSON.stringify(s)); } catch (e) {}
   return s;
 };
+/* ---- icons -------------------------------------------------------------
+ * One line-drawn set, so every page speaks the same visual language instead
+ * of whatever emoji the device happens to draw. icon('name') returns inline
+ * SVG that takes its size from the font and its colour from the text; static
+ * markup can write <i data-ic="name"></i> and gets filled in on load. */
+window.ICONS = {
+  spark:   'M12 3l2.2 6.8L21 12l-6.8 2.2L12 21l-2.2-6.8L3 12l6.8-2.2z',
+  sliders: 'M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2',
+  back:    'M19 12H5M11 6l-6 6 6 6',
+  close:   'M6 6l12 12M18 6L6 18',
+  menu:    'M4 7h16M4 12h16M4 17h16',
+  play:    'M8 5v14l11-7z',
+  save:    'M12 4v11M7 10l5 5 5-5M5 20h14',
+  swap:    'M4 8h14l-3-3M20 16H6l3 3',
+  hourglass:'M6 3h12M6 21h12M8 3v3l4 6-4 6v3M16 3v3l-4 6 4 6v3',
+  bolt:    'M13 3L5 13h6l-1 8 8-10h-6z',
+  uturn:   'M6 20V10a5 5 0 0 1 10 0v6M12 12l4 4 4-4',
+  cards:   'M9 3h9a2 2 0 0 1 2 2v12"/><rect x="4" y="7" width="11" height="14" rx="2',
+  rewind:  'M11 6l-7 6 7 6zM20 6l-7 6 7 6z',
+  star:    'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z',
+  heart:   'M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.2a4.2 4.2 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z',
+  hand:    'M18 4v6M15 7h6"/><rect x="3" y="6" width="10" height="14" rx="2',
+  half:    'M12 4a8 8 0 0 0 0 16z" fill="currentColor"/><circle cx="12" cy="12" r="8',
+  pause:   'M9 5v14M15 5v14',
+  echo:    'M17 3l3 3-3 3M4 11v-1a4 4 0 0 1 4-4h12M7 21l-3-3 3-3M20 13v1a4 4 0 0 1-4 4H4',
+  letter:  'M3 7l9 6 9-6"/><rect x="3" y="5" width="18" height="14" rx="2',
+  leaf:    'M5 19C5 11 11 5 19 5c0 8-6 14-14 14zM5 19l7-7',
+  diamond: 'M12 3l8 9-8 9-8-9z',
+  double:  'M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/><rect x="8" y="8" width="12" height="12" rx="2',
+  home:    'M4 11l8-7 8 7M6 9.5V20h12V9.5',
+  shuffle: 'M3 12a9 9 0 0 1 15.4-6.4L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.4 6.4L3 16M3 21v-5h5',
+  restart: 'M3 12a9 9 0 1 0 2.6-6.4L3 8M3 3v5h5',
+  fan:     'M3 18a9 9 0 0 1 18 0zM12 18V9M12 18l-6.4-6.4M12 18l6.4-6.4',
+  link:    'M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1',
+  clock:   'M12 7v5l3 2"/><circle cx="12" cy="12" r="9',
+  flag:    'M5 21V4h11l-2 4 2 4H5',
+  down:    'M12 5v14M6 13l6 6 6-6',
+  plus:    'M12 5v14M5 12h14',
+  help:    'M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/><circle cx="12" cy="12" r="9',
+};
+window.icon = (name, cls) => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true"><path d="${window.ICONS[name]}"/></svg>`;
+if (typeof document !== 'undefined') {
+  document.head.insertAdjacentHTML('beforeend', `<style>.ic{width:1em;height:1em;flex:none;vertical-align:-.14em;
+    fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;overflow:visible}</style>`);
+  document.addEventListener('DOMContentLoaded', () =>
+    document.querySelectorAll('[data-ic]').forEach(e => { e.innerHTML = window.icon(e.dataset.ic); }));
+}
+
 /* ---- game modes --------------------------------------------------------
  * A mode is a named set of overrides on the defaults. The title screen lists
  * them; play.html?mode=<id> plays one. 'custom' is whatever the rules page
  * saved, and 'tutorial' is Classic with the tour running over it. */
 window.MODES = [
-  { id:'classic', icon:'⏳', name:'Classic', blurb:'Pick 2 of 5 Legacy cards, then walk the timeline forward.', set:{} },
-  { id:'quick', icon:'⚡', name:'Quick', blurb:'Legacy cards dealt for you. Every move costs 20 years.',
+  { id:'classic', icon:icon('hourglass'), name:'Classic', blurb:'Pick 2 of 5 Legacy cards, then walk the timeline forward.', set:{} },
+  { id:'quick', icon:icon('bolt'), name:'Quick', blurb:'Legacy cards dealt for you. Every move costs 20 years.',
     set:{ selection:'random', costDraw:20, costPlay:20, costBonus:25 } },
-  { id:'saga', icon:'⟲', name:'There and back', blurb:'Forward, then back again. New Legacy cards flip as you go.',
+  { id:'saga', icon:icon('uturn'), name:'There and back', blurb:'Forward, then back again. New Legacy cards flip as you go.',
     set:{ clockDir:'forwardback', reveal:'poker' } },
 ];
 window.MODE_BY_ID = Object.fromEntries(window.MODES.map(m => [m.id, m]));
@@ -605,22 +653,22 @@ window.aliveAt = function (p, year){
  * play.html's giftStatus() and useAbility() hold a case for every kind here,
  * and check.js fails if one goes missing. */
 window.ABILITY_EFFECTS = {
-  draw:      { icon:'🂠', verb: n => `Pull ${n} Kin from the Archive. No years spent.` },
-  time:      { icon:'⏪', verb: n => `Take ${n} years back on the timeline.` },
-  points:    { icon:'★', verb: n => `Take ${n} Legacy, right now.` },
-  freeplay:  { icon:'⚡', verb: () => `Your next Connect costs no years.` },
-  playkin:   { icon:'♥', verb: () => `Connect their spouse, parent or child from your hand. Free.` },
-  hold:      { icon:'✋', verb: n => `Hold ${n} more Kin for the rest of the game.` },
-  discount:  { icon:'½', verb: () => `Your next Connect costs half the years.` },
-  pause:     { icon:'⏸', verb: n => `The marker stands still for your next ${n} moves.` },
-  echo:      { icon:'↻', verb: () => `Use a Gift you have already spent, once more.` },
-  summon:    { icon:'✉', verb: () => `Bring one of their family out of the Archive to your hand. Free.` },
-  keepsake:  { icon:'❦', verb: n => `+${n} Legacy for every Kin you connect after this.` },
-  objective: { icon:'◈', verb: () => `Claim a Legacy card. No years spent.` },
-  swap:      { icon:'⇄', verb: n => `Send up to ${n} Kin back to the Archive and pull as many.` },
-  double:    { icon:'⧉', verb: () => `Connect a Kin, then one more straight after, free.` },
-  reunion:   { icon:'⌂', verb: () => `Connect anyone in hand with two family already down. Free.` },
-  reshuffle: { icon:'⟳', verb: () => `Trade one of your Legacy cards for another. No years spent.` },
+  draw:      { icon:icon('cards'), verb: n => `Pull ${n} Kin from the Archive. No years spent.` },
+  time:      { icon:icon('rewind'), verb: n => `Take ${n} years back on the timeline.` },
+  points:    { icon:icon('star'), verb: n => `Take ${n} Legacy, right now.` },
+  freeplay:  { icon:icon('bolt'), verb: () => `Your next Connect costs no years.` },
+  playkin:   { icon:icon('heart'), verb: () => `Connect their spouse, parent or child from your hand. Free.` },
+  hold:      { icon:icon('hand'), verb: n => `Hold ${n} more Kin for the rest of the game.` },
+  discount:  { icon:icon('half'), verb: () => `Your next Connect costs half the years.` },
+  pause:     { icon:icon('pause'), verb: n => `The marker stands still for your next ${n} moves.` },
+  echo:      { icon:icon('echo'), verb: () => `Use a Gift you have already spent, once more.` },
+  summon:    { icon:icon('letter'), verb: () => `Bring one of their family out of the Archive to your hand. Free.` },
+  keepsake:  { icon:icon('leaf'), verb: n => `+${n} Legacy for every Kin you connect after this.` },
+  objective: { icon:icon('diamond'), verb: () => `Claim a Legacy card. No years spent.` },
+  swap:      { icon:icon('swap'), verb: n => `Send up to ${n} Kin back to the Archive and pull as many.` },
+  double:    { icon:icon('double'), verb: () => `Connect a Kin, then one more straight after, free.` },
+  reunion:   { icon:icon('home'), verb: () => `Connect anyone in hand with two family already down. Free.` },
+  reshuffle: { icon:icon('shuffle'), verb: () => `Trade one of your Legacy cards for another. No years spent.` },
 };
 
 /* ---- the Gifts --------------------------------------------------------
