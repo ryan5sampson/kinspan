@@ -42,13 +42,12 @@
   .stat{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
   .stat b{color:var(--ink);font-size:14px}
   #score{background:#fdf5e0;border-color:#d8bf7a;color:var(--gold);font-weight:640}
-  .legend{display:flex;gap:10px;font-size:11px;color:var(--dim);align-items:center}
   .sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;
     vertical-align:-1px}
 
   #wrap{flex:1;min-height:0;display:flex}
   #stage{flex:1;min-width:0;overflow:auto;padding:0 14px 14px}
-  #inner{position:relative;min-height:120px}
+  #inner{position:relative;min-height:calc(100% - 14px)}
   #axis{position:sticky;top:0;height:26px;z-index:6;background:var(--bg);
     border-bottom:1px solid var(--edge)}
   .tick{position:absolute;top:0;font-size:11px;color:var(--dim);
@@ -78,7 +77,6 @@
   .card.pat{background:var(--patbg);border-color:var(--pat);color:#1d3d55}
   .card.mat{background:var(--matbg);border-color:var(--mat);color:#5e2f14}
   .card.self{background:var(--selfbg);border-color:var(--self);color:#1d4a2c}
-  .card .pips{margin-left:auto;color:var(--gold);font-size:10px;padding-left:5px}
   .evt{position:absolute;top:50%;transform:translate(-50%,-50%);pointer-events:none;
     display:flex;align-items:center;justify-content:center;z-index:6}
   .evt svg{display:block}
@@ -185,7 +183,7 @@
      Grey while it cannot fire, lit when it can. */
   .gbtn{position:absolute;right:3px;top:50%;transform:translateY(-50%);
     width:22px;height:22px;border-radius:6px;border:1px solid var(--edge);
-    background:#f2efe9;color:#a49a8c;font-size:12px;line-height:1;padding:0;
+    background:#f2efe9;color:#a49a8c;font-size:12.5px;line-height:1;padding:0;
     display:flex;align-items:center;justify-content:center;cursor:default;
     pointer-events:auto;z-index:3;transition:background .15s,color .15s,box-shadow .15s}
   .gbtn.live{background:var(--gold);border-color:var(--gold);color:#fff;cursor:pointer;
@@ -203,13 +201,6 @@
   #gtip .w{font-size:11.5px;color:var(--dim);font-style:italic;margin-top:4px}
   #gtip .m{font-size:11.5px;color:var(--dim);margin-top:6px}
   #gtip .go{font-size:11.5px;color:var(--gold);font-weight:640;margin-top:7px}
-  .ability{border:1px solid #ddc487;background:#fdf7e6;border-radius:9px;
-    padding:9px 10px;margin-bottom:7px}
-  .ability .n{color:var(--gold);font-weight:650;font-size:13px}
-  .ability .e{font-size:11.5px;color:#5c5348;line-height:1.45;margin-top:2px}
-  .ability .w{font-size:11px;color:var(--dim);font-style:italic;margin-top:3px}
-  .ability button{width:100%;margin-top:7px;min-height:34px}
-  .ability.spent{opacity:.5;background:#f6f4f0;border-color:var(--edge)}
   .clockbar{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;
     margin-bottom:11px;font-variant-numeric:tabular-nums}
   .clockbar .gifts{flex:1 0 100%}
@@ -261,7 +252,55 @@
   .hc small{color:var(--dim);display:block;font-size:10.5px}
   .hc.pat{border-left:3px solid var(--pat)} .hc.mat{border-left:3px solid var(--mat)}
   .hc.self{border-left:3px solid var(--self)}
-  .gain{color:var(--gold);font-size:10.5px}
+  /* What a Kin is worth sits on the card's corner as a chip, not in the small
+     print -- it is the number you are choosing between. */
+  .hc{position:relative;padding-right:40px}
+  .gain{position:absolute;top:7px;right:7px;background:#fdf5e0;color:var(--gold);
+    border:1px solid #e2cd9b;border-radius:10px;padding:0 7px;font-size:11.5px;
+    font-weight:700;line-height:18px}
+  .gain.free{background:var(--self);border-color:var(--self);color:#fff}
+  .hc .gain.drop{background:#fbeade;border-color:#e8c79a}
+  .hg{font-style:normal;color:var(--gold);margin-left:5px;font-size:11px}
+  /* A move is a big two-line button: what it does, then what it costs. */
+  button.move{display:flex;flex-direction:column;align-items:flex-start;gap:0;
+    padding:6px 12px;min-width:112px;flex:none}
+  button.move b{font-size:13.5px;font-weight:620}
+  button.move small{font-size:11px;color:var(--dim)}
+  /* A Gift waiting to change your next move. */
+  .armed{flex:none;background:var(--gold);color:#fff;border-radius:16px;padding:5px 11px;
+    font-size:12.5px;font-weight:600;white-space:nowrap}
+  button.icon{width:34px;height:34px;padding:0;border-radius:50%;font-weight:700;font-size:15px}
+  /* Years spent, as a bar: how much game is left, read at a glance. */
+  .yrbar{height:6px;border-radius:3px;background:#e6eef5;overflow:hidden;margin:-2px 0 8px}
+  .yrbar i{display:block;height:100%;background:var(--clock);transition:width .42s var(--ease)}
+
+  /* ---- the tour: a lit ring on the real control, and one line beside it.
+     The ring's shadow dims everything else but takes no clicks, so the step
+     that says "click a Kin" can be done right there. */
+  #coach{position:fixed;z-index:70;border-radius:11px;pointer-events:none;
+    box-shadow:0 0 0 3px var(--gold),0 0 0 9999px rgba(43,38,33,.45);
+    transition:left .25s var(--ease),top .25s var(--ease),width .25s var(--ease),height .25s var(--ease)}
+  #coachtip{position:fixed;z-index:71;width:min(330px,calc(100vw - 20px));background:var(--panel);
+    border-radius:12px;padding:13px 15px 11px;box-shadow:0 14px 40px rgba(0,0,0,.3);
+    animation:inspin .22s var(--ease) both}
+  #coachtip .say{font-size:14.5px;line-height:1.45}
+  #coachtip .row{display:flex;align-items:center;gap:8px;margin-top:11px}
+  #coachtip .ct{font-size:11.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+  #coachtip .sp{flex:1}
+  /* The ? sheet: this game's rules as tiles, not paragraphs. */
+  .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:4px 0 14px}
+  .tile{border:1px solid var(--edge);border-radius:10px;padding:10px;background:#fdfbf7;
+    display:flex;flex-direction:column;gap:2px}
+  .tile .ti{font-size:20px;line-height:1.2;color:var(--gold)}
+  .tile b{font-size:13px}
+  .tile span:last-child{font-size:12px;color:var(--dim)}
+  .key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--dim);align-items:center}
+  .key svg{vertical-align:-1px}
+  .key .sw.pat{background:var(--patbg);border:1px solid var(--pat)}
+  .key .sw.mat{background:var(--matbg);border:1px solid var(--mat)}
+  .key .sw.self{background:var(--selfbg);border:1px solid var(--self)}
+  .key svg path{fill:var(--wed)}
+  .key svg circle,.key svg:last-child path{fill:none;stroke:var(--kid);stroke-width:2.6}
   .msg{color:var(--dim);font-size:13px}
 
   /* The details panel lives low, in the empty space under the timeline, rather
@@ -353,7 +392,11 @@
   .abil .s{color:var(--dim);font-size:12.5px;font-style:italic;margin-top:4px}
   .story{font-size:13.5px;color:#4a423a;white-space:pre-wrap;margin-bottom:10px}
   .sheet img{width:100%;border-radius:8px;margin-bottom:10px}
-  .empty{color:var(--dim);padding:28px 4px;font-size:14px}
+  .empty{position:absolute;left:0;right:0;top:34vh;text-align:center;color:var(--dim);font-size:15px}
+  .empty b{color:var(--ink)}
+  .empty .down{display:block;font-size:30px;color:var(--gold);margin-top:6px;
+    animation:nudge 1.4s ease-in-out infinite}
+  @keyframes nudge{50%{transform:translateY(7px)}}
 
   /* ---- bonus cards ---- */
   .sheet.wide{max-width:720px}
@@ -401,13 +444,6 @@
     letter-spacing:.11em}
   #isheet h2{font-size:26px;letter-spacing:-.015em}
   #isheet .sub{color:var(--dim);font-size:13.5px;line-height:1.55;margin:0 0 15px;max-width:56ch}
-  #isheet .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-    gap:2px 22px}
-  #isheet .rule{display:flex;gap:11px;padding:7px 0;border-top:1px solid var(--edge);
-    font-size:12.5px;line-height:1.5}
-  #isheet .rule .k{flex:0 0 78px;color:var(--dim);text-transform:uppercase;
-    letter-spacing:.07em;font-size:10px;padding-top:2px}
-  #isheet .rule .v{flex:1;color:#4a423a}
   #bsheet select{font:inherit;padding:4px 7px;border:1px solid var(--edge);
     border-radius:6px;background:var(--panel);color:var(--ink)}
   /* Poker flips and bonus takes need to announce themselves -- they happen
@@ -442,11 +478,13 @@
     header .stat{order:2}
     header #score{order:3;margin-left:auto;padding:4px 11px;min-height:32px;
       display:flex;align-items:center}
-    header .legend{display:none}
     header .sp{display:none}
     /* Force the break: everything from here starts row two. */
     header::after{content:'';flex-basis:100%;height:0;order:3}
-    header #bonusbtn{order:5} header #newgame{order:6}
+    header #bonusbtn,header #helpbtn{order:5} header #newgame{order:6}
+    /* Row one is name, turn and score; the family name and the fan chart
+       live in the pull-up sheet on a phone, where there is room for them. */
+    header #famname,header #fanbtn{display:none}
     #sidenav{display:flex}
     header label.stat{order:5;font-size:11px}
     /* "use every Kin" is most of a phone row on its own. */
@@ -484,7 +522,7 @@
     #hand{padding:8px 10px;padding-bottom:calc(8px + env(safe-area-inset-bottom));
       gap:7px;-webkit-overflow-scrolling:touch}
     #side{padding-bottom:calc(22px + env(safe-area-inset-bottom))}
-    .hc{min-width:118px;padding:9px 11px}
+    .hc{min-width:118px;padding:9px 40px 9px 11px}
     .hc .n{font-size:12.5px}
     /* These wrapped to three lines on a phone; a turn's name and its price
        belong on one. */
@@ -497,7 +535,8 @@
     .sheet{max-height:92vh;border-radius:14px;padding:15px}
     .sheet.wide{max-width:100%}
     .bcs{grid-template-columns:1fr}
-    #isheet .rules{grid-template-columns:1fr}
+    .tiles{grid-template-columns:1fr 1fr}
+    button.move{min-width:96px}
     #modal,#bmodal,#imodal,#fmodal{padding:8px;align-items:flex-end}
     #rel{left:6px;right:6px;width:auto;max-width:none}
     #toast{bottom:150px;left:8px;right:8px;transform:none;text-align:center}
@@ -521,15 +560,11 @@
   <span class="stat">Archive <b id="deckn">–</b></span>
   <button id="score" title="Show or hide your Legacy">Legacy</button>
   <div class="sp"></div>
-  <div class="legend">
-    <span><i class="sw" style="background:var(--patbg);border:1px solid var(--pat)"></i>paternal</span>
-    <span><i class="sw" style="background:var(--matbg);border:1px solid var(--mat)"></i>maternal</span>
-  </div>
   <label class="stat" style="cursor:pointer" title="Play with everyone, not only the Kin you have marked ready">
     <input type="checkbox" id="practice" checked> use every Kin</label>
-  <a href="settings.html">How to play</a>
   <button id="fanbtn" title="See your direct line as a fan, and where the gaps are">Fan chart</button>
   <button id="bonusbtn">Legacy cards</button>
+  <button id="helpbtn" class="icon" title="How to play, and the tour" aria-label="How to play">?</button>
   <button id="newgame" class="primary">Start again</button>
 </header>
 
@@ -541,7 +576,7 @@
     <div id="clockline"><span id="clockyear"></span></div><svg id="drag"></svg>
   </div></div>
   <div id="side" class="on"><span id="sideclose">✕</span>
-    <div id="sidenav"><a href="edit.html">← Your family</a><a href="./">Files</a><a href="settings.html">How to play</a></div>
+    <div id="sidenav"><a href="edit.html">← Your family</a><a href="./">Files</a><a href="settings.html">Settings</a><a id="fan2" href="#">Fan chart</a></div>
     <div id="legacytotal"><b id="ltot">0</b><span>Legacy</span></div>
     <div id="clockbox"></div>
     <h3>Legacy cards</h3><div id="bl"></div>
@@ -558,6 +593,8 @@
 <div id="imodal"><div class="sheet wide" id="isheet"></div></div>
 <div id="fmodal"><div class="sheet wide" id="fsheet"></div></div>
 <div id="toast"></div>
+<div id="coach" hidden></div>
+<div id="coachtip" hidden role="dialog" aria-live="polite"></div>
 
 <script>
 const LANE_H=28, LANE_GAP=11, COUPLE_GAP=0, TOP=40, MINW=52, XGAP=10;
@@ -637,7 +674,8 @@ function newGame(){
   // already know -- dealing first made the draft an afterthought.
   hand=[]; played=[]; turn=1; over=false; fresh=null; pickAll=false;
   mustDiscard=0; dealt=false; lastPts={}; shownScore=null; inspecting=null; giftTapped=null;
-  abilPts=0; kinFrom=null; overWhy=null;
+  abilPts=0; kinFrom=null; overWhy=null; handBonus=0; halfPlay=0; pauseN=0; keepsakes=[];
+  freeTake=null; swapLeft=0; doubleNext=false; reunionOn=false;
   buildAbilities(people, SET.abilityRate);
   clockInit();
 
@@ -668,7 +706,7 @@ function newGame(){
     toastHand('No Kin are marked ready yet. Tick some in the Archive, or leave “use every Kin” on.');
     return;
   }
-  if(SET.showIntro) openIntro(); else beginRound();
+  if(tourSeen()) beginRound(); else askTour();
 }
 
 /* Bonuses first, then the deal. */
@@ -690,86 +728,135 @@ function dealOpening(){
   step(0);
 }
 
-/* ---- the welcome ------------------------------------------------------
-   Every round, because the rules are configurable and the round you are about
-   to play may not be the one you played last. It states THIS game's rules, not
-   a generic tutorial -- and it can be switched off, here or in settings. */
-function rulesLines(){
-  const L=[];
-  L.push(['Legacy', `Every Kin you connect is worth <b>${RULES.PRESENCE}</b> Legacy. `
-    + (SET.defaults
-      ? 'Family ties count on top, for free: <b>+1</b> a parent and child, '
-        + '<b>+2</b> a married couple, and your longest line grows 3 / 9 / 27.'
-      : 'Nothing else counts unless a Legacy card says so.')]);
-  const pool=draftPool(SET).length;
-  L.push(['Legacy cards', SET.selection==='all'
-      ? `Take any you like from all <b>${pool}</b>. This is where most of your Legacy comes from.`
-      : SET.selection==='random'
-      ? `<b>${Math.min(SET.keep,pool)}</b> handed to you, no choosing. This is where most of your Legacy comes from.`
-      : `You are shown <b>${Math.min(SET.deal,pool)}</b> and keep <b>${Math.min(SET.keep,pool)}</b>. `
-        + 'This is where most of your Legacy comes from.']);
-  if(SET.reveal==='poker') L.push(['More to come', `<b>${SET.pokerFlips}</b> more Legacy cards `
-    + `turn face up as you go, one every <b>${SET.pokerEvery}</b> turns`
-    + `${SET.river?', and the last one is worth <b>double</b>':''}. `
-    + 'You are guessing at what is still hidden.']);
-  if(SET.clockOn){
-    const dirTxt={forward:'walks forward to the present',
-      backward:'walks backward from the present',
-      forwardback:'walks to the present and all the way home again',
-      backwardforward:'walks back to the beginning, then forward again'}[SET.clockDir];
-    L.push(['The marker', `It starts at <b>${clockSpan[0]}</b> and ${dirTxt}. `
-      + `Everything you do spends years, and the game ends when the years run out. `
-      + `Hover a move to see where it would leave the marker before you commit.`]);
-    if(SET.abilityRate>0)
-      L.push(['Gifts', `Some Kin have a Gift — the <b>✦</b> at the end of their life. `
-        + `It lights up only while the marker stands <b>inside their lifetime</b>, and it works once`
-        + ((SET.clockDir==='forwardback'||SET.clockDir==='backwardforward')
-           ? ` — until the marker turns around, when every Gift comes back.` : `.`)
-        + ` A Gift does what a turn cannot: free Kin, a free Connect, or years back.`]);
+/* ---- the tour ---------------------------------------------------------
+   Offered on your first game, and any time from the ? button. Each step points
+   at the real control and, where it can, waits for you to use it -- you learn
+   by taking your first turns, not by reading a page of rules every round.
+   A step whose target is not on screen (no draft this game, no couple in
+   hand, nobody with a Gift yet) is skipped rather than pointing at nothing. */
+const TOUR_KEY='kinspan.tutorial';
+const tap=TOUCH?'Tap':'Click';
+const TOUR=[
+  {at:['.bcs'], wait:()=>dealt,
+   say:()=>`<b>Legacy cards</b> are how you score. Pick the ones your family can fill.`},
+  {at:['#hand .hc'], wait:()=>played.length>0,
+   say:()=>`Your hand: real people from your family. <b>${tap} one</b>${TOUCH?' to look, then again':''} to put them on the timeline.`},
+  {at:['#clockyear'],
+   say:()=>`That cost <b>${SET.costPlay} years</b>. Every move walks the marker on. When it runs out, the game ends.`},
+  {at:['#draw'],
+   say:()=>`Need more family? <b>Pull</b> brings ${SET.drawCount} Kin from the Archive. It costs years too.`},
+  {at:['.pair'],
+   say:()=>`<b>♥ Couples</b> and parents with a child play together: two Kin for one move.`},
+  {at:['#legacytotal','#score'],
+   say:()=>`Your <b>Legacy</b>. Each card under it shows what it is earning.`},
+  {at:['.gbtn'],
+   say:()=>`A small button on a bar is a <b>Gift</b>. It turns gold while the marker is inside their life. One use each.`},
+  {at:['#cards .card'],
+   say:()=>`${TOUCH?'<b>Press, hold and drag</b>':'<b>Drag</b>'} one Kin onto another to see how they are related.`},
+];
+let tour=null;   // {i} while running
+
+/* The first element matching any selector that is actually on screen. */
+function onScreen(sels){
+  for(const s of sels) for(const el of document.querySelectorAll(s)){
+    const r=el.getBoundingClientRect();
+    if(r.width && r.height && r.bottom>0 && r.top<innerHeight && r.right>0 && r.left<innerWidth) return el;
   }
-  L.push(['A turn', `One of: <b>Pull ${SET.drawCount}</b>, <b>Connect a Kin</b>`
-    + (SET.pairPlay ? ' (a married pair, or a parent and child, connect together for one turn)' : '')
-    + (SET.drawBonus ? ', or <b>claim a Legacy card</b>' : '') + '.'
-    + (SET.clockOn ? ` Costing <b>${SET.costDraw}</b>, <b>${SET.costPlay}</b>`
-        + (SET.drawBonus?` and <b>${SET.costBonus}</b>`:'') + ' years.' : '')]);
-  L.push(['Your hand', `You can hold <b>${SET.handLimit}</b> Kin. Pull past that and you `
-    + 'return some to the Archive. A full hand costs you.']);
-  L.push(['It ends', SET.clockOn
-    ? `when the marker runs off the end — <b>${clockSpan[1]-clockSpan[0]}</b> years`
-      + ((SET.clockDir==='forwardback'||SET.clockDir==='backwardforward') ? ' each way' : '')
-      + ', or when the Archive and your hand are both empty.'
-    : 'when the Archive and your hand are both empty.']);
-  if(SET.difficulty==='hard')
-    L.push(['Harder', 'Kin do <b>not</b> tell you what they are worth. You work it out.']);
-  else if(SET.difficulty==='brutal')
-    L.push(['Hardest', 'Nothing tells you what it is worth, and <b>no running Legacy</b>. '
-      + 'You find out at the end.']);
-  L.push(['On the timeline', TOUCH
-    ? 'Tap a Kin to see their life, tap again for everything. <b>Press and hold a Kin, '
-      + 'then drag it onto another</b> to trace the line between them.'
-    : 'Hover a Kin to see their life. <b>Drag one Kin onto another</b> '
-      + 'to trace the line between them.']);
-  return L;
+  return null;
 }
 
-function openIntro(){
+function startTour(){
+  try{ localStorage.setItem(TOUR_KEY,'1'); }catch(e){}
+  tour={i:0}; $('#coach').hidden=false; $('#coachtip').hidden=false;
+  showStep(); requestAnimationFrame(tourFrame);
+}
+function endTour(){
+  tour=null; $('#coach').hidden=true; $('#coachtip').hidden=true;
+}
+function showStep(){
+  const st=TOUR[tour.i];
+  $('#coachtip').innerHTML=`<div class="say">${st.say()}</div>
+    <div class="row"><span class="ct">${tour.i+1} / ${TOUR.length}</span><span class="sp"></span>
+      <button id="cskip">${tour.i===TOUR.length-1?'Close':'Skip tour'}</button>
+      ${st.wait?'':`<button id="cnext" class="primary">${tour.i===TOUR.length-1?'Play':'Next'}</button>`}</div>`;
+  $('#cskip').onclick=endTour;
+  const nx=$('#cnext'); if(nx) nx.onclick=nextStep;
+}
+function nextStep(){
+  if(++tour.i>=TOUR.length) return endTour();
+  showStep();
+}
+/* Runs every frame while the tour is open: follow the target as the board
+   re-renders and scrolls, skip a step with nothing to point at, and move on
+   by itself once a waiting step's action has happened. Polling, not hooks,
+   so the game code needs to know nothing about the tour. */
+function tourFrame(){
+  if(!tour) return;
+  const st=TOUR[tour.i], el=onScreen(st.at);
+  if(st.wait && st.wait()){ nextStep(); return requestAnimationFrame(tourFrame); }
+  if(!el){
+    // Waiting for the draft to open or the deal to land is not "missing".
+    if(!(st.wait && !dealt)) nextStep();
+    return requestAnimationFrame(tourFrame);
+  }
+  const r=el.getBoundingClientRect(), pad=6, ring=$('#coach'), tip=$('#coachtip');
+  Object.assign(ring.style,{left:r.left-pad+'px', top:r.top-pad+'px',
+    width:r.width+pad*2+'px', height:r.height+pad*2+'px'});
+  const w=tip.offsetWidth, h=tip.offsetHeight;
+  const below=r.bottom+14+h < innerHeight || r.top-14-h < 0;
+  tip.style.left=Math.max(10, Math.min(r.left+r.width/2-w/2, innerWidth-w-10))+'px';
+  tip.style.top=(below ? Math.min(r.bottom+14, innerHeight-h-10) : r.top-14-h)+'px';
+  requestAnimationFrame(tourFrame);
+}
+
+/* First game ever: offer the tour, one tap either way. */
+function askTour(){
   $('#isheet').innerHTML=`
     <div class="hello">A hand of your own family</div>
-    <h2 style="margin:2px 0 6px">Kinspan</h2>
-    <p class="sub">Every Kin is a real person from your family. Connect them to the
-      timeline where they lived. You earn Legacy by putting people back together —
-      husbands and wives, parents and children, whole lines of them.</p>
-    <div class="rules">${rulesLines().map(([k,v])=>`
-      <div class="rule"><span class="k">${esc(k)}</span><span class="v">${v}</span></div>`).join('')}</div>
+    <h2>Kinspan</h2>
+    <p class="sub">Put your family back on the timeline where they lived.</p>
     <div class="brow">
-      <label><input type="checkbox" id="noagain"> don't show this every round</label>
-      <span class="sp"></span>
-      <button id="igo" class="primary">${SET.selection==='random'
-        ? 'Deal me in' : 'Choose your Legacy cards'}</button>
+      <button id="inope">I know how to play</button><span class="sp"></span>
+      <button id="iyes" class="primary">Show me — 1 minute</button>
     </div>`;
-  $('#imodal').classList.add('on');
-  $('#noagain').onchange=e=>{ SET.showIntro=!e.target.checked; saveSettings(SET); };
-  $('#igo').onclick=()=>{ $('#imodal').classList.remove('on'); beginRound(); };
+  $('#isheet').classList.remove('wide'); $('#imodal').classList.add('on');
+  const go=yes=>{ try{ localStorage.setItem(TOUR_KEY,'1'); }catch(e){}
+    $('#imodal').classList.remove('on'); beginRound(); if(yes) startTour(); };
+  $('#iyes').onclick=()=>go(true);
+  $('#inope').onclick=()=>go(false);
+}
+const tourSeen=()=>{ try{ return !!localStorage.getItem(TOUR_KEY); }catch(e){ return true; } };
+
+/* The ? button: the tour again, and THIS game's rules as tiles you can take in
+   at a glance, read back from settings rather than written once and left. */
+function openHelp(){
+  const both=SET.clockDir==='forwardback'||SET.clockDir==='backwardforward';
+  const tiles=[
+    ['🃏', `Connect a Kin`, `+${RULES.PRESENCE} Legacy each`],
+    ['◈', `Legacy cards`, SET.selection==='all'?'take any you like':SET.selection==='random'?`${SET.keep} dealt to you`:`keep ${SET.keep} of ${SET.deal}`],
+    ['♥', `Couples & children`, SET.pairPlay?'play together, one move':'play one at a time'],
+    SET.defaults && ['⛓', `Family ties`, '+1 parent & child · +2 couple · lines 3/9/27'],
+    SET.reveal==='poker' && ['🂡', `More cards flip`, `${SET.pokerFlips} more, every ${SET.pokerEvery} turns${SET.river?', last is double':''}`],
+    SET.clockOn && ['⏱', `Every move costs years`, `Pull ${SET.costDraw} · Connect ${SET.costPlay}${SET.drawBonus?` · Claim ${SET.costBonus}`:''}`],
+    ['✋', `Hand`, `hold up to ${limit()}`],
+    ['✦', `Gifts`, SET.clockOn?'gold while the marker is in their life':'once each'],
+    ['🏁', `Game ends`, SET.clockOn?`at ${clockSpan[1]}${both?', after the way back':''}`:'when the Archive runs dry'],
+    SET.difficulty!=='normal' && ['?', `Hidden scores`, SET.difficulty==='brutal'?'all of it, until the end':'no previews'],
+  ].filter(Boolean);
+  $('#isheet').innerHTML=`
+    <h2>How to play</h2>
+    <div class="tiles">${tiles.map(([i,k,v])=>`
+      <div class="tile"><span class="ti">${i}</span><b>${k}</b><span>${v}</span></div>`).join('')}</div>
+    <div class="key"><span><i class="sw pat"></i>father's side</span><span><i class="sw mat"></i>mother's side</span>
+      <span><i class="sw self"></i>you</span><span>${HEART} married</span><span>${FIGURE} child</span></div>
+    <div class="brow">
+      <a href="settings.html">All the rules and settings →</a><span class="sp"></span>
+      <button id="hclose">Close</button>
+      <button id="htour" class="primary">▶ Show me the tour</button>
+    </div>`;
+  $('#isheet').classList.add('wide'); $('#imodal').classList.add('on');
+  $('#hclose').onclick=()=>$('#imodal').classList.remove('on');
+  $('#htour').onclick=()=>{ $('#imodal').classList.remove('on'); startTour(); };
 }
 
 function announceRandom(){
@@ -885,6 +972,8 @@ function renderBonusPicker(){
   const all = $('#ball'); if (all) all.onchange = e => { pickAll = e.target.checked; renderBonusPicker(); };
   const go = $('#bgo'); if (go) go.onclick = closeBonuses;
   const cx = $('#bcancel'); if (cx) cx.onclick = () => {
+    // Backing out of a Gift's claim hands the Gift back rather than wasting it.
+    if (freeTake){ usedAbil.delete(freeTake); freeTake = null; }
     takeMode = null; swapOut = null; $('#bmodal').classList.remove('on'); render();
   };
 }
@@ -907,7 +996,7 @@ function doDraw(){
   for(let i=0;i<n;i++) hand.push(deck.shift());
   advanceClock(SET.costDraw);
   endTurn();
-  mustDiscard=Math.max(0, hand.length-SET.handLimit);
+  mustDiscard=Math.max(0, hand.length-limit());
   render();
 }
 
@@ -955,11 +1044,18 @@ function doPlay(ids){
   setTimeout(()=>{ fresh=null; }, 500);
   // A kin play granted by an ability, or a banked free play, costs no years
   // and is not a turn -- that is the whole value of the ability.
-  if(kinFrom && kinIsFree(ids)){ kinFrom=null; render(); return; }
-  if(freePlay>0){ freePlay--; endTurn(); render(); return; }
-  advanceClock(SET.costPlay);
+  const gift=freeBy(ids);
+  if(gift==='kin') kinFrom=null;
+  if(gift==='reunion') reunionOn=false;
+  if(gift){ render(); return; }
+  if(freePlay>0) freePlay--;
+  else { advanceClock(playCost()); if(halfPlay>0) halfPlay--; }
+  if(doubleNext){ doubleNext=false; freePlay++; toast('And one more — your next Connect is free.'); }
   endTurn(); render();
 }
+
+/* What a Connect costs right now: half while a discount Gift is banked. */
+const playCost=()=>halfPlay>0 ? Math.ceil(SET.costPlay/2) : SET.costPlay;
 
 function endTurn(){ turn++; endCheck(); }
 
@@ -988,6 +1084,7 @@ function yearsLeft(){
 
 function advanceClock(years){
   if(!SET.clockOn || !years) return;
+  if(pauseN>0){ pauseN--; return; }          // a pause Gift holds the marker
   const [a,b]=clockSpan;
   const both = SET.clockDir==='forwardback' || SET.clockDir==='backwardforward';
   let left=years;
@@ -1017,7 +1114,7 @@ function advanceClock(years){
 function projectClock(years){
   const [a,b]=clockSpan;
   const both = SET.clockDir==='forwardback' || SET.clockDir==='backwardforward';
-  let c=clock, d=clockDir, t=turned, left=years, ends=false, turns=false;
+  let c=clock, d=clockDir, t=turned, left=pauseN>0?0:years, ends=false, turns=false;
   while(left>0){
     const wall = d>0 ? b : a;
     const room = Math.abs(wall-c);
@@ -1052,21 +1149,22 @@ function previewMove(years){
   $('#ghostyear').textContent = ends ? 'the end' : year;
 }
 
-/* Can this Kin's Gift fire RIGHT NOW, and if not, why not?
+/* Can this Kin's Gift fire RIGHT NOW, and if not, why not? `i` picks which of
+ * their Gifts -- a written card can carry two, and each is used once.
  *
  * The general gates -- connected, alive at the marker, not already spent -- are
  * only half of it. Each effect also needs something to act on: a free Connect
- * with an empty hand, or "connect their relative free" with none of their
- * family in hand, is a lit button that does nothing when you press it. Those
- * cases grey out and say what is missing. */
-function giftStatus(p){
-  const ab = SET.abilityRate>0 ? abilityOf(p) : null;
+ * with an empty hand is a lit button that does nothing when you press it.
+ * Those cases grey out and say what is missing. */
+function giftStatus(p, i=0){
+  const ab=abilitiesOf(p)[i];
   if(!ab) return null;
-  const no = why => ({ab, ok:false, why});
+  const key=p.id+':'+i;
+  const no = why => ({ab, key, ok:false, why});
   if(over) return no('The game is over.');
   if(mustDiscard) return no('Return Kin to the Archive first.');
   if(!played.includes(p.id)) return no('Connect them and you can use it.');
-  if(usedAbil.has(p.id)) return no('Already used. It comes back if the marker turns for home.');
+  if(usedAbil.has(key)) return no('Already used. It comes back if the marker turns for home.');
   if(SET.clockOn && !aliveAt(p, clock))
     return no(`Only while the marker is between ${startY(p)} and ${p.living?'now':(p.death_year||'?')}.`);
 
@@ -1074,43 +1172,63 @@ function giftStatus(p){
     case 'draw':
       if(!deck.length) return no('The Archive is empty — nothing left to pull.');
       break;
-    case 'freeplay':
-      if(!hand.length) return no('Nothing in your hand to connect for free.');
+    case 'freeplay': case 'discount':
+      if(!hand.length) return no('Nothing in your hand to connect.');
       break;
-    case 'playkin': {
-      const kin=new Set([...(p.spouse_ids||[]),...(p.parent_ids||[]),...(p.children_ids||[])]);
-      if(!hand.some(h=>kin.has(h)))
-        return no('None of their family is in your hand.');
+    case 'double':
+      if(hand.length<2) return no('You need two Kin in hand.');
       break;
-    }
+    case 'playkin':
+      if(!hand.some(h=>isKin(p.id,h))) return no('None of their family is in your hand.');
+      break;
+    case 'reunion':
+      if(!hand.some(h=>connectionsOf(byId[h]).length>=2))
+        return no('Nobody in your hand has two family on the timeline yet.');
+      break;
+    case 'summon':
+      if(!deck.some(d=>isKin(p.id,d))) return no('None of their family is left in the Archive.');
+      break;
+    case 'swap':
+      if(!hand.length || !deck.length) return no('You need Kin in hand and in the Archive.');
+      break;
     case 'time': {
       if(!SET.clockOn) return no('The marker is switched off.');
       const wall = clockDir>0 ? clockSpan[0] : clockSpan[1];
       if(clock===wall) return no('The marker is already as far back as it goes.');
       break;
     }
+    case 'pause':
+      if(!SET.clockOn) return no('The marker is switched off.');
+      break;
+    case 'echo':
+      if(![...usedAbil].some(k=>k!==key)) return no('No other Gift has been used yet.');
+      break;
+    case 'objective':
+      if(!bonusPool().length || held().length>=SET.maxBonuses) return no('No room for another Legacy card.');
+      break;
+    case 'reshuffle':
+      if(!bonusPool().length || !held().length) return no('No Legacy card to trade.');
+      break;
+    case 'points': case 'hold': case 'keepsake':
+      break;
   }
-  return {ab, ok:true, why:''};
+  return {ab, key, ok:true, why:''};
 }
 
 function readyAbilities(){
-  if(SET.abilityRate<=0) return [];
-  return played.map(id=>byId[id])
-    .map(p=>({p, st:giftStatus(p)}))
-    .filter(x=>x.st && x.st.ok)
-    .map(x=>({p:x.p, ab:x.st.ab}));
+  return played.flatMap(id=>abilitiesOf(byId[id]).map((_,i)=>giftStatus(byId[id],i)))
+    .filter(st=>st && st.ok);
 }
 
-function useAbility(id){
-  const p=byId[id], st=giftStatus(p);
+function useAbility(id, i=0){
+  const p=byId[id], st=giftStatus(p, i);
   if(!st || !st.ok) return;
-  const ab=st.ab;
-  usedAbil.add(id);
-  const n=ab.n||1;
+  const ab=st.ab, n=ab.n||1;
+  usedAbil.add(st.key);
   switch(ab.kind){
     case 'draw':
-      for(let i=0;i<n && deck.length;i++) hand.push(deck.shift());
-      mustDiscard=Math.max(0, hand.length-SET.handLimit);
+      for(let j=0;j<n && deck.length;j++) hand.push(deck.shift());
+      mustDiscard=Math.max(0, hand.length-limit());
       toast(`${ab.name} — pulled ${n} from the Archive, no years spent.`); break;
     case 'time':
       // Free years, and never past the wall you came from.
@@ -1122,13 +1240,59 @@ function useAbility(id){
       freePlay++; toast(`${ab.name} — your next Connect is free.`); break;
     case 'playkin':
       kinFrom=id; toast(`${ab.name} — connect their spouse, parent or child from your hand, free.`); break;
-    default:
-      toast(`${ab.name}`); break;
+    case 'hold':
+      handBonus+=n; toast(`${ab.name} — you can hold ${limit()} Kin now.`); break;
+    case 'discount':
+      halfPlay++; toast(`${ab.name} — your next Connect costs half.`); break;
+    case 'pause':
+      pauseN+=n; toast(`${ab.name} — the marker stands still for ${n} moves.`); break;
+    case 'echo': {
+      const k=[...usedAbil].filter(k=>k!==st.key).pop(); usedAbil.delete(k);
+      const [pid,gi]=k.split(':'), back=abilitiesOf(byId[pid])[gi];
+      toast(`${ab.name} — ${back?back.name:'a Gift'} is ready again.`); break;
+    }
+    case 'summon': {
+      const kin=deck.find(d=>isKin(id,d));
+      deck=deck.filter(d=>d!==kin); hand.push(kin);
+      mustDiscard=Math.max(0, hand.length-limit());
+      toast(`${ab.name} — ${byId[kin].name} comes to your hand.`); break;
+    }
+    case 'keepsake':
+      keepsakes.push({at:played.length, n});
+      toast(`${ab.name} — +${n} for every Kin you connect from here.`); break;
+    case 'objective': case 'reshuffle':
+      freeTake=st.key; doTakeBonus(ab.kind==='reshuffle'); break;
+    case 'swap':
+      swapLeft=n; toast(`${ab.name} — tap up to ${n} Kin in your hand to send back.`); break;
+    case 'double':
+      doubleNext=true; toast(`${ab.name} — connect a Kin, then one more straight after, free.`); break;
+    case 'reunion':
+      reunionOn=true; toast(`${ab.name} — anyone in hand with two family down connects free.`); break;
   }
   $('#gtip').classList.remove('on');
   render();
 }
-let abilPts=0, kinFrom=null;
+/* Gift state for the round. Each is set by one effect above and spent where
+ * the move it changes happens (doPlay, advanceClock, the hand, the draft). */
+let abilPts=0, kinFrom=null, handBonus=0, halfPlay=0, pauseN=0, keepsakes=[],
+    freeTake=null, swapLeft=0, doubleNext=false, reunionOn=false;
+const limit=()=>SET.handLimit+handBonus;
+const keepRate=()=>keepsakes.reduce((s,k)=>s+k.n,0);
+/* Legacy that came from Gifts rather than from the board. */
+const giftPts=()=>abilPts+keepsakes.reduce((s,k)=>s+k.n*Math.max(0,played.length-k.at),0);
+
+/* A Connect a Gift has made free: their relative (playkin), or anyone with two
+   family already down (reunion). Says which, so doPlay spends the right one. */
+function freeBy(ids){
+  if(kinFrom && kinIsFree(ids)) return 'kin';
+  if(reunionOn && ids.every(i=>connectionsOf(byId[i]).length>=2)) return 'reunion';
+  return null;
+}
+
+function doSwap(id){
+  hand=hand.filter(x=>x!==id); deck.push(id); hand.push(deck.shift());
+  swapLeft--; render();
+}
 
 function doDiscard(id){
   if(!mustDiscard) return;
@@ -1153,14 +1317,15 @@ function bonusPool(){
 /* Spending a turn on a bonus. At the cap this becomes a swap, which is the
    more interesting move anyway: a bonus that has stopped paying is a resource
    rather than dead weight. */
-function doTakeBonus(){
+function doTakeBonus(swapOnly){
   previewMove(null);
   // A turn is one of three things, and the other two are unavailable while the
-  // hand is still over the limit.
-  if(over || !dealt || !SET.drawBonus || mustDiscard) return;
+  // hand is still over the limit. A Gift (`freeTake`) can claim one even when
+  // claiming is switched off, and `swapOnly` is the reshuffle Gift's trade.
+  if(over || !dealt || (!SET.drawBonus && !freeTake) || mustDiscard) return;
   const pool=bonusPool(); if(!pool.length) return;
-  const full=held().length>=SET.maxBonuses;
-  if(full && !SET.swapAtCap) return;
+  const full=swapOnly===true || held().length>=SET.maxBonuses;
+  if(full && !SET.swapAtCap && !freeTake) return;
   closeRel();
   takeMode = full ? 'swap' : 'add';
   offer = shuffle(pool).slice(0, Math.max(1, Math.min(SET.deal, pool.length)));
@@ -1187,6 +1352,7 @@ function commitTake(id){
   }
   bonuses.push({id});
   takeMode=null; swapOut=null;
+  if(freeTake){ freeTake=null; render(); return; }    // a Gift paid for it
   advanceClock(SET.costBonus);
   turn++; endCheck(); render();
 }
@@ -1273,8 +1439,9 @@ function render(ghost){
   $('#turn').textContent = turn;
   $('#deckn').textContent=deck.length;
   const sc=window.scoreBoard(played.map(id=>byId[id]), byId, bonuses);
-  if(abilPts){ sc.lines.push({label:'Gifts you used', pts:abilPts,
-    detail:'Legacy handed to you by your own Kin'}); sc.total+=abilPts; }
+  const gp=giftPts();
+  if(gp){ sc.lines.push({label:'Gifts you used', pts:gp,
+    detail:'Legacy handed to you by your own Kin'}); sc.total+=gp; }
   // In 'brutal' the score exists and is computed exactly as always -- it is
   // simply not shown until the game ends. Nothing about scoring changes.
   const seeScore = showsScore(SET) || over;
@@ -1310,12 +1477,14 @@ function render(ghost){
     : '<div class="msg">Connect a Kin to start earning.</div>');
 
   // Gifts live on the person now, not in a list over here -- see showPop().
+  const yl=yearsLeft(), ytot=(clockSpan[1]-clockSpan[0])*((SET.clockDir==='forwardback'||SET.clockDir==='backwardforward')?2:1)||1;
   setHTML($('#clockbox'), !SET.clockOn ? '' : `
+    <div class="yrbar" title="${yl} years left"><i style="width:${Math.round(100*(1-yl/ytot))}%"></i></div>
     <div class="clockbar"><b>${clock}</b>
       <span>${clockDir>0?'moving forward':'moving back'} ·
         ${yearsLeft()} year${yearsLeft()===1?'':'s'} left${turned?' · on the way home':''}</span>
       ${readyAbilities().length?`<span class="gifts">${readyAbilities().length}
-        Gift${readyAbilities().length===1?'':'s'} ready — look for a lit ✦</span>`:''}</div>`);
+        Gift${readyAbilities().length===1?'':'s'} ready — look for a gold button</span>`:''}</div>`);
 
   // Remember what each bonus was worth so the NEXT render knows what moved.
   // Ghost previews are hypothetical, so they must not update the baseline or
@@ -1324,7 +1493,7 @@ function render(ghost){
   if(!ghostId) renderHand(sc.total);
   if(!list.length){
     nodes.forEach(el=>el.remove()); nodes.clear();
-    $('#cards').innerHTML='<div class="empty">Nobody on the timeline yet. Connect a Kin from your hand.</div>';
+    $('#cards').innerHTML=`<div class="empty">${dealt?`<b>${tap} a Kin below</b> to put them on the timeline<span class="down">↓</span>`:''}</div>`;
     $('#links').innerHTML=''; $('#axis').innerHTML=''; $('#axis').dataset.w='';
     $('#inner').style.height='auto'; return;
   }
@@ -1405,7 +1574,6 @@ function paint(list, ghosts){
       cards.appendChild(el); nodes.set(p.id, el);
     }
     const endCls=p.living?'living':(p.death_year?'':'unknownend');
-    const pips='◆'.repeat((p.abilities||[]).length);
     const lit=SET.clockOn && aliveAt(p, clock);
     el.className=`card ${sideOf(p)} ${endCls} ${isGhost(p.id)?'ghost':''} `
                 +`${p.id===fresh?'fresh':''} ${isNew&&!isGhost(p.id)?'landing':''} `
@@ -1416,10 +1584,10 @@ function paint(list, ghosts){
        the ellipsis is honest, a name with a hole punched in it is not. */
     // Their Gift, at the end of their bar. Built here rather than in the
     // details panel so it is on the person, in a place you can click.
-    const gst = isGhost(p.id) ? null : giftStatus(p);
-    const gab = gst ? gst.ab : (SET.abilityRate>0 ? abilityOf(p) : null);
-    const gState = !gab ? null : !gst ? 'off'
-      : gst.ok ? 'live' : (usedAbil.has(p.id) ? 'spent' : 'off');
+    const gifts = isGhost(p.id) ? [] : abilitiesOf(p).map((ab,i)=>{
+      const st=giftStatus(p,i);
+      return {ab, st, i, state: st.ok ? 'live' : (usedAbil.has(st.key) ? 'spent' : 'off')};
+    });
 
     let nmCap='';
     for(const m of (p.marriages||[])){
@@ -1429,10 +1597,9 @@ function paint(list, ghosts){
     }
     el.innerHTML=`<span class="nm ${p.sex==='M'?'m':p.sex==='F'?'f':''}" `
       +`style="min-width:0${nmCap}">${esc(p.name)}</span>`
-      +(pips?`<span class="pips">${pips}</span>`:'')
       +eventMarks(p, place)
-      +(gab?`<button class="gbtn ${gState}" data-gift="${p.id}"
-             aria-label="${esc(gab.name)}">✦</button>`:'');
+      +gifts.map(g=>`<button class="gbtn ${g.state}" style="right:${3+g.i*25}px"
+             aria-label="Gift: ${esc(g.ab.name)}">${g.ab.icon}</button>`).join('');
     el.style.left=X(startY(p))+'px';
     el.style.top=place[p.id].y+'px';
     el.style.width=Math.max(MINW,X(endY(p))-X(startY(p)))+'px';
@@ -1443,8 +1610,7 @@ function paint(list, ghosts){
     // board re-renders for an unrelated reason.
     if(isNew) setTimeout(()=>el.classList.remove('landing'), 460);
 
-    const gb=el.querySelector('.gbtn');
-    if(gb) wireGift(gb, p, gab, gState, gst);
+    el.querySelectorAll('.gbtn').forEach((b,i)=>wireGift(b, p, gifts[i]));
   }
   drawLinks(list, place, W, height);
   const cl=$('#clockline');
@@ -1733,7 +1899,7 @@ function isKin(a,b){ const A=byId[a]; if(!A) return false;
 function gainOfGroup(ids){
   const now=window.scoreBoard(played.map(x=>byId[x]),byId,bonuses).total;
   const next=window.scoreBoard(played.concat(ids).map(x=>byId[x]),byId,bonuses).total;
-  return next-now;
+  return next-now+ids.length*keepRate();
 }
 function gainOf(id){
   const now=window.scoreBoard(played.map(x=>byId[x]),byId,bonuses).total;
@@ -1785,20 +1951,15 @@ function showPop(id, inHand, group){
      A Gift belongs to a person, so it is offered where you are already looking
      at that person rather than in a list on the other side of the screen. It
      always shows if they have one; the button only appears when it can fire. */
-  let gift='';
-  const gs = giftStatus(p);
-  const ab = gs ? gs.ab : null;
-  if(ab){
-    const usable = gs.ok, spent = usedAbil.has(id), why = gs.why;
-    gift=`<div class="gift ${usable?'live':''} ${spent?'spent':''}">
-      <div class="gn">✦ ${esc(ab.name)}</div>
+  const gift=abilitiesOf(p).map((ab,i)=>{
+    const gs=giftStatus(p,i), spent=usedAbil.has(gs.key);
+    return `<div class="gift ${gs.ok?'live':''} ${spent?'spent':''}">
+      <div class="gn">${ab.icon} ${esc(ab.name)}</div>
       <div class="ge">${esc(ab.effect)}</div>
-      ${ab.why||ab.story?`<div class="gw">${esc(ab.why||ab.story)}</div>`:''}
-      <div class="gm">${usable
-        ? 'Ready — the ✦ at the end of their life is lit.'
-        : esc(why)}</div>
+      ${ab.why?`<div class="gw">${esc(ab.why)}</div>`:''}
+      <div class="gm">${gs.ok ? `Ready — ${tap.toLowerCase()} the gold button on their bar.` : esc(gs.why)}</div>
     </div>`;
-  }
+  }).join('');
 
   let tail='';
   if(inHand){
@@ -1846,10 +2007,10 @@ let popTimer=null;
    else; clicking a lit one fires it. It sits inside the card, so every handler
    has to stop the event reaching the card's own click and drag handlers --
    otherwise using a Gift would also open that Kin's full sheet. */
-function wireGift(btn, p, ab, state, st){
+function wireGift(btn, p, {ab, st, i, state}){
   const show=()=>{
     const r=btn.getBoundingClientRect(), t=$('#gtip');
-    t.innerHTML=`<div class="n">✦ ${esc(ab.name)}</div>
+    t.innerHTML=`<div class="n">${ab.icon} ${esc(ab.name)}</div>
       <div class="e">${esc(ab.effect)}</div>
       ${ab.why||ab.story?`<div class="w">${esc(ab.why||ab.story)}</div>`:''}
       ${state==='live' ? '<div class="go">Click to use it</div>'
@@ -1874,8 +2035,8 @@ function wireGift(btn, p, ab, state, st){
     if(state!=='live'){ if(TOUCH) { show(); setTimeout(hide, 2600); } return; }
     // On a touch screen the first tap explains it and the second uses it, the
     // same two-tap rule the rest of the board follows.
-    if(TOUCH && giftTapped!==p.id){ giftTapped=p.id; show(); return; }
-    giftTapped=null; hide(); useAbility(p.id);
+    if(TOUCH && giftTapped!==st.key){ giftTapped=st.key; show(); return; }
+    giftTapped=null; hide(); useAbility(p.id, i);
   };
 }
 let giftTapped=null;
@@ -1904,14 +2065,14 @@ function revealCard(id){
                 behavior: (prefersStill() || document.hidden) ? 'auto' : 'smooth' });
 }
 
-function renderHand(){
+function renderHand(total){
   const h=$('#hand');
   if(over){
     const why = overWhy || 'The Archive and your hand are empty';
     // A round changes nothing about the family, so the way on from here is the
     // builder -- that is where writing, fixing and saving live.
     h.innerHTML=`<span class="msg"><b>That is the whole span.</b> ${why}.
-      Final Legacy: ${window.scoreBoard(played.map(x=>byId[x]),byId,bonuses).total},
+      Final Legacy: ${total},
       over ${turn-1} turns. <a href="edit.html">Back to your family</a></span>`;
     return;
   }
@@ -1922,36 +2083,50 @@ function renderHand(){
     h.innerHTML='<span class="msg turnmsg">Legacy cards first. Your Kin come once you have chosen.</span>';
     return;
   }
-  if(mustDiscard){
+  if(swapLeft){
+    html=`<span class="armed">⇄ Tap up to <b>${swapLeft}</b> Kin to send back</span>
+      <button id="swapdone">Done</button>`;
+  }else if(mustDiscard){
     // The turn is already spent; the hand just has to come back under the
     // limit before anything else can happen.
     html=`<span class="msg turnmsg"><b>Your hand is full.</b> Return
-      ${mustDiscard} Kin to the Archive to get back to ${SET.handLimit}.</span>`;
+      ${mustDiscard} Kin to the Archive to get back to ${limit()}.</span>`;
   }else{
     // Every button says what the move costs in years -- the clock is the real
     // budget now, so a turn's price belongs on the button that spends it.
-    const yr=n=>SET.clockOn?` · ${n}y`:'';
-    html+=`<button id="draw" ${!deck.length?'disabled':''}
-        title="Pull ${SET.drawCount} Kin from the Archive${SET.clockOn?`. Costs you ${SET.costDraw} years`:''}. Hold more than ${SET.handLimit} and you return some.">
-        Pull ${SET.drawCount}${yr(SET.costDraw)} (${deck.length})</button>`;
+    const yr=n=>SET.clockOn?`${n} yrs`:'';
+    html+=`<button id="draw" class="move" ${!deck.length?'disabled':''}
+        title="Pull ${SET.drawCount} Kin from the Archive${SET.clockOn?`. Costs you ${SET.costDraw} years`:''}. Hold more than ${limit()} and you return some.">
+        <b>🂠 Pull ${SET.drawCount}</b><small>${yr(SET.costDraw)}${SET.clockOn?' · ':''}${deck.length} left</small></button>`;
     if(SET.drawBonus){
       const full=held().length>=SET.maxBonuses;
       const none=!bonusPool().length;
       const swap=full && SET.swapAtCap;
       // A disabled button labelled "Swap" advertises a move you cannot make.
       // Full-with-swapping-off just stays "Take bonus", greyed, and says why.
-      html+=`<button id="takeb" ${(none||(full&&!SET.swapAtCap))?'disabled':''}
+      html+=`<button id="takeb" class="move" ${(none||(full&&!SET.swapAtCap))?'disabled':''}
         title="${none?'No Legacy cards left to claim'
                 :swap?'Your hands are full — a new one takes the place of another'
                 :full?'You are holding all the Legacy cards this game allows'
                 :'Spend this turn on a Legacy card instead of a Kin'}">
-        ${swap?'Swap Legacy':'Claim Legacy'}${yr(SET.costBonus)} (${held().length}/${SET.maxBonuses})</button>`;
+        <b>◈ ${swap?'Swap Legacy':'Claim Legacy'}</b><small>${yr(SET.costBonus)}${SET.clockOn?' · ':''}${held().length} of ${SET.maxBonuses} held</small></button>`;
     }
+    // Gifts that change the NEXT move sit here, by the moves they change, so
+    // a banked free Connect is something you can see rather than remember.
+    const armed=[
+      [freePlay, `⚡ Next Connect free${freePlay>1?` ×${freePlay}`:''}`],
+      [halfPlay, `½ Next Connect half price`],
+      [pauseN, `⏸ Marker holds for ${pauseN} move${pauseN===1?'':'s'}`],
+      [kinFrom, `♥ ${kinFrom&&byId[kinFrom].given||'Their'} family connects free`],
+      [reunionOn, `⌂ Two-family Kin connect free`],
+      [doubleNext, `⧉ Connect one, get one free`],
+    ].filter(a=>a[0]).map(a=>`<span class="armed">${esc(a[1])}</span>`).join('');
+    html+=armed;
   }
 
   // Discarding is per CARD, so a pair has to come apart for it -- you owe a
   // number of cards, not a number of couples.
-  const groups = mustDiscard ? hand.map(id=>({ids:[id]})) : handGroups();
+  const groups = (mustDiscard||swapLeft) ? hand.map(id=>({ids:[id]})) : handGroups();
   html += groups.map(gp=>{
     const cards = gp.ids.map(id=>handCard(id, gp)).join(
       gp.link ? `<span class="join ${gp.link==='spouse'?'wed':'kid'}"
@@ -1968,6 +2143,7 @@ function renderHand(){
   if(!setHTML(h, html)) return;
   h.querySelectorAll('.hc,.pair').forEach(el=>el.classList.add('in'));
 
+  const sd=$('#swapdone'); if(sd) sd.onclick=()=>{ swapLeft=0; render(); };
   const d=$('#draw');
   if(d){ d.onclick=doDraw;
     d.onmouseenter=()=>{ if(!d.disabled) previewMove(SET.costDraw); };
@@ -1982,6 +2158,7 @@ function renderHand(){
     const ids=grp ? grp.dataset.ids.split(',') : [id];
     el.onclick=()=>{
       if(mustDiscard) return doDiscard(id);
+      if(swapLeft) return doSwap(id);
       // Same two-tap rule as the board: look first, commit second. Playing a
       // card you only meant to read is not a mistake you can take back.
       if(TOUCH && inspecting!==id){ inspecting=id; showPop(id,true,ids); render(ids); return; }
@@ -1989,10 +2166,10 @@ function renderHand(){
     };
     el.onmouseenter=()=>{ if(TOUCH) return;
       showPop(id, true, ids);
-      if(!mustDiscard){ render(ids);
+      if(!mustDiscard && !swapLeft){ render(ids);
         // A relative granted by a Gift, or a banked free Connect, costs nothing.
-        const free = (kinFrom && kinIsFree(ids)) || freePlay>0;
-        previewMove(mustDiscard ? null : (free ? null : SET.costPlay)); } };
+        const free = freeBy(ids) || freePlay>0;
+        previewMove(free ? null : playCost()); } };
     el.onmouseleave=()=>{ if(TOUCH) return;
       hidePop(true); spotlight(null); previewMove(null); render(); };
   });
@@ -2002,13 +2179,16 @@ function handCard(id, gp){
   const p=byId[id];
   // An armed playkin ability makes exactly its own relatives free; say which,
   // or the offer is invisible and you spend the years anyway.
-  const free = !mustDiscard && kinFrom && kinIsFree(gp.ids);
+  const free = !mustDiscard && !swapLeft && freeBy(gp.ids);
   const note = mustDiscard ? '<span class="gain drop">return</span>'
-    : free ? '<span class="gain">free</span>'
+    : swapLeft ? '<span class="gain drop">swap</span>'
+    : free ? '<span class="gain free">free</span>'
     : showsPreview(SET) ? `<span class="gain">+${gainOfGroup(gp.ids)}</span>` : '';
-  return `<div class="hc ${sideOf(p)} ${mustDiscard?'todiscard':''} ${free?'pairable':''}" data-id="${id}">
+  const gifts=abilitiesOf(p).map(a=>`<i class="hg" title="Gift: ${esc(a.name)}">${a.icon}</i>`).join('');
+  return `<div class="hc ${sideOf(p)} ${mustDiscard||swapLeft?'todiscard':''} ${free?'pairable':''}" data-id="${id}">
+      ${note}
       <div class="n ${p.sex==='M'?'m':p.sex==='F'?'f':''}">${esc(p.name)}</div>
-      <small>${startY(p)}–${p.living?'':(p.death_year||'?')} · ${esc(tierOf(p))} ${note}</small></div>`;
+      <small>${startY(p)}–${p.living?'':(p.death_year||'?')} · ${esc(tierOf(p))}${gifts}</small></div>`;
 }
 
 let tt=null;
@@ -2114,10 +2294,10 @@ function openCard(p){
     ${p.photo_url?`<img src="${esc(p.photo_url)}" alt="">`:''}
     <div class="traits">${(p.traits||[]).map(t=>
       `<div class="trait"><div class="k">${esc(t.k)}</div><div>${esc(t.v)}</div></div>`).join('')}</div>
-    ${(()=>{ const g=(p.abilities||[]).length ? p.abilities : (p.gen_ability?[p.gen_ability]:[]);
+    ${(()=>{ const g=abilitiesOf(p);
       return g.length ? g.map(a=>`
-        <div class="abil"><div class="n">${esc(a.name)}</div><div>${esc(a.effect)}</div>
-          ${a.story||a.why?`<div class="s">${esc(a.story||a.why)}</div>`:''}</div>`).join('')
+        <div class="abil"><div class="n">${a.icon} ${esc(a.name)}</div><div>${esc(a.effect)}</div>
+          ${a.why?`<div class="s">${esc(a.why)}</div>`:''}</div>`).join('')
       :`<div class="trait" style="margin-bottom:10px"><div class="k">No Gift yet</div>
          <div style="font-size:13px">Learn something about them in the Archive and they will have one.</div></div>`;
     })()}
@@ -2144,20 +2324,22 @@ const syncSide=()=>{ $('#side').classList.toggle('on', !NARROW.matches); if(peop
 NARROW.addEventListener('change', syncSide);
 syncSide();
 $('#newgame').onclick=()=>{closeRel(); newGame();};
-$('#fanbtn').onclick=()=>{closeRel(); openFan();};
+$('#fanbtn').onclick=$('#fan2').onclick=e=>{e.preventDefault(); closeRel(); openFan();};
 $('#fmodal').onclick=e=>{
   if(e.target.id==='fmodal'||e.target.id==='fclose') return closeFan();
   const w=e.target.closest('.fw[data-id]');
   if(w) openCard(fam.people.find(p=>p.id===w.dataset.id));
 };
 $('#bonusbtn').onclick=()=>{closeRel(); openBonuses();};
+$('#helpbtn').onclick=()=>{closeRel(); openHelp();};
 $('#bmodal').onclick=e=>{ if(e.target.id==='bmodal') closeBonuses(); };
 $('#practice').onchange=newGame;
 addEventListener('resize',()=>{fit();render();});
 addEventListener('keydown',e=>{
-  if(e.key==='Escape'){ $('#modal').classList.remove('on'); closeBonuses(); closeFan(); }
+  if(e.key==='Escape'){ $('#modal').classList.remove('on'); closeBonuses(); closeFan(); endTour(); }
   if(e.key==='Escape' && $('#imodal').classList.contains('on')){
-    $('#imodal').classList.remove('on'); beginRound();   // skip the words, not the round
+    $('#imodal').classList.remove('on');
+    if(!dealt && !$('#bmodal').classList.contains('on')) beginRound();   // skip the words, not the round
   }
   if(e.key==='d') doDraw();
 });

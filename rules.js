@@ -440,7 +440,6 @@ window.DEFAULT_SETTINGS = {
   drawCount:   2,        // cards a draw turn takes
   handLimit:   7,        // draw past this and you discard back down to it
   pairPlay:    true,     // a play turn may add one spouse / parent / child
-  showIntro:   true,     // the welcome card at the start of every round
   /* ---- the clock ----------------------------------------------------
      A marker walks the timeline. Each action pushes it along by that
      action's cost in years, and the game ends when it runs off the end --
@@ -583,75 +582,103 @@ window.aliveAt = function (p, year){
   return year >= b && year <= e;
 };
 
-/* ---- the effects an ability can have ---------------------------------
- * Each is something you could not do with a plain turn: cards without paying
- * the years, years back, points from nothing, or a play that costs nothing.
- * `n` is the magnitude; `apply` is run by play.html against the live game. */
+/* ---- the effects a Gift can have -------------------------------------
+ * Each is something a plain turn cannot do. `verb` is what the card says;
+ * play.html's giftStatus() and useAbility() hold a case for every kind here,
+ * and check.js fails if one goes missing. */
 window.ABILITY_EFFECTS = {
-  draw:     { verb: n => `Pull ${n} Kin from the Archive. It costs you no years.` },
-  time:     { verb: n => `Give yourself ${n} years back on the timeline.` },
-  points:   { verb: n => `Take ${n} Legacy, right now.` },
-  freeplay: { verb: n => `Your next Connect costs no years.` },
-  playkin:  { verb: n => `Connect their spouse, parent or child from your hand. Free.` },
+  draw:      { icon:'🂠', verb: n => `Pull ${n} Kin from the Archive. No years spent.` },
+  time:      { icon:'⏪', verb: n => `Take ${n} years back on the timeline.` },
+  points:    { icon:'★', verb: n => `Take ${n} Legacy, right now.` },
+  freeplay:  { icon:'⚡', verb: () => `Your next Connect costs no years.` },
+  playkin:   { icon:'♥', verb: () => `Connect their spouse, parent or child from your hand. Free.` },
+  hold:      { icon:'✋', verb: n => `Hold ${n} more Kin for the rest of the game.` },
+  discount:  { icon:'½', verb: () => `Your next Connect costs half the years.` },
+  pause:     { icon:'⏸', verb: n => `The marker stands still for your next ${n} moves.` },
+  echo:      { icon:'↻', verb: () => `Use a Gift you have already spent, once more.` },
+  summon:    { icon:'✉', verb: () => `Bring one of their family out of the Archive to your hand. Free.` },
+  keepsake:  { icon:'❦', verb: n => `+${n} Legacy for every Kin you connect after this.` },
+  objective: { icon:'◈', verb: () => `Claim a Legacy card. No years spent.` },
+  swap:      { icon:'⇄', verb: n => `Send up to ${n} Kin back to the Archive and pull as many.` },
+  double:    { icon:'⧉', verb: () => `Connect a Kin, then one more straight after, free.` },
+  reunion:   { icon:'⌂', verb: () => `Connect anyone in hand with two family already down. Free.` },
+  reshuffle: { icon:'⟳', verb: () => `Trade one of your Legacy cards for another. No years spent.` },
 };
 
-/* ---- generating an ability from a life -------------------------------
- * Ordered, first match wins, most characteristic fact first. The effect is
- * meant to rhyme with the person rather than simulate them: someone who
- * outlived everybody gives you time back, a big household hands you cards.
- * Purely derived from vitals, so it works before any story is written --
- * an authored ability on cards.json always takes precedence over these. */
-const ABILITY_RULES = [
-  { when: (p, c) => (c.ageOf(p) || 0) >= 90,
-    kind:'time', n:10, name:'Refused To Go',
-    why: p => `Reached ${c_age(p)}. Some people simply take longer.` },
-
-  { when: (p, c) => c.isAncient(p),
-    kind:'time', n:8, name:'End Of The Paper Trail',
-    why: p => `Born ${p.birth_year}, as far back as the record goes.` },
-
-  { when: (p, c) => (p.child_count ?? p.children_in_tree ?? 0) >= 4,
-    kind:'draw', n:2, name:'Full House',
-    why: p => `A house that size teaches you to keep your options open.` },
-
-  { when: (p, c) => c.marriageYears(p) >= 50,
-    kind:'playkin', n:1, name:'Inseparable',
-    why: p => `Fifty years married. They do not go anywhere alone.` },
-
-  { when: (p, c) => !p.living && p.age_at_death && p.age_at_death < 55,
-    kind:'points', n:4, name:'Cut Short',
-    why: p => `Gone at ${p.age_at_death}. Worth remembering twice over.` },
-
-  { when: (p, c) => c.movedFar(p),
-    kind:'freeplay', n:1, name:'Already Packed',
-    why: p => `Died a long way from where they were born.` },
-
-  { when: (p, c) => c.marriedYoung(p),
-    kind:'freeplay', n:1, name:'Wasted No Time',
-    why: p => `Married before they were 22.` },
-
-  { when: (p, c) => (p.marriages||[]).length >= 2,
-    kind:'draw', n:2, name:'Second Innings',
-    why: p => `Married more than once. They knew how to start again.` },
-
-  { when: (p, c) => c.bornInWar(p),
-    kind:'points', n:3, name:'Born In A Bad Year',
-    why: p => `Born ${p.birth_year}, into the middle of it.` },
-
-  { when: (p, c) => (p.parent_ids||[]).length === 0,
-    kind:'draw', n:2, name:'Came From Nowhere',
-    why: p => `Nobody above them on the record at all.` },
-
-  { when: (p, c) => (c.ageOf(p) || 0) >= 80,
-    kind:'time', n:5, name:'Good Innings',
-    why: p => `Reached ${c_age(p)} — that is time you can borrow.` },
-
-  { when: () => true,
-    kind:'draw', n:1, name:'Lent A Hand',
-    why: p => `Nothing remarkable on the record. Still here.` },
+/* ---- the Gifts --------------------------------------------------------
+ * One list feeds both places a Gift comes from:
+ *   - the generator gives a Kin the FIRST entry whose `when` fits their life,
+ *     so the list runs most characteristic fact first;
+ *   - the editor's menu offers every entry, grouped by `group`.
+ * Entries with no `when` are menu-only: nothing in a record can say "had a
+ * plan", but a person writing their grandmother's card can. */
+const NO = p => false;
+const GIFTS = [
+  { id:'refused',  group:'A long life', name:'Refused To Go', kind:'time', n:10,
+    when:(p,c) => (c.ageOf(p)||0) >= 90, why: p => `Reached ${c_age(p)}. Some people simply take longer.` },
+  { id:'outlasted', group:'A long life', name:'Outlasted Them All', kind:'echo',
+    when:(p,c) => c.outlivedSpouse(p), why: () => `Fifteen years and more without them, and still telling the stories.` },
+  { id:'ancient',  group:'The record', name:'End Of The Paper Trail', kind:'time', n:8,
+    when:(p,c) => c.isAncient(p), why: p => `Born ${p.birth_year}, as far back as the record goes.` },
+  { id:'cook',     group:'A full house', name:'Somebody Had To Cook', kind:'draw', n:3,
+    when:(p,c) => c.kids(p) >= 7, why: p => `${c_kids(p)} children. Nobody sat down.` },
+  { id:'fullhouse', group:'A full house', name:'Full House', kind:'draw', n:2,
+    when:(p,c) => c.kids(p) >= 4, why: () => `A house that size teaches you to keep your options open.` },
+  { id:'reunion',  group:'A full house', name:'Family Reunion', kind:'reunion',
+    when:(p,c) => c.kinCount(p) >= 6, why: () => `Everybody came. Everybody always came.` },
+  { id:'inseparable', group:'A full house', name:'Inseparable', kind:'playkin',
+    when:(p,c) => c.marriageYears(p) >= 50, why: () => `Fifty years married. They do not go anywhere alone.` },
+  { id:'cutshort', group:'A long life', name:'Cut Short', kind:'points', n:4,
+    when:(p,c) => !p.living && p.age_at_death && p.age_at_death < 55, why: p => `Gone at ${p.age_at_death}. Worth remembering twice over.` },
+  { id:'nohome',   group:'Leaving', name:'Never Made It Home', kind:'freeplay',
+    when:(p,c) => c.abroad(p) && p.age_at_death && p.age_at_death < 60, why: () => `Died a long way from where they started, and too soon.` },
+  { id:'sentfor',  group:'Leaving', name:'Sent For The Family', kind:'summon',
+    when:(p,c) => c.abroad(p) && c.kids(p) >= 3, why: () => `Crossed first, then sent for the rest.` },
+  { id:'crossed',  group:'Leaving', name:'Crossed The Water', kind:'summon',
+    when:(p,c) => c.abroad(p), why: () => `Born in one country, buried in another.` },
+  { id:'packed',   group:'Leaving', name:'Already Packed', kind:'freeplay',
+    when:(p,c) => c.movedFar(p), why: () => `Died a long way from where they were born.` },
+  { id:'neverleft', group:'Leaving', name:'Never Left', kind:'keepsake', n:2,
+    when:(p,c) => c.stayed(p), why: () => `Born and died in the same town. Somebody had to keep the place.` },
+  { id:'farm',     group:'Leaving', name:'Kept The Farm', kind:'points', n:3,
+    when:(p,c) => c.buriedWith(p) >= 3, why: () => `Resting with their own. The land stayed in the family.` },
+  { id:'young',    group:'A full house', name:'Wasted No Time', kind:'freeplay',
+    when:(p,c) => c.marriedYoung(p), why: () => `Married before they were 22.` },
+  { id:'second',   group:'A full house', name:'Second Innings', kind:'draw', n:2,
+    when:(p,c) => (p.marriages||[]).length >= 2, why: () => `Married more than once. They knew how to start again.` },
+  { id:'talked',   group:'A full house', name:'People Talked', kind:'points', n:3,
+    when:(p,c) => c.ageGap(p) >= 8, why: () => `Eight years and more between them. People talked.` },
+  { id:'twice',    group:'History', name:'Saw It Twice', kind:'pause', n:2,
+    when:(p,c) => p.birth_year && p.birth_year <= 1900 && (c.ended(p)||0) >= 1945, why: () => `Lived through both wars. Learned to wait things out.` },
+  { id:'badyear',  group:'History', name:'Born In A Bad Year', kind:'points', n:3,
+    when:(p,c) => c.bornInWar(p), why: p => `Born ${p.birth_year}, into the middle of it.` },
+  { id:'nothing',  group:'History', name:'Grew Up On Nothing', kind:'discount',
+    when:(p,c) => p.birth_year >= 1915 && p.birth_year <= 1939, why: () => `Made it stretch. Made everything stretch.` },
+  { id:'moon',     group:'History', name:'Watched The Moon Landing', kind:'points', n:2,
+    when:(p,c) => p.birth_year < 1930 && (c.ended(p)||0) >= 1969, why: () => `Born before the aeroplane was ordinary. Saw a man on the moon.` },
+  { id:'wrote',    group:'The record', name:'Wrote It All Down', kind:'hold', n:2,
+    when:(p,c) => !!(p.story||'').trim(), why: () => `Kept every letter. Someone always does.` },
+  { id:'twoofthem', group:'The record', name:'Two Of Them', kind:'double',
+    when:(p,c) => c.sharesName(p), why: () => `Same name as another Kin. Twice the paperwork.` },
+  { id:'nowhere',  group:'The record', name:'Came From Nowhere', kind:'draw', n:2,
+    when:(p,c) => (p.parent_ids||[]).length === 0, why: () => `Nobody above them on the record at all.` },
+  { id:'onlyname', group:'The record', name:'Only A Name', kind:'draw', n:1,
+    when:(p,c) => !p.living && !p.death_year, why: () => `The record just stops. Somebody knows the rest.` },
+  { id:'innings',  group:'A long life', name:'Good Innings', kind:'time', n:5,
+    when:(p,c) => (c.ageOf(p)||0) >= 80, why: p => `Reached ${c_age(p)} — that is time you can borrow.` },
+  { id:'plan',     group:'Your own words', name:'Had A Plan', kind:'objective', when:NO },
+  { id:'changed',  group:'Your own words', name:'Changed Their Mind', kind:'reshuffle', when:NO },
+  { id:'traded',   group:'Your own words', name:'Traded Up', kind:'swap', n:2, when:NO },
+  { id:'lent',     group:'Ordinary', name:'Lent A Hand', kind:'draw', n:1,
+    when:() => true, why: () => `Nothing remarkable on the record. Still here.` },
 ];
+window.GIFTS = GIFTS;
+window.GIFT_BY_ID = Object.fromEntries(GIFTS.map(g => [g.id, g]));
+
 let c_age_of = null;
 function c_age(p){ return c_age_of ? c_age_of(p) : (p.age_at_death || '?'); }
+function c_kids(p){ return p.child_count ?? p.children_in_tree ?? 0; }
+const lastPart = s => { const a = parts(s); return (a[a.length-1] || '').toLowerCase(); };
 
 /* Stable per-person hash, so the same people carry the same abilities from one
  * game to the next -- an ability is part of who the card IS, not a die roll. */
@@ -661,47 +688,75 @@ function hashId(id){
   return (h >>> 0) / 4294967295;
 }
 
-window.buildAbilities = function (people, rate){
+/* Everything a `when` needs to know about the rest of the tree, built once. */
+window.giftContext = function (people){
   const oldest = people.filter(p=>p.birth_year).sort((a,b)=>a.birth_year-b.birth_year)
     .slice(0,3).map(p=>p.id);
   const byId = Object.fromEntries(people.map(p=>[p.id,p]));
-  const c = {
-    ageOf,
+  const count = key => { const m = new Map();
+    for (const p of people){ const k = key(p); if (k) m.set(k, (m.get(k)||0) + 1); } return m; };
+  const graves = count(p => (p.burial_place||'').toLowerCase());
+  const names  = count(p => first(p).toLowerCase());
+  c_age_of = ageOf;
+  return {
+    ageOf, ended,
+    kids: c_kids,
     isAncient: p => oldest.includes(p.id),
     marriageYears: p => marriageYears(p, byId) || 0,
     marriedYoung: p => marriedAges(p).some(a => a > 0 && a < 22),
-    movedFar: p => {
-      if (!p.birth_place || !p.death_place) return false;
-      const a = parts(p.birth_place), b = parts(p.death_place);
-      return a[a.length-1] !== b[b.length-1] || a[0] !== b[0];
-    },
+    ageGap: p => Math.max(0, ...marriagesOf(p, byId).map(m =>
+      p.birth_year && m.sp.birth_year ? Math.abs(p.birth_year - m.sp.birth_year) : 0)),
+    outlivedSpouse: p => marriagesOf(p, byId).some(m =>
+      ended(m.sp) && ended(p) && ended(p) - ended(m.sp) >= 15),
+    kinCount: p => (p.spouse_ids||[]).length + (p.parent_ids||[]).length + (p.children_ids||[]).length,
+    abroad: p => !!(p.birth_place && p.death_place) && lastPart(p.birth_place) !== lastPart(p.death_place),
+    movedFar: p => !!(p.birth_place && p.death_place) && townOf(p) !== (parts(p.death_place)[0]||'').toLowerCase(),
+    stayed: p => !!(p.birth_place && p.death_place) && townOf(p) === (parts(p.death_place)[0]||'').toLowerCase(),
+    buriedWith: p => p.burial_place ? graves.get(p.burial_place.toLowerCase()) || 0 : 0,
+    sharesName: p => (names.get(first(p).toLowerCase()) || 0) >= 2,
     bornInWar: p => p.birth_year &&
       ((p.birth_year>=1914&&p.birth_year<=1918)||(p.birth_year>=1939&&p.birth_year<=1945)),
   };
-  c_age_of = ageOf;
+};
 
+/* The Gift a life suggests: the first entry that fits, made ready to show. */
+window.suggestGift = function (p, c){
+  const g = GIFTS.find(g => { try { return g.when(p, c); } catch(e){ return false; } });
+  return g ? giftFrom(g, p) : null;
+};
+function giftFrom(g, p){
+  return { gift: g.id, kind: g.kind, n: g.n || 1, name: g.name,
+           why: g.why ? g.why(p) : '' };
+}
+window.giftFrom = giftFrom;
+
+window.buildAbilities = function (people, rate){
+  const c = window.giftContext(people);
   // Who gets one: the lowest hashes, so raising the rate only ever ADDS people
   // rather than reshuffling who has what.
   const ranked = people.map(p => ({ p, h: hashId(p.id) })).sort((a,b)=>a.h-b.h);
   const take = Math.round(people.length * Math.max(0, Math.min(100, rate)) / 100);
   const chosen = new Set(ranked.slice(0, take).map(x => x.p.id));
-
   for (const p of people){
-    p.gen_ability = null;
-    if (!chosen.has(p.id)) continue;
-    const r = ABILITY_RULES.find(r => { try { return r.when(p, c); } catch(e){ return false; } });
-    if (!r) continue;
-    p.gen_ability = { kind:r.kind, n:r.n, name:r.name,
-                      effect: window.ABILITY_EFFECTS[r.kind].verb(r.n),
-                      why: r.why(p) };
+    // `fit_ability` is what an older written Gift with no effect picked yet
+    // borrows, so a save from before the menu still does something in play.
+    p.fit_ability = window.suggestGift(p, c);
+    p.gen_ability = chosen.has(p.id) ? p.fit_ability : null;
   }
   return people;
 };
 
-/* The ability a card actually offers: whatever was authored in the builder
- * first, otherwise the generated one. */
-window.abilityOf = function (p){
-  const authored = (p.abilities || [])[0];
-  if (authored && authored.name) return { ...authored, authored: true, kind: authored.kind || null };
-  return p.gen_ability || null;
+/* Every Gift a card offers, ready to show and use: whatever was written in the
+ * editor first (up to two), otherwise the generated one. Written Gifts are
+ * never switched off by the generated-Gift rate -- you wrote them on purpose. */
+window.abilitiesOf = function (p){
+  const own = (p.abilities || []).filter(a => a && a.name);
+  const list = own.length
+    ? own.map(a => {
+        const fit = a.kind && window.ABILITY_EFFECTS[a.kind] ? a : (p.fit_ability || { kind:'draw', n:1 });
+        return { ...a, kind: fit.kind, n: fit.n || 1, why: a.why || a.text || '', authored: true };
+      })
+    : (p.gen_ability ? [p.gen_ability] : []);
+  return list.map(a => ({ ...a, effect: window.ABILITY_EFFECTS[a.kind].verb(a.n || 1),
+                          icon: window.ABILITY_EFFECTS[a.kind].icon }));
 };
