@@ -262,15 +262,15 @@
 
   <section>
     <h2>Before you start</h2>
-    <label class="opt" id="o-intro">
-      <input type="checkbox" data-k="showIntro">
+    <div class="opt">
       <span class="txt">
-        <span class="t">Show the welcome page</span>
-        <span class="d">A short page at the start of every game, laying out how <i>this</i>
-          one works — it reads back whatever you have set here. Either way, your Kin come
-          to your hand after you choose your Legacy cards.</span>
+        <span class="t">The tour</span>
+        <span class="d">A one-minute walk through your first turns, pointing at the real
+          buttons. It is offered on your first game, and the <b>?</b> button in a game has
+          it any time.</span>
       </span>
-    </label>
+      <button id="retour">Offer it again</button>
+    </div>
   </section>
 
   <section>
@@ -464,6 +464,8 @@ function flash(){ const e=$('#saved'); e.classList.add('on');
 // Settings save as you change them -- the buttons only take you to the game.
 document.addEventListener('change', e=>{ if(e.target.dataset.k) commit(); });
 $('#reset').onclick=()=>{ S=Object.assign({},DEFAULT_SETTINGS); saveSettings(S); flash(); render(); };
-$('#save').onclick=$('#save2').onclick=()=>{ commit(); location.href='/play'; };
+$('#save').onclick=$('#save2').onclick=()=>{ commit(); location.href='play.html'; };
+$('#retour').onclick=e=>{ try{ localStorage.removeItem('kinspan.tutorial'); }catch(_){}
+  e.target.textContent='It will be offered next game'; e.target.disabled=true; };
 render();
 </script>

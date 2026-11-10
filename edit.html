@@ -8,6 +8,7 @@
 <title>Kinspan — your family</title>
 <script src="tree.js"></script>
 <script src="family.js"></script>
+<script src="rules.js"></script>
 <style>
   :root{
     --bg:#f7f4ef; --panel:#ffffff; --edge:#ddd5c9; --ink:#2b2621; --dim:#7d7368;
@@ -110,6 +111,25 @@
   .toast.on{opacity:1}
   .dirty{color:var(--gold);font-size:12px;font-weight:600}
   .empty{color:var(--dim);text-align:center;padding:34px 0}
+
+  /* Gifts: what they have, as gold cards, then every Gift as a chip to tap. */
+  .h2n{letter-spacing:0;text-transform:none;font-weight:500;margin-left:6px}
+  .gcard{display:flex;gap:10px;align-items:flex-start;background:#fdf7e6;
+    border:1px solid #ddc487;border-radius:10px;padding:10px;margin-bottom:8px}
+  .gcard .gi{font-size:22px;line-height:38px;width:30px;text-align:center;color:var(--gold);flex:none}
+  .gcard .grow{flex:1;min-width:0}
+  .gcard input{background:#fff}
+  .gcard input:first-child{font-weight:650;color:var(--gold)}
+  .gfx{font-size:13px;color:#5c5348;margin:5px 2px 7px}
+  .gpick{margin-top:6px}
+  .gg{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:9px}
+  .gg>span{flex-basis:100%;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+  .gchip{appearance:none;font:inherit;font-size:13px;border:1px solid var(--edge);
+    background:var(--panel);color:var(--ink);border-radius:99px;padding:6px 11px;
+    cursor:pointer;min-height:34px}
+  .gchip:hover{border-color:#c9b184}
+  .gchip.on{background:var(--gold);border-color:var(--gold);color:#fff}
+  .gchip.sug:not(.on){border-color:var(--gold);background:#fdf5e0;color:var(--gold);font-weight:600}
 </style>
 
 <header>
@@ -228,6 +248,11 @@ function renderEdit() {
 
   const isRoot = fam.meta.root_id === p.id;
   const ab = p.abilities || [];
+  // What their life on the record suggests, and a chip for every Gift.
+  const sug = suggestGift(p, giftContext(fam.people));
+  const chip = (id, hot) => { const g = GIFT_BY_ID[id], fx = ABILITY_EFFECTS[g.kind];
+    return `<button class="gchip ${ab.some(a => a.gift === id) ? 'on' : ''} ${hot ? 'sug' : ''}"
+      data-gift="${id}" title="${esc(fx.verb(g.n || 1))}">${fx.icon} ${esc(g.name)}</button>`; };
 
   v.innerHTML = `
     <div class="row" style="margin-bottom:14px">
@@ -303,22 +328,30 @@ function renderEdit() {
       <p class="hint">This shows on their Kin when you play.</p>
     </div>
 
-    <h2>Gifts</h2>
+    <h2>Gifts <span class="h2n">${ab.length} of 2 · ${['Sketch','Story','Biography'][ab.length]}</span></h2>
     <div class="card">
-      <p class="hint" style="margin-bottom:10px">Up to two. A Gift is something this
-        person lets you do in the game. Writing one makes their Kin rarer —
-        none is a Sketch, one a Story, two a Biography.</p>
-      ${[0,1].map(i => `
-        <div class="field">
-          <label>Gift ${i+1}${i===1&&ab.length<1?' (write the first one first)':''}</label>
-          <input type="text" id="f-gn${i}" value="${esc((ab[i]||{}).name||'')}"
-            placeholder="What it is called" ${i===1&&ab.length<1?'disabled':''}>
-          <input type="text" id="f-gt${i}" value="${esc((ab[i]||{}).text||'')}"
-            placeholder="What it does" style="margin-top:6px"
-            ${i===1&&ab.length<1?'disabled':''}>
-        </div>`).join('')}
-      <p class="hint">Written Gifts show on the Kin but do not yet drive a game
-        effect — the generated ones do. That gap is known.</p>
+      ${ab.map((a, i) => {
+        // A Gift written before the menu has no effect of its own; in play it
+        // borrows the one their life suggests, so say that rather than nothing.
+        const own = ABILITY_EFFECTS[a.kind], fx = own || ABILITY_EFFECTS[(sug || {}).kind];
+        return `<div class="gcard">
+          <span class="gi">${fx ? fx.icon : '✦'}</span>
+          <div class="grow">
+            <input type="text" id="f-gn${i}" value="${esc(a.name)}" aria-label="Gift name">
+            <div class="gfx">${fx ? esc(fx.verb(own ? a.n || 1 : sug.n)) : ''}${own ? ''
+              : ' <i>Taken from their life. Tap a Gift below to choose instead.</i>'}</div>
+            <input type="text" id="f-gw${i}" value="${esc(a.why || a.text || '')}"
+              placeholder="A line from their story" aria-label="Why they have it">
+          </div>
+          <button class="x" data-ungift="${i}" aria-label="Remove this Gift">✕</button>
+        </div>`; }).join('')}
+      <div class="gpick">
+        ${sug ? `<div class="gg"><span>Their life suggests</span>${chip(sug.gift, true)}</div>` : ''}
+        ${[...new Set(GIFTS.map(g => g.group))].map(grp => `<div class="gg"><span>${esc(grp)}</span>${
+          GIFTS.filter(g => g.group === grp).map(g => chip(g.id)).join('')}</div>`).join('')}
+      </div>
+      <p class="hint">Tap a Gift to give it to them, up to two. Each one makes their Kin
+        rarer, and you can rename it to something only your family would say.</p>
     </div>
 
     <h2>In the game</h2>
@@ -349,6 +382,22 @@ function renderEdit() {
   };
   $('#f-living').onchange = e => { $('#deathfields').hidden = e.target.checked; };
   $('#del').onclick = () => confirmDelete(p);
+  v.querySelectorAll('[data-gift]').forEach(b => {
+    b.onclick = () => {
+      commit();
+      const id = b.dataset.gift, g = GIFT_BY_ID[id], own = p.abilities;
+      const at = own.findIndex(a => a.gift === id);
+      if (at >= 0) own.splice(at, 1);
+      else {
+        if (own.length >= 2) own.pop();        // the newest pick takes the second slot
+        own.push({ gift: id, kind: g.kind, n: g.n || 1, name: g.name, why: '' });
+      }
+      changed();
+    };
+  });
+  v.querySelectorAll('[data-ungift]').forEach(b => {
+    b.onclick = () => { commit(); p.abilities.splice(+b.dataset.ungift, 1); changed(); };
+  });
 
   v.querySelectorAll('[data-unlink]').forEach(b => {
     b.onclick = () => {
@@ -433,15 +482,15 @@ function commit() {
   });
 
   p.story = (document.getElementById('f-story') || {}).value || '';
-  const ab = [];
-  for (const i of [0, 1]) {
-    const name = val('f-gn' + i), text = val('f-gt' + i);
-    if (name) ab.push({ name, text });
-  }
-  p.abilities = ab;
+  // The Gift list is the truth; the inputs only rename it or add a why. An
+  // emptied name falls back to the catalogue's, so a Gift is never lost to a
+  // cleared box. `text` was the why before the menu; it becomes `why` here.
+  p.abilities = (p.abilities || []).map(({ text, ...a }, i) => ({ ...a,
+    name: val('f-gn' + i) || (GIFT_BY_ID[a.gift] || {}).name || a.name,
+    why: document.getElementById('f-gw' + i) ? val('f-gw' + i) : (a.why || text || '') }));
   p.ready = chk('f-ready');
   // A person who has been written about is no longer untouched.
-  if ((p.story || '').trim() || ab.length) p.status = 'drafted';
+  if ((p.story || '').trim() || p.abilities.length) p.status = 'drafted';
 
   fam = FAMILY.touched();
 }

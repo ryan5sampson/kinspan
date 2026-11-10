@@ -9,6 +9,12 @@ own repo on the user's GitHub (`ryan5sampson/<project>`). If that repo doesn't
 exist and you can't create it, ask the user to create an empty one, keep the
 work in your scratchpad until then, and don't fall back to this repo.
 
+## Ship to main
+
+Every change made for this project goes live: commit, push, open a PR into
+`main`, and merge it. GitHub Pages serves `main`, so unmerged work is work the
+site doesn't have. Run `node check.js` before merging.
+
 ## Ponytail: lazy senior dev mode
 
 Active on every coding task in this repo, no exceptions, no drift back to
