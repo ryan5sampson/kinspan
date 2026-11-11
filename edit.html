@@ -8,9 +8,9 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan — card builder</title>
-<script src="tree.js?v=9"></script>
-<script src="family.js?v=9"></script>
-<script src="rules.js?v=9"></script>
+<script src="tree.js?v=10"></script>
+<script src="family.js?v=10"></script>
+<script src="rules.js?v=10"></script>
 <style>
   :root{
     --bg:#f7f4ef; --panel:#ffffff; --edge:#ddd5c9; --ink:#2b2621; --dim:#7d7368;
@@ -208,7 +208,7 @@
   }
   @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
 </style>
-<link rel="stylesheet" href="theme.css?v=9">
+<link rel="stylesheet" href="theme.css?v=10">
 
 <header>
   <button class="round" id="home" aria-label="Main menu"><i data-ic="back"></i></button>
@@ -288,10 +288,10 @@ function kinCard(p, i) {
   const ab = p.abilities || [];
   const slots = [0].map(k => { const a = ab[k], fx = a && ABILITY_EFFECTS[a.kind];
     return a ? `<span class="g on" title="${esc(a.name)}">${fx ? fx.icon : icon('spark')}</span>` : `<span class="g">${icon('plus')}</span>`; }).join('');
-  return `<button class="kc ${sideOf(p)} ${p.birth_year ? '' : 'noyear'}" data-id="${esc(p.id)}"
+  return `<button class="kc ${sideOf(p)} ${p.birth_year ? '' : 'noyear'} ${ab.length ? 't-high' : ''}" data-id="${esc(p.id)}"
       style="animation-delay:${Math.min(i, 24) * 22}ms">
     <span class="band"><span class="mono">${esc(initials(p))}</span>
-      <span class="tier">${!p.birth_year ? 'Not playable' : ab.length ? 'Biography' : 'Random tier'}</span></span>
+      ${!p.birth_year ? '<span class="tier">Not playable</span>' : ab.length ? '<span class="tier"><i class="gem high" title="Biography"></i></span>' : ''}</span>
     <span class="body"><span class="nm">${esc(p.name)}</span>
       <span class="yr">${esc(years(p))}</span>
       <span class="rl">${esc(p.relationship_to_root || '')}</span>

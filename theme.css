@@ -34,3 +34,20 @@ button.icon:hover,.round:hover,a.back:hover,.back:hover{background:var(--soft)!i
 /* Sheets and cards sit flat on the page. */
 .sheet{border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.18)}
 input,select,textarea{font-family:inherit}
+
+/* Card tiers, shown the way games show loot. A Sketch is a plain card; a Story
+ * wears a blue frame and gem; a Biography a gold frame, a glow, and a glint
+ * that runs across it. Rings are box-shadows so a card's own side-colour
+ * border stays as it is. */
+:root{--rare:#3b7dd8; --legend:#e0a82e}
+.t-low{box-shadow:0 0 0 1.5px var(--rare),0 3px 10px rgba(59,125,216,.22)!important}
+.t-high{box-shadow:0 0 0 2px var(--legend),0 0 16px rgba(224,168,46,.5)!important}
+.t-high::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;
+  background:linear-gradient(105deg,transparent 44%,rgba(255,255,255,.5) 50%,transparent 56%) 0 0/260% 100% no-repeat;
+  animation:glint 3.4s ease-in-out infinite}
+@keyframes glint{0%{background-position:140% 0}55%,100%{background-position:-140% 0}}
+.gem{display:inline-block;width:8px;height:8px;transform:rotate(45deg);border-radius:1.5px;
+  margin:0 6px 1px 1px;vertical-align:middle;flex:none}
+.gem.low{background:var(--rare);box-shadow:0 0 0 1px #fff}
+.gem.high{background:linear-gradient(135deg,#ffe58a,#d99a16);box-shadow:0 0 0 1px #fff,0 0 6px rgba(224,168,46,.9)}
+@media (prefers-reduced-motion: reduce){.t-high::before{animation:none;opacity:0}}

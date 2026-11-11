@@ -7,9 +7,9 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan — custom game</title>
-<script src="tree.js?v=9"></script>
-<script src="family.js?v=9"></script>
-<script src="rules.js?v=9"></script>
+<script src="tree.js?v=10"></script>
+<script src="family.js?v=10"></script>
+<script src="rules.js?v=10"></script>
 <style>
   :root{
     --bg:#f7f4ef; --panel:#ffffff; --edge:#ddd5c9; --ink:#2b2621; --dim:#7d7368;
@@ -103,7 +103,7 @@
     #save2{flex:1;min-height:46px;font-size:15px}
   }
 </style>
-<link rel="stylesheet" href="theme.css?v=9">
+<link rel="stylesheet" href="theme.css?v=10">
 
 <header>
   <a href="./#mode" class="back" aria-label="Back"><i data-ic="back"></i></a>
@@ -182,7 +182,7 @@
     <label class="opt" id="o-draw">
       <input type="checkbox" data-k="drawBonus">
       <span class="txt">
-        <span class="t">Claiming a Legacy card can be your turn</span>
+        <span class="t">Drawing a Legacy card can be your turn</span>
         <span class="d">Alongside pulling Kin and connecting them. A turn spent on a Legacy
           card is a turn not spent on the timeline. That is the whole choice.</span>
       </span>
@@ -416,7 +416,7 @@ function summary(){
     bits.push(`Then <b>${S.pokerFlips}</b> more turn face up, one every <b>${S.pokerEvery}</b> turns — `
       +`the last on turn <b>${last}</b>${S.river?', worth <b>double</b>':''}.`);
   }
-  if(S.drawBonus) bits.push(`You can spend a turn claiming another, up to <b>${S.maxBonuses}</b>`
+  if(S.drawBonus) bits.push(`You can spend a turn drawing one more, unseen, up to <b>${S.maxBonuses}</b>`
     +(S.swapAtCap?', putting one back once your hands are full.':'.'));
   if(S.difficulty==='hard') bits.push('Kin do <b>not</b> tell you what they are worth.');
   else if(S.difficulty==='brutal')

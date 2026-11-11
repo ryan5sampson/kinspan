@@ -11,9 +11,9 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan — the timeline</title>
-<script src="tree.js?v=9"></script>
-<script src="family.js?v=9"></script>
-<script src="rules.js?v=9"></script>
+<script src="tree.js?v=10"></script>
+<script src="family.js?v=10"></script>
+<script src="rules.js?v=10"></script>
 <style>
   :root{
     --ready:#f9df6d; --ease:cubic-bezier(.34,1.24,.44,1);
@@ -472,6 +472,35 @@
   .plus{position:absolute;left:0;top:-6px;font-weight:800;font-size:15px;color:#fff;background:var(--plus,#6aaa64);
     border-radius:99px;padding:2px 9px;animation:rise 1.1s var(--ease) forwards;pointer-events:none}
   @keyframes rise{0%{transform:translateY(8px) scale(.7);opacity:0}25%{transform:none;opacity:1}100%{transform:translateY(-26px);opacity:0}}
+  /* The decks: three card backs stacked, fanning open under the pointer. */
+  .deck{position:relative;width:50px;height:68px;flex:none;border:0;background:none;padding:0;margin:0 6px 0 2px;
+    border-radius:8px;cursor:pointer}
+  .deck i{position:absolute;inset:0;border-radius:7px;border:2px solid #fff;
+    background:var(--back-kin) center/18px repeat;box-shadow:0 1px 3px rgba(0,0,0,.28);
+    transform-origin:50% 100%;transition:transform .28s var(--ease)}
+  .deck.legacy i{background-image:var(--back-legacy)}
+  .deck i:nth-child(1){transform:translate(-3px,2px) rotate(-3deg)}
+  .deck i:nth-child(2){transform:translate(-1.5px,1px) rotate(-1.5deg)}
+  .deck:hover:not(:disabled) i:nth-child(2){transform:translate(-7px,-2px) rotate(-13deg)}
+  .deck:hover:not(:disabled) i:nth-child(3){transform:translate(7px,-4px) rotate(11deg)}
+  .deck:disabled{opacity:.35;cursor:default}
+  .deck .dn{position:absolute;right:-7px;bottom:-5px;z-index:2;background:var(--ink);color:#fff;
+    font-size:10.5px;font-weight:700;border-radius:99px;padding:1px 6px;line-height:15px}
+  .reveal{position:fixed;inset:0;z-index:70;display:grid;place-items:center;background:rgba(255,255,255,.55);
+    perspective:900px;animation:fade .2s both;cursor:pointer}
+  .reveal.out{opacity:0;transition:opacity .3s}
+  .reveal .rc{position:relative;width:190px;height:260px;transform-style:preserve-3d;animation:turn .7s var(--ease) .1s both}
+  .reveal .rb,.reveal .rf{position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;
+    box-shadow:0 18px 50px rgba(0,0,0,.3)}
+  .reveal .rb{background:var(--back-legacy) center/30px repeat;border:3px solid #fff}
+  .reveal .rf{transform:rotateY(180deg);background:var(--c);border:3px solid #fff;padding:18px 16px;
+    display:flex;flex-direction:column;gap:8px;text-align:left}
+  .reveal .rf small{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;opacity:.7}
+  .reveal .rf b{font-family:'Zilla Slab',Georgia,serif;font-size:24px;line-height:1.1}
+  .reveal .rf span{font-size:13.5px;line-height:1.4}
+  .reveal .rf em{margin-top:auto;font-style:normal;font-weight:800;font-size:15px}
+  @keyframes turn{from{transform:rotateY(0) scale(.6) translateY(120px)}55%{transform:rotateY(0) scale(1)}to{transform:rotateY(180deg)}}
+  @keyframes fade{from{opacity:0}}
   button.move.drawbtn{width:54px;height:54px;align-items:center;justify-content:center;font-size:24px;
     border-radius:12px;background:var(--ink);color:#fff;border-color:var(--ink);flex:none}
   button.move.drawbtn:hover:not(:disabled){background:#333}
@@ -578,7 +607,7 @@
   }
 
 </style>
-<link rel="stylesheet" href="theme.css?v=9">
+<link rel="stylesheet" href="theme.css?v=10">
 
 <header>
   <button id="menubtn" class="icon" title="Menu" aria-label="Menu"><i data-ic="menu"></i></button>
@@ -654,6 +683,10 @@ const $=s=>document.querySelector(s);
    working; only the word the player reads changes. */
 const TIERWORD={basic:'Sketch', uncommon:'Story', rare:'Biography'};
 const tierOf=p=>TIERWORD[p.tier]||p.tier||'';
+/* Tiers are shown like loot: a Story wears a blue frame and gem, a Biography a
+   gold one that catches the light. A Sketch is a plain card. */
+const tierCls=p=>p.tier==='rare'?'t-high':p.tier==='uncommon'?'t-low':'';
+const gem=p=>p.tier==='rare'?'<i class="gem high"></i>':p.tier==='uncommon'?'<i class="gem low"></i>':'';
 /* Coarse pointer = no hover to rely on. Checked once; the layout media query
    keys off width, but the interaction has to key off the input device. */
 const TOUCH=matchMedia('(hover: none), (pointer: coarse)').matches;
@@ -874,10 +907,11 @@ function openHelp(){
     [icon('cards'), `Connect a Kin`, `+${RULES.PRESENCE} Legacy each`],
     [icon('diamond'), `Legacy cards`, SET.selection==='all'?'take any you like':SET.selection==='random'?`${SET.keep} dealt to you`:`keep ${SET.keep} of ${SET.deal}`],
     [icon('heart'), `Married couples`, SET.pairPlay?'both in hand: one move':'one at a time'],
-    [icon('spark'), `Story & Biography`, 'Story Kin have a Gift you set up; Biographies a strong one'],
+    ['<i class="gem low"></i>', `Story`, 'a smaller Gift you set up'],
+    ['<i class="gem high"></i>', `Biography`, 'a strong Gift, any time'],
     SET.defaults && [icon('link'), `Family ties`, '+1 parent & child · +2 couple · lines 3/9/27'],
     SET.reveal==='poker' && [icon('cards'), `More cards flip`, `${SET.pokerFlips} more, every ${SET.pokerEvery} turns${SET.river?', last is double':''}`],
-    SET.clockOn && [icon('clock'), `Every move costs years`, `Pull ${SET.costDraw} · Connect ${SET.costPlay}${SET.drawBonus?` · Claim ${SET.costBonus}`:''}`],
+    SET.clockOn && [icon('clock'), `Every move costs years`, `Pull ${SET.costDraw} · Connect ${SET.costPlay}${SET.drawBonus?` · Legacy card ${SET.costBonus}`:''}`],
     [icon('hand'), `Hand`, `hold up to ${limit()}`],
     [icon('spark'), `Gifts`, SET.clockOn?'gold while the marker is in their life':'once each'],
     [icon('flag'), `Game ends`, SET.clockOn?`at ${clockSpan[1]}${both?', after the way back':''}`:'when the Archive runs dry'],
@@ -1378,15 +1412,27 @@ function doTakeBonus(swapOnly){
   const pool=bonusPool(); if(!pool.length) return;
   const full=swapOnly===true || held().length>=SET.maxBonuses;
   if(full && !SET.swapAtCap && !freeTake) return;
-  closeRel();
+  closeRel(); $('#gtip').classList.remove('on');
   takeMode = full ? 'swap' : 'add';
-  offer = shuffle(pool).slice(0, Math.max(1, Math.min(SET.deal, pool.length)));
-  if(SET.selection==='random'){          // blind games stay blind mid-game too
-    commitTake(offer[0]); return;
+  if(swapOnly===true){                   // the reshuffle Gift: you pick the trade
+    offer = shuffle(pool).slice(0, Math.max(1, Math.min(SET.deal, pool.length)));
+    pickAll = false; openBonuses(); return;
   }
-  pickAll = SET.selection==='all';
-  if(pickAll) offer = pool;
-  openBonuses();
+  // Everything else draws ONE card off the top of the Legacy deck, unseen.
+  const id=shuffle(pool)[0];
+  commitTake(id); revealLegacy(id);
+}
+
+/* The drawn card turns over in the middle of the screen, then goes to you. */
+function revealLegacy(id){
+  const b=BONUS_BY_ID[id], el=document.createElement('div');
+  el.className='reveal';
+  el.innerHTML=`<div class="rc"><div class="rb"></div>
+    <div class="rf" style="--c:${CARDCOL[(held().length-1+CARDCOL.length)%CARDCOL.length]}">
+      <small>${esc(b.group)}</small><b>${esc(b.name)}</b><span>${esc(b.blurb)}</span><em>${esc(b.per)}</em></div></div>`;
+  document.body.appendChild(el);
+  const go=()=>{ el.classList.add('out'); setTimeout(()=>el.remove(), 300); };
+  el.onclick=go; setTimeout(go, 2300);
 }
 let takeMode=null, swapOut=null;
 
@@ -1537,7 +1583,7 @@ function render(ghost){
   setHTML($('#gifts'), gs.length ? gs.map(g=>`
     <button class="gl ${g.st.ok?'ready':usedAbil.has(g.st.key)?'spent':''}" data-gift="${esc(g.p.id)}:${g.i}">
       <span class="gi">${g.ab.icon}</span><span>
-      <span class="t">${esc(g.ab.name)}<i class="tier">${g.ab.tier==='low'?'Story':'Biography'}</i><small>${esc(g.p.given||g.p.name)}</small></span>
+      <span class="t">${esc(g.ab.name)}<i class="gem ${g.ab.tier}" title="${g.ab.tier==='low'?'Story':'Biography'}" style="margin-left:6px"></i><small>${esc(g.p.given||g.p.name)}</small></span>
       <span class="e" style="display:block">${esc(g.ab.effect)}</span>
       <span class="w" style="display:block">${g.st.ok?'Ready — tap to use':esc(g.st.why)}</span></span></button>`).join('')
     : '<div class="msg">Connect a Story or Biography Kin and their Gift shows up here.</div>');
@@ -1649,7 +1695,7 @@ function paint(list, ghosts){
     }
     const endCls=p.living?'living':(p.death_year?'':'unknownend');
     const lit=SET.clockOn && aliveAt(p, clock);
-    el.className=`card ${sideOf(p)} ${endCls} ${isGhost(p.id)?'ghost':''} `
+    el.className=`card ${sideOf(p)} ${tierCls(p)} ${endCls} ${isGhost(p.id)?'ghost':''} `
                 +`${p.id===fresh?'fresh':''} ${isNew&&!isGhost(p.id)?'landing':''} `
                 +`${lit?'alive':''}`;
     /* The marriage heart sits in the seam the two bars share, at the wedding
@@ -2178,20 +2224,17 @@ function renderHand(total){
     // Every button says what the move costs in years -- the clock is the real
     // budget now, so a turn's price belongs on the button that spends it.
     const yr=n=>SET.clockOn?`${n} yrs`:'';
-    html+=`<button id="draw" class="move drawbtn" ${!deck.length?'disabled':''}
-        aria-label="Pull ${SET.drawCount} Kin from the Archive${SET.clockOn?`, ${SET.costDraw} years`:''}">${icon('cards')}</button>`;
+    // The two decks: Kin from the Archive, and Legacy cards.
+    html+=`<button id="draw" class="deck kin" ${!deck.length?'disabled':''}
+        aria-label="Pull ${SET.drawCount} Kin from the Archive${SET.clockOn?`, ${SET.costDraw} years`:''}"><i></i><i></i><i></i><b class="dn">${deck.length}</b></button>`;
     if(SET.drawBonus){
       const full=held().length>=SET.maxBonuses;
       const none=!bonusPool().length;
       const swap=full && SET.swapAtCap;
       // A disabled button labelled "Swap" advertises a move you cannot make.
       // Full-with-swapping-off just stays "Take bonus", greyed, and says why.
-      html+=`<button id="takeb" class="move" ${(none||(full&&!SET.swapAtCap))?'disabled':''}
-        title="${none?'No Legacy cards left to claim'
-                :swap?'Your hands are full — a new one takes the place of another'
-                :full?'You are holding all the Legacy cards this game allows'
-                :'Spend this turn on a Legacy card instead of a Kin'}">
-        <b>${icon('diamond')} ${swap?'Swap Legacy':'Claim Legacy'}</b><small>${yr(SET.costBonus)}${SET.clockOn?' · ':''}${held().length} of ${SET.maxBonuses} held</small></button>`;
+      html+=`<button id="takeb" class="deck legacy" ${(none||(full&&!SET.swapAtCap))?'disabled':''}
+        aria-label="Draw a Legacy card${SET.clockOn?`, ${SET.costBonus} years`:''}"><i></i><i></i><i></i><b class="dn">${bonusPool().length}</b></button>`;
     }
     // Gifts that change the NEXT move sit here, by the moves they change, so
     // a banked free Connect is something you can see rather than remember.
@@ -2233,9 +2276,13 @@ function renderHand(total){
         SET.clockOn?`${SET.costDraw} years · `:''}${deck.length} left in the Archive</div>`); };
     d.onmouseleave=()=>{ previewMove(null); $('#gtip').classList.remove('on'); }; }
   const tb=$('#takeb');
-  if(tb){ tb.onclick=doTakeBonus;
-    tb.onmouseenter=()=>{ if(!tb.disabled) previewMove(SET.costBonus); };
-    tb.onmouseleave=()=>previewMove(null); }
+  if(tb){ tb.onclick=()=>doTakeBonus();
+    tb.onmouseenter=()=>{ if(tb.disabled) return; previewMove(SET.costBonus);
+      const full=held().length>=SET.maxBonuses;
+      tipAt(tb, `<div class="n">${icon('diamond')} Draw a Legacy card</div><div class="e">${
+        SET.clockOn?`${SET.costBonus} years · `:''}${held().length} of ${SET.maxBonuses} held${
+        full?' — your weakest goes back':''}. A gamble: on average one scores about what its years would.</div>`); };
+    tb.onmouseleave=()=>{ previewMove(null); $('#gtip').classList.remove('on'); }; }
   h.querySelectorAll('.hc').forEach(el=>{
     const id=el.dataset.id;
     const grp=el.closest('.pair');
@@ -2269,10 +2316,10 @@ function handCard(id, gp){
     : free ? '<span class="gain free">free</span>'
     : showsPreview(SET) ? `<span class="gain">+${gainOfGroup(gp.ids)}</span>` : '';
   const gifts=abilitiesOf(p).map(a=>`<i class="hg" title="Gift: ${esc(a.name)}">${a.icon}</i>`).join('');
-  return `<div class="hc ${sideOf(p)} ${mustDiscard||swapLeft?'todiscard':''} ${free?'pairable':''}" data-id="${id}">
+  return `<div class="hc ${sideOf(p)} ${tierCls(p)} ${mustDiscard||swapLeft?'todiscard':''} ${free?'pairable':''}" data-id="${id}" title="${esc(tierOf(p))}">
       ${note}
-      <div class="n ${p.sex==='M'?'m':p.sex==='F'?'f':''}">${esc(p.name)}</div>
-      <small>${startY(p)}–${p.living?'':(p.death_year||'?')} · ${esc(tierOf(p))}${gifts}</small></div>`;
+      <div class="n ${p.sex==='M'?'m':p.sex==='F'?'f':''}">${gem(p)}${esc(p.name)}</div>
+      <small>${startY(p)}–${p.living?'':(p.death_year||'?')}${gifts}</small></div>`;
 }
 
 let tt=null;
