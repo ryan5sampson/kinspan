@@ -39,4 +39,10 @@ for (const m of MODES) for (const k of Object.keys(m.set))
 for (const id of [...MODES.map(m => m.id), 'tutorial', 'custom']) assert(LOGOS[id], `no logo variant for ${id}`);
 assert.equal(modeSettings('quick').selection, 'random');
 assert.equal(modeSettings('nope').selection, DEFAULT_SETTINGS.selection, 'an unknown mode plays Classic');
+// Every page asks for the same version of the scripts, so a deploy can never
+// pair a fresh page with a cached script from the one before. Bump ?v= on
+// every page whenever a .js file changes.
+const vs = new Set(['index', 'play', 'edit', 'settings'].flatMap(p =>
+  [...fs.readFileSync(`${__dirname}/${p}.html`, 'utf8').matchAll(/<script src="\w+\.js(\?v=\d+)?"/g)].map(m => m[1])));
+assert(vs.size === 1 && [...vs][0], `pages ask for different script versions: ${[...vs]}`);
 console.log(`ok — ${MODES.length} modes, ${GIFTS.length} Gifts, ${Object.keys(ABILITY_EFFECTS).length} effects`);
