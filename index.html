@@ -6,6 +6,8 @@
 <meta name="apple-mobile-web-app-title" content="Kinspan">
 <meta name="theme-color" content="#f7f4ef">
 <meta name="description" content="A hand of your own family. Bring your family file, put people back on the timeline, and earn Legacy.">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan</title>
 <script src="tree.js"></script>
 <script src="family.js"></script>
@@ -13,7 +15,7 @@
 <style>
   :root{
     --bg:#f7f4ef; --panel:#ffffff; --edge:#ddd5c9; --ink:#2b2621; --dim:#7d7368;
-    --gold:#9a7212; --gold2:#c79a2e; --pat:#2f6f9e; --mat:#a8552a;
+    --gold:#9a7212; --brand:#F0966E; --gold2:#c79a2e; --pat:#2f6f9e; --mat:#a8552a;
     --patbg:#e4f0f8; --matbg:#fbeade; --selfbg:#e2f3e6; --self:#2f7a45;
     --ease:cubic-bezier(.34,1.24,.44,1);
   }
@@ -32,19 +34,12 @@
   @keyframes screenin{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 
   /* ---- title ---- */
-  .fan{position:relative;height:150px;margin:0 auto 6px;width:220px}
-  .fan i{position:absolute;left:50%;bottom:0;width:84px;height:120px;margin-left:-42px;
-    border-radius:10px;border:1.5px solid;box-shadow:0 10px 24px rgba(80,60,30,.16);
-    transform-origin:50% 120%;animation:fanin .7s var(--ease) both}
-  .fan i::after{content:'';position:absolute;left:10px;right:10px;top:12px;height:8px;
-    border-radius:4px;background:currentColor;opacity:.35;
-    box-shadow:0 16px 0 -1px currentColor,0 30px 0 -2px currentColor}
-  .fan i:nth-child(1){background:var(--patbg);border-color:var(--pat);color:var(--pat);--r:-16deg}
-  .fan i:nth-child(2){background:var(--selfbg);border-color:var(--self);color:var(--self);--r:0deg;z-index:1;animation-delay:.08s}
-  .fan i:nth-child(3){background:var(--matbg);border-color:var(--mat);color:var(--mat);--r:16deg;animation-delay:.16s}
-  .fan i{transform:rotate(var(--r))}
-  @keyframes fanin{from{transform:rotate(0) translateY(30px);opacity:0}to{transform:rotate(var(--r));opacity:1}}
-  .fan:hover i{transform:rotate(calc(var(--r)*1.4)) translateY(-4px);transition:transform .3s var(--ease)}
+  /* The mark: three lives sliding onto one timeline. */
+  .mark{font-size:140px;margin:0 auto 18px;width:max-content}
+  .mark rect{transform-box:fill-box;animation:bar .7s var(--ease) both}
+  .mark rect:nth-child(2){animation-delay:.12s}
+  .mark rect:nth-child(3){animation-delay:.24s}
+  @keyframes bar{from{transform:translateX(-40%);opacity:0}to{transform:none;opacity:1}}
 
   h1{margin:0;text-align:center;font-size:clamp(46px,13vw,72px);letter-spacing:-.03em;
     font-weight:680;line-height:1}
@@ -155,7 +150,7 @@
 
 <!-- ======================= title ======================= -->
 <section class="screen" id="s-title">
-  <div class="fan" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="mark" data-logo></div>
   <h1>Kinspan</h1>
   <div class="kicker">A hand of your own family</div>
   <div class="famchip" id="famchip" hidden>

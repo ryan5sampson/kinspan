@@ -514,12 +514,19 @@ window.ICONS = {
   plus:    'M12 5v14M5 12h14',
   help:    'M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/><circle cx="12" cy="12" r="9',
 };
+/* The Kinspan mark, the same three bars as logo.svg. It fills with the text
+ * colour, so `color` sets it wherever it sits. */
+window.logo = cls => `<svg class="logo${cls ? ' ' + cls : ''}" viewBox="0 0 806 736" fill="currentColor" role="img" aria-label="Kinspan">`
+  + '<rect width="527" height="224" rx="48"/><rect x="113" y="256" width="625" height="224" rx="48"/>'
+  + '<rect x="433" y="512" width="373" height="224" rx="48"/></svg>';
 window.icon = (name, cls) => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true"><path d="${window.ICONS[name]}"/></svg>`;
 if (typeof document !== 'undefined') {
-  document.head.insertAdjacentHTML('beforeend', `<style>.ic{width:1em;height:1em;flex:none;vertical-align:-.14em;
+  document.head.insertAdjacentHTML('beforeend', `<style>.logo{display:block;height:1em;width:auto;color:var(--brand,#F0966E)}
+    .ic{width:1em;height:1em;flex:none;vertical-align:-.14em;
     fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;overflow:visible}</style>`);
   document.addEventListener('DOMContentLoaded', () =>
-    document.querySelectorAll('[data-ic]').forEach(e => { e.innerHTML = window.icon(e.dataset.ic); }));
+    { document.querySelectorAll('[data-ic]').forEach(e => { e.innerHTML = window.icon(e.dataset.ic); });
+      document.querySelectorAll('[data-logo]').forEach(e => { e.innerHTML = window.logo(); }); });
 }
 
 /* ---- game modes --------------------------------------------------------

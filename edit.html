@@ -5,6 +5,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Kinspan">
 <meta name="theme-color" content="#f7f4ef">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan — card builder</title>
 <script src="tree.js"></script>
 <script src="family.js"></script>
@@ -26,6 +28,7 @@
   header{flex:none;display:flex;gap:10px;align-items:center;
     padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top));
     background:var(--panel);border-bottom:1px solid var(--edge)}
+  .hmark{font-size:20px}
   header h1{margin:0;font-size:18px;font-weight:680;letter-spacing:-.01em}
   .sp{flex:1}
   .round{border:1px solid var(--edge);background:var(--panel);border-radius:99px;
@@ -208,6 +211,7 @@
 
 <header>
   <button class="round" id="home" aria-label="Main menu"><i data-ic="back"></i></button>
+  <span class="hmark" data-logo></span>
   <h1>Card builder</h1>
   <div class="sp"></div>
   <span class="dirty" id="dirty" title="Changes not saved to your file" hidden></span>
