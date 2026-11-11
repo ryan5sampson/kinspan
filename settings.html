@@ -7,9 +7,9 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan — custom game</title>
-<script src="tree.js?v=8"></script>
-<script src="family.js?v=8"></script>
-<script src="rules.js?v=8"></script>
+<script src="tree.js?v=9"></script>
+<script src="family.js?v=9"></script>
+<script src="rules.js?v=9"></script>
 <style>
   :root{
     --bg:#f7f4ef; --panel:#ffffff; --edge:#ddd5c9; --ink:#2b2621; --dim:#7d7368;
@@ -103,7 +103,7 @@
     #save2{flex:1;min-height:46px;font-size:15px}
   }
 </style>
-<link rel="stylesheet" href="theme.css?v=8">
+<link rel="stylesheet" href="theme.css?v=9">
 
 <header>
   <a href="./#mode" class="back" aria-label="Back"><i data-ic="back"></i></a>
@@ -230,7 +230,7 @@
   <section>
     <h2>Gifts</h2>
     <div class="nums">
-      <span class="num"><label for="ar">who has a Gift</label>
+      <span class="num"><label for="ar">dealt a Gift</label>
         <input id="ar" type="number" min="0" max="100" step="5" data-k="abilityRate"></span>
       <span class="num" style="color:var(--dim)">out of every 100 Kin — 0 turns Gifts off</span>
     </div>
@@ -258,10 +258,9 @@
     <label class="opt" id="o-pair" style="margin-top:6px">
       <input type="checkbox" data-k="pairPlay">
       <span class="txt">
-        <span class="t">A Connect can bring one relative along</span>
-        <span class="d">Connect a Kin and their spouse, parent or child comes with them on
-          the same turn — so a married pair, or a parent and child, costs one turn instead
-          of two. One relative, not a whole line.</span>
+        <span class="t">Married couples connect together</span>
+        <span class="d">With both of them in your hand, a husband and wife go onto the timeline
+          in one move. Everyone else pays their own way.</span>
       </span>
     </label>
   </section>
@@ -364,10 +363,10 @@ function render(){
        ${both?'<br>Every Gift comes back when the marker turns for home.':''}`;
   $('#abilnote').innerHTML = S.abilityRate<=0
     ? 'Off: nobody has a Gift, and the marker is only a clock.'
-    : `About <b>${S.abilityRate}</b> out of every 100 Kin have one, taken from their own life —
-       how long they lived, how many children, how far they moved, who they married. The
-       same people always have the same Gift, and anything you write in the Archive replaces
-       it. Turning this up only ever <i>adds</i> people.`;
+    : `Each game, <b>${S.abilityRate}</b> in every 100 Kin are dealt a Gift from their own life —
+       three in four a Story with a smaller Gift you have to set up, one in four a Biography
+       with a strong one. The rest are Sketches. A Gift you write in the card builder makes
+       that Kin a Biography every game.`;
 
   // A "deal N" count is meaningless in the modes that don't deal, and a keep
   // count is meaningless when you pick freely -- grey them out rather than
@@ -425,13 +424,13 @@ function summary(){
   if(S.clockOn) bits.push(`A marker walks the timeline
     (${CDIRS.find(c=>c.id===S.clockDir)?.t.toLowerCase()}), and everything you do spends years.`);
   if(S.clockOn && S.abilityRate>0)
-    bits.push(`<b>${S.abilityRate}</b> in every 100 Kin have a Gift you can use while the marker stands inside their life.`);
+    bits.push(`<b>${S.abilityRate}</b> in every 100 Kin are dealt a Gift you can use while the marker stands inside their life.`);
   bits.push(S.clockOn
     ? 'It ends when the marker runs off the end, or when the Archive and your hand run dry.'
     : 'It ends when the Archive and your hand are both empty.');
   bits.push(`You start with <b>${S.openingHand}</b> Kin in hand. A Pull takes <b>${S.drawCount}</b>, `
     +`and holding more than <b>${S.handLimit}</b> means returning some to the Archive.`);
-  if(S.pairPlay) bits.push('A Connect can bring one spouse, parent or child along with it.');
+  if(S.pairPlay) bits.push('A married couple both in your hand connect together for one move.');
   return bits.join(' ');
 }
 

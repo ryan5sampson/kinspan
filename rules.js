@@ -433,13 +433,13 @@ window.DEFAULT_SETTINGS = {
   pokerFlips:  3,        // extra bonuses turned up in poker mode
   pokerEvery:  5,        // ...one every N turns
   river:       true,     // the last flip scores double
-  drawBonus:   true,     // spending a turn to take a bonus is a legal move
+  drawBonus:   false,    // spending a turn to take a bonus is a legal move (custom games)
   maxBonuses:  5,        // cap on how many you can hold
   swapAtCap:   true,     // at the cap, drawing replaces instead of being blocked
   openingHand: 3,
   drawCount:   2,        // cards a draw turn takes
-  handLimit:   7,        // draw past this and you discard back down to it
-  pairPlay:    true,     // a play turn may add one spouse / parent / child
+  handLimit:   6,        // draw past this and you discard back down to it
+  pairPlay:    true,     // a married couple both in hand connect as one move
   /* ---- the clock ----------------------------------------------------
      A marker walks the timeline. Each action pushes it along by that
      action's cost in years, and the game ends when it runs off the end --
@@ -450,7 +450,7 @@ window.DEFAULT_SETTINGS = {
   costDraw:    10,
   costPlay:    10,
   costBonus:   15,        // an objective is worth more of your remaining time
-  abilityRate: 45,        // % of people who carry a generated ability; 0 = off
+  abilityRate: 50,        // % of Kin dealt a Gift each game (1/4 of them higher tier); 0 = off
 
   /* 'normal'  everything on show
      'hard'    no per-action preview -- you work out what a card is worth
@@ -704,23 +704,82 @@ window.aliveAt = function (p, year){
  * Each is something a plain turn cannot do. `verb` is what the card says;
  * play.html's giftStatus() and useAbility() hold a case for every kind here,
  * and check.js fails if one goes missing. */
+/* Every Gift comes in two strengths. A Story card carries the lower one, a
+ * Biography the higher, a Sketch none. The lower one is smaller and usually
+ * situational -- it waits on a `gate` you have to set up or time; the higher
+ * one is bigger and works whenever its owner is alive at the marker.
+ *
+ * `worth` is what a Gift is worth in Legacy, priced from a bot that played 40
+ * Classic games on a 23-person family with Gifts off (scratch bot, not shipped):
+ * (couples-only pairs, a hand of 6): a 10-year move earned MOVE Legacy, a
+ * Connect CONNECT, and a Gift used mid-game
+ * still had about LEFT Connects ahead of it. A gated Gift is discounted by
+ * ODDS, the share of games it ends up usable in. */
+const MOVE = 2.7, CONNECT = 3.5, LEFT = 5, ODDS = 0.6;
+window.GATES = {
+  hand2: { say:'with 2 or fewer Kin in hand' },
+  late:  { say:'in the last 15 years of their life' },
+  young: { say:'in their first 20 years' },
+  kin:   { say:'once one of their family is on the timeline' },
+};
 window.ABILITY_EFFECTS = {
-  draw:      { icon:icon('cards'), verb: n => `Pull ${n} Kin from the Archive. No years spent.` },
-  time:      { icon:icon('rewind'), verb: n => `Take ${n} years back on the timeline.` },
-  points:    { icon:icon('star'), verb: n => `Take ${n} Legacy, right now.` },
-  freeplay:  { icon:icon('bolt'), verb: () => `Your next Connect costs no years.` },
-  playkin:   { icon:icon('heart'), verb: () => `Connect their spouse, parent or child from your hand. Free.` },
-  hold:      { icon:icon('hand'), verb: n => `Hold ${n} more Kin for the rest of the game.` },
-  discount:  { icon:icon('half'), verb: () => `Your next Connect costs half the years.` },
-  pause:     { icon:icon('pause'), verb: n => `The marker stands still for your next ${n} moves.` },
-  echo:      { icon:icon('echo'), verb: () => `Use a Gift you have already spent, once more.` },
-  summon:    { icon:icon('letter'), verb: () => `Bring one of their family out of the Archive to your hand. Free.` },
-  keepsake:  { icon:icon('leaf'), verb: n => `+${n} Legacy for every Kin you connect after this.` },
-  objective: { icon:icon('diamond'), verb: () => `Claim a Legacy card. No years spent.` },
-  swap:      { icon:icon('swap'), verb: n => `Send up to ${n} Kin back to the Archive and pull as many.` },
-  double:    { icon:icon('double'), verb: () => `Connect a Kin, then one more straight after, free.` },
-  reunion:   { icon:icon('home'), verb: () => `Connect anyone in hand with two family already down. Free.` },
-  reshuffle: { icon:icon('shuffle'), verb: () => `Trade one of your Legacy cards for another. No years spent.` },
+  draw:     { icon:icon('cards'), worth:n => n*MOVE/2,
+    low:{ n:2, gate:'hand2', say:n => `Pull ${n} Kin from the Archive. No years spent.` },
+    high:{ n:3, say:n => `Pull ${n} Kin from the Archive. No years spent.` } },
+  time:     { icon:icon('rewind'), worth:n => n/10*MOVE,
+    low:{ n:10, gate:'late', say:n => `Take ${n} years back on the timeline.` },
+    high:{ n:20, say:n => `Take ${n} years back on the timeline.` } },
+  points:   { icon:icon('star'), worth:n => n,
+    low:{ n:3, gate:'young', say:n => `Take ${n} Legacy, right now.` },
+    high:{ n:5, say:n => `Take ${n} Legacy, right now.` } },
+  freeplay: { icon:icon('bolt'), worth:n => n*MOVE,
+    low:{ n:1, gate:'kin', say:() => `Your next Connect costs no years.` },
+    high:{ n:2, say:n => `Your next ${n} Connects cost no years.` } },
+  playkin:  { icon:icon('heart'), worth:n => n*1.5,     // ~1.5 of their family down when it is used
+    low:{ n:2, say:n => `+${n} Legacy for each of their spouse, parents and children on the timeline.` },
+    high:{ n:3, say:n => `+${n} Legacy for each of their spouse, parents and children on the timeline.` } },
+  hold:     { icon:icon('hand'), worth:n => n*0.8,       // a slot saves about a third of a pulled card
+    low:{ n:2, say:n => `Hold ${n} more Kin for the rest of the game.` },
+    high:{ n:4, say:n => `Hold ${n} more Kin for the rest of the game.` } },
+  discount: { icon:icon('half'), worth:n => n*MOVE/2,
+    low:{ n:1, say:() => `Your next Connect costs half the years.` },
+    high:{ n:3, say:n => `Your next ${n} Connects cost half the years.` } },
+  pause:    { icon:icon('pause'), worth:n => n*MOVE,
+    low:{ n:1, gate:'late', say:() => `The marker stands still for your next move.` },
+    high:{ n:2, say:n => `The marker stands still for your next ${n} moves.` } },
+  echo:     { icon:icon('echo'), worth:n => n ? 3 : 3*ODDS, // about an average higher Gift
+    low:{ n:0, say:() => `Use a spent Gift from their own family once more.` },
+    high:{ n:1, say:() => `Use any Gift you have already spent, once more.` } },
+  summon:   { icon:icon('letter'), worth:n => n*MOVE/2*1.3, // a pulled card that is sure to be family
+    low:{ n:1, say:() => `Bring one of their family out of the Archive to your hand.` },
+    high:{ n:2, say:n => `Bring up to ${n} of their family out of the Archive to your hand.` } },
+  keepsake: { icon:icon('leaf'), worth:n => n ? LEFT : LEFT*0.3,
+    low:{ n:0, say:() => `+1 Legacy for each of their family you connect after this.` },
+    high:{ n:1, say:() => `+1 Legacy for every Kin you connect after this.` } },
+  objective:{ icon:icon('diamond'), worth:() => 6,         // what a drafted Legacy card scored on average
+    low:{ n:1, gate:'late', say:() => `Claim a Legacy card. No years spent.` },
+    high:{ n:1, say:() => `Claim a Legacy card. No years spent.` } },
+  swap:     { icon:icon('swap'), worth:n => n*0.6,
+    low:{ n:2, say:n => `Send up to ${n} Kin back to the Archive and pull as many.` },
+    high:{ n:4, say:n => `Send up to ${n} Kin back to the Archive and pull as many.` } },
+  double:   { icon:icon('double'), worth:n => n ? MOVE : MOVE/2,
+    low:{ n:0, say:() => `After your next Connect, one more costs half the years.` },
+    high:{ n:1, say:() => `After your next Connect, one more costs no years.` } },
+  reunion:  { icon:icon('home'), worth:n => n === 1 ? 3 : n*LEFT/2, // ~3 Kin with two family down
+    low:{ n:1, say:n => `+${n} Legacy for each Kin on the timeline with two family beside them.` },
+    high:{ n:2, say:n => `+${n} Legacy for every Kin you connect from now on with two family already down.` } },
+  reshuffle:{ icon:icon('shuffle'), worth:n => n ? 3 : 3*ODDS,
+    low:{ n:0, gate:'dud', say:() => `Trade one of your Legacy cards for another. No years spent.` },
+    high:{ n:1, say:() => `Trade one of your Legacy cards for another. No years spent.` } },
+};
+window.GATES.dud = { say:'while one of your Legacy cards is scoring nothing' };
+/* What a Gift says, how strong it is, and what it is worth, at a tier. */
+window.giftTier = function (kind, tier){
+  const fx = window.ABILITY_EFFECTS[kind], t = fx[tier === 'low' ? 'low' : 'high'];
+  const gate = t.gate && window.GATES[t.gate];
+  const worth = fx.worth(t.n) * (gate ? ODDS : 1);
+  return { n: t.n, gate: t.gate || null, worth: Math.round(worth * 2) / 2,
+           effect: t.say(t.n) + (gate ? ` Only ${gate.say}.` : '') };
 };
 
 /* ---- the Gifts --------------------------------------------------------
@@ -800,11 +859,6 @@ const lastPart = s => { const a = parts(s); return (a[a.length-1] || '').toLower
 
 /* Stable per-person hash, so the same people carry the same abilities from one
  * game to the next -- an ability is part of who the card IS, not a die roll. */
-function hashId(id){
-  let h = 2166136261;
-  for (let i = 0; i < id.length; i++){ h ^= id.charCodeAt(i); h = Math.imul(h, 16777619); }
-  return (h >>> 0) / 4294967295;
-}
 
 /* Everything a `when` needs to know about the rest of the tree, built once. */
 window.giftContext = function (people){
@@ -848,33 +902,43 @@ function giftFrom(g, p){
 }
 window.giftFrom = giftFrom;
 
+/* Deal the tiers for a game. Kin with Gifts written in the builder keep them,
+ * as a Biography. Everyone else is shuffled: `rate`% get a Gift their own life
+ * suggests -- a quarter of those at the higher tier, the rest at the lower --
+ * and the rest stay Sketches. At the default 50 that is 1/8 Biography, 3/8
+ * Story, 1/2 Sketch, freshly drawn every game. */
 window.buildAbilities = function (people, rate){
   const c = window.giftContext(people);
-  // Who gets one: the lowest hashes, so raising the rate only ever ADDS people
-  // rather than reshuffling who has what.
-  const ranked = people.map(p => ({ p, h: hashId(p.id) })).sort((a,b)=>a.h-b.h);
-  const take = Math.round(people.length * Math.max(0, Math.min(100, rate)) / 100);
-  const chosen = new Set(ranked.slice(0, take).map(x => x.p.id));
+  const written = p => (p.abilities || []).some(a => a && a.name);
+  const pool = people.filter(p => !written(p));
+  for (let i = pool.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  const gifted = Math.round(pool.length * Math.max(0, Math.min(100, rate)) / 100);
+  const bio = Math.round(gifted / 4);
   for (const p of people){
-    // `fit_ability` is what an older written Gift with no effect picked yet
-    // borrows, so a save from before the menu still does something in play.
+    // `fit_ability` is what a written Gift with no effect chosen borrows.
     p.fit_ability = window.suggestGift(p, c);
-    p.gen_ability = chosen.has(p.id) ? p.fit_ability : null;
+    p.gen_ability = null; p.tier = written(p) ? 'rare' : 'basic';
   }
+  pool.forEach((p, i) => {
+    if (i >= gifted || !p.fit_ability) return;
+    const tier = i < bio ? 'high' : 'low';
+    p.tier = tier === 'high' ? 'rare' : 'uncommon';
+    p.gen_ability = { ...p.fit_ability, tier };
+  });
   return people;
 };
 
 /* Every Gift a card offers, ready to show and use: whatever was written in the
- * editor first (up to two), otherwise the generated one. Written Gifts are
- * never switched off by the generated-Gift rate -- you wrote them on purpose. */
+ * builder (at the higher tier -- you wrote it on purpose), otherwise the one
+ * dealt this game. */
 window.abilitiesOf = function (p){
   const own = (p.abilities || []).filter(a => a && a.name);
   const list = own.length
     ? own.map(a => {
-        const fit = a.kind && window.ABILITY_EFFECTS[a.kind] ? a : (p.fit_ability || { kind:'draw', n:1 });
-        return { ...a, kind: fit.kind, n: fit.n || 1, why: a.why || a.text || '', authored: true };
+        const fit = a.kind && window.ABILITY_EFFECTS[a.kind] ? a : (p.fit_ability || { kind:'draw' });
+        return { ...a, kind: fit.kind, tier: 'high', why: a.why || a.text || '', authored: true };
       })
     : (p.gen_ability ? [p.gen_ability] : []);
-  return list.map(a => ({ ...a, effect: window.ABILITY_EFFECTS[a.kind].verb(a.n || 1),
+  return list.map(a => ({ ...a, ...window.giftTier(a.kind, a.tier),
                           icon: window.ABILITY_EFFECTS[a.kind].icon }));
 };

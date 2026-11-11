@@ -11,12 +11,12 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan — the timeline</title>
-<script src="tree.js?v=8"></script>
-<script src="family.js?v=8"></script>
-<script src="rules.js?v=8"></script>
+<script src="tree.js?v=9"></script>
+<script src="family.js?v=9"></script>
+<script src="rules.js?v=9"></script>
 <style>
   :root{
-    --ease:cubic-bezier(.34,1.24,.44,1);
+    --ready:#f9df6d; --ease:cubic-bezier(.34,1.24,.44,1);
     --clock:#2e6ea0;
     --bg:#f7f4ef; --panel:#ffffff; --edge:#ddd5c9; --ink:#2b2621; --dim:#7d7368;
     --gold:#9a7212; --pat:#2f6f9e; --mat:#a8552a; --self:#2f7a45; --line:#a89d8e;
@@ -185,9 +185,10 @@
     background:var(--soft);color:#a49a8c;font-size:12.5px;line-height:1;padding:0;
     display:flex;align-items:center;justify-content:center;cursor:default;
     pointer-events:auto;z-index:3;transition:background .15s,color .15s,box-shadow .15s}
-  .gbtn.live{background:var(--gold);border-color:var(--gold);color:#fff;cursor:pointer;
-    box-shadow:0 0 0 3px rgba(154,114,18,.22)}
-  .gbtn.live:hover{box-shadow:0 0 0 4px rgba(154,114,18,.34)}
+  .gbtn.live{background:var(--ready);border-color:#c9a81f;color:var(--ink);cursor:pointer;
+    animation:glow 1.6s ease-in-out infinite}
+  .gbtn.live:hover{box-shadow:0 0 0 4px rgba(249,223,109,.7)}
+  @keyframes glow{50%{box-shadow:0 0 0 4px rgba(249,223,109,.65)}}
   .gbtn.spent{opacity:.4}
   /* A small floating card for the Gift, shown from the button itself. */
   #gtip{position:fixed;z-index:55;width:236px;background:var(--panel);
@@ -446,7 +447,36 @@
      visible, or you cannot see what you are supposed to be chasing. */
   .ab{border:1px solid var(--edge);border-radius:8px;padding:7px 9px;margin-bottom:7px;
     background:#fff}
-  .ab.scoring{background:var(--tint);border-color:var(--tintedge)}
+  /* Each Legacy card you hold has its own colour. While it earns nothing it is
+     a white card with a stripe; the moment it scores it floods with colour. */
+  .ab.held{border-left:6px solid var(--c)}
+  .ab.held.scoring{background:var(--c);border-color:var(--c);animation:flood .5s var(--ease)}
+  .ab.held.scoring .t b,.ab.held.scoring .b,.ab.held.scoring .d{color:var(--ink)}
+  @keyframes flood{from{transform:scale(.96)}60%{transform:scale(1.03)}}
+  /* Gifts on the board, ready ones lit. */
+  .gl{display:flex;gap:9px;align-items:flex-start;width:100%;text-align:left;border:1px solid var(--edge);
+    border-radius:8px;padding:8px 9px;margin-bottom:7px;background:#fff;font:inherit;cursor:default}
+  .gl .gi{font-size:17px;line-height:20px;flex:none;color:var(--dim)}
+  .gl .t{font-size:13px;font-weight:650}
+  .gl .t small{font-weight:500;color:var(--dim);margin-left:4px}
+  .gl .e{font-size:11.5px;color:#4d4d4d;line-height:1.35;margin-top:2px}
+  .gl .w{font-size:11px;color:var(--dim);margin-top:3px}
+  .gl .tier{font-size:9px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;
+    border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:1px;background:var(--soft)}
+  .gl.ready{background:var(--ready);border-color:#c9a81f;cursor:pointer;animation:flood .5s var(--ease)}
+  .gl.ready .gi{color:var(--ink)}
+  .gl.ready .w{color:var(--ink);font-weight:650}
+  .gl.ready:hover{box-shadow:0 0 0 3px rgba(249,223,109,.6)}
+  .gl.spent{opacity:.45}
+  #legacytotal{position:relative}
+  .plus{position:absolute;left:0;top:-6px;font-weight:800;font-size:15px;color:#fff;background:var(--plus,#6aaa64);
+    border-radius:99px;padding:2px 9px;animation:rise 1.1s var(--ease) forwards;pointer-events:none}
+  @keyframes rise{0%{transform:translateY(8px) scale(.7);opacity:0}25%{transform:none;opacity:1}100%{transform:translateY(-26px);opacity:0}}
+  button.move.drawbtn{width:54px;height:54px;align-items:center;justify-content:center;font-size:24px;
+    border-radius:12px;background:var(--ink);color:#fff;border-color:var(--ink);flex:none}
+  button.move.drawbtn:hover:not(:disabled){background:#333}
+  #hand button.move.drawbtn{width:54px;min-width:54px;height:54px;padding:0;font-size:24px}
+  button.move.drawbtn .ic{color:#fff}
   .ab .t{display:flex;justify-content:space-between;font-size:13px;font-weight:600}
   .ab .t b{color:var(--gold)}
   .ab .b{font-size:11px;color:var(--dim);line-height:1.4;margin-top:3px}
@@ -548,7 +578,7 @@
   }
 
 </style>
-<link rel="stylesheet" href="theme.css?v=8">
+<link rel="stylesheet" href="theme.css?v=9">
 
 <header>
   <button id="menubtn" class="icon" title="Menu" aria-label="Menu"><i data-ic="menu"></i></button>
@@ -572,6 +602,7 @@
     <div id="legacytotal"><b id="ltot">0</b><span>Legacy</span></div>
     <div id="clockbox"></div>
     <h3>Legacy cards</h3><div id="bl"></div>
+    <h3 style="margin-top:16px">Gifts on the timeline</h3><div id="gifts"></div>
     <h3 style="margin-top:16px">Where it came from</h3><div id="sl"></div>
   </div>
 </div>
@@ -670,8 +701,8 @@ function newGame(){
   // already know -- dealing first made the draft an afterthought.
   hand=[]; played=[]; turn=1; over=false; fresh=null; pickAll=false;
   mustDiscard=0; dealt=false; lastPts={}; shownScore=null; inspecting=null; giftTapped=null;
-  endShown=false; abilPts=0; kinFrom=null; overWhy=null; handBonus=0; halfPlay=0; pauseN=0; keepsakes=[];
-  freeTake=null; swapLeft=0; doubleNext=false; reunionOn=false;
+  endShown=false; abilPts=0; overWhy=null; handBonus=0; halfPlay=0; pauseN=0; keepsakes=[];
+  freeTake=null; swapLeft=0; doubleNext=null; reunionRate=0;
   buildAbilities(people, SET.abilityRate);
   clockInit();
 
@@ -740,7 +771,7 @@ const TOUR=[
   {at:['#draw'],
    say:()=>`Need more family? <b>Pull</b> brings ${SET.drawCount} Kin from the Archive. It costs years too.`},
   {at:['.pair'],
-   say:()=>`<b>${icon('heart')} Couples</b> and parents with a child play together: two Kin for one move.`},
+   say:()=>`<b>${icon('heart')} Married couples</b> in your hand connect together: two Kin for one move.`},
   {at:['#legacytotal','#score'],
    say:()=>`Your <b>Legacy</b>. Each card under it shows what it is earning.`},
   {at:['.gbtn'],
@@ -842,7 +873,8 @@ function openHelp(){
   const tiles=[
     [icon('cards'), `Connect a Kin`, `+${RULES.PRESENCE} Legacy each`],
     [icon('diamond'), `Legacy cards`, SET.selection==='all'?'take any you like':SET.selection==='random'?`${SET.keep} dealt to you`:`keep ${SET.keep} of ${SET.deal}`],
-    [icon('heart'), `Couples & children`, SET.pairPlay?'play together, one move':'play one at a time'],
+    [icon('heart'), `Married couples`, SET.pairPlay?'both in hand: one move':'one at a time'],
+    [icon('spark'), `Story & Biography`, 'Story Kin have a Gift you set up; Biographies a strong one'],
     SET.defaults && [icon('link'), `Family ties`, '+1 parent & child · +2 couple · lines 3/9/27'],
     SET.reveal==='poker' && [icon('cards'), `More cards flip`, `${SET.pokerFlips} more, every ${SET.pokerEvery} turns${SET.river?', last is double':''}`],
     SET.clockOn && [icon('clock'), `Every move costs years`, `Pull ${SET.costDraw} · Connect ${SET.costPlay}${SET.drawBonus?` · Claim ${SET.costBonus}`:''}`],
@@ -1018,7 +1050,10 @@ function handLink(a, b){
   return null;
 }
 
-/* The hand laid out as groups: singles, and pairs that play together.
+/* The hand laid out as groups: singles, and married couples who connect
+ * together for one move. Only couples: a parent and child, or anyone whose
+ * family is already down, pay their own way -- the family-tie Legacy is the
+ * reward for those.
  *
  * The pairing is a DISJOINT matching -- each card belongs to at most one pair.
  * That is what keeps it honest against the one-relative-per-turn rule: Ralph
@@ -1029,13 +1064,9 @@ function handGroups(){
   const taken=new Set(), out=[];
   for(const id of hand){
     if(taken.has(id)) continue;
-    let mate=null, link=null;
-    for(const pref of ['spouse','child','parent']){
-      mate=hand.find(h=>h!==id && !taken.has(h) && handLink(id,h)===pref);
-      if(mate){ link=pref; break; }
-    }
+    const mate=hand.find(h=>h!==id && !taken.has(h) && handLink(id,h)==='spouse');
     taken.add(id);
-    if(mate){ taken.add(mate); out.push({ids:[id,mate], link}); }
+    if(mate){ taken.add(mate); out.push({ids:[id,mate], link:'spouse'}); }
     else out.push({ids:[id]});
   }
   return out;
@@ -1050,15 +1081,13 @@ function doPlay(ids){
   for(const id of ids){ hand=hand.filter(x=>x!==id); played.push(id); }
   fresh=ids[0];
   setTimeout(()=>{ fresh=null; }, 500);
-  // A kin play granted by an ability, or a banked free play, costs no years
-  // and is not a turn -- that is the whole value of the ability.
-  const gift=freeBy(ids);
-  if(gift==='kin') kinFrom=null;
-  if(gift==='reunion') reunionOn=false;
-  if(gift){ render(); return; }
   if(freePlay>0) freePlay--;
   else { advanceClock(playCost()); if(halfPlay>0) halfPlay--; }
-  if(doubleNext){ doubleNext=false; freePlay++; toast('And one more — your next Connect is free.'); }
+  // A higher Family Reunion pays out on every Kin who lands beside two family.
+  if(reunionRate) abilPts+=reunionRate*ids.filter(i=>connectionsOf(byId[i]).length>=2).length;
+  if(doubleNext==='free'){ freePlay++; toast('And one more — your next Connect is free.'); }
+  if(doubleNext==='half'){ halfPlay++; toast('And one more — your next Connect costs half.'); }
+  doubleNext=null;
   endTurn(); render();
 }
 
@@ -1067,12 +1096,6 @@ const playCost=()=>halfPlay>0 ? Math.ceil(SET.costPlay/2) : SET.costPlay;
 
 function endTurn(){ turn++; endCheck(); }
 
-/* Was this play the free relative an Inseparable-style ability granted? */
-function kinIsFree(ids){
-  const src=byId[kinFrom]; if(!src) return false;
-  const kin=new Set([...(src.spouse_ids||[]),...(src.parent_ids||[]),...(src.children_ids||[])]);
-  return ids.every(i=>kin.has(i));
-}
 
 /* ---- clock ---------------------------------------------------------- */
 function clockInit(){
@@ -1175,6 +1198,7 @@ function giftStatus(p, i=0){
   if(usedAbil.has(key)) return no('Already used. It comes back if the marker turns for home.');
   if(SET.clockOn && !aliveAt(p, clock))
     return no(`Only while the marker is between ${startY(p)} and ${p.living?'now':(p.death_year||'?')}.`);
+  if(ab.gate && !gateOpen(p, ab.gate)) return no(`Only ${GATES[ab.gate].say}.`);
 
   switch(ab.kind){
     case 'draw':
@@ -1187,11 +1211,11 @@ function giftStatus(p, i=0){
       if(hand.length<2) return no('You need two Kin in hand.');
       break;
     case 'playkin':
-      if(!hand.some(h=>isKin(p.id,h))) return no('None of their family is in your hand.');
+      if(!connectionsOf(p).length) return no('None of their family is on the timeline yet.');
       break;
     case 'reunion':
-      if(!hand.some(h=>connectionsOf(byId[h]).length>=2))
-        return no('Nobody in your hand has two family on the timeline yet.');
+      if(ab.tier==='low' && !played.some(x=>connectionsOf(byId[x]).length>=2))
+        return no('Nobody on the timeline has two family beside them yet.');
       break;
     case 'summon':
       if(!deck.some(d=>isKin(p.id,d))) return no('None of their family is left in the Archive.');
@@ -1209,7 +1233,8 @@ function giftStatus(p, i=0){
       if(!SET.clockOn) return no('The marker is switched off.');
       break;
     case 'echo':
-      if(![...usedAbil].some(k=>k!==key)) return no('No other Gift has been used yet.');
+      if(!echoable(p, key, ab.tier).length)
+        return no(ab.tier==='low' ? 'None of their family has used a Gift yet.' : 'No other Gift has been used yet.');
       break;
     case 'objective':
       if(!bonusPool().length || held().length>=SET.maxBonuses) return no('No room for another Legacy card.');
@@ -1221,6 +1246,24 @@ function giftStatus(p, i=0){
       break;
   }
   return {ab, key, ok:true, why:''};
+}
+
+/* The setups a lower-tier Gift waits on (see GATES in rules.js). */
+function gateOpen(p, gate){
+  const end=p.living?NOW:(p.death_year||startY(p)+85);
+  switch(gate){
+    case 'hand2': return hand.length<=2;
+    case 'late':  return !SET.clockOn || clock>=end-15;
+    case 'young': return !SET.clockOn || clock<=startY(p)+20;
+    case 'kin':   return connectionsOf(p).length>0;
+    case 'dud': { const sc=window.scoreBoard(played.map(x=>byId[x]),byId,bonuses);
+      return sc.bonuses.some(b=>!b.baseline && !b.pts); }
+  }
+  return true;
+}
+/* Spent Gifts an Echo could bring back: any, or only their own family's. */
+function echoable(p, key, tier){
+  return [...usedAbil].filter(k=>k!==key && (tier!=='low' || isKin(p.id, k.split(':')[0])));
 }
 
 function readyAbilities(){
@@ -1245,57 +1288,58 @@ function useAbility(id, i=0){
     case 'points':
       abilPts += n; toast(`${ab.name} — ${n} Legacy.`); break;
     case 'freeplay':
-      freePlay++; toast(`${ab.name} — your next Connect is free.`); break;
-    case 'playkin':
-      kinFrom=id; toast(`${ab.name} — connect their spouse, parent or child from your hand, free.`); break;
+      freePlay+=n; toast(`${ab.name} — your next ${n>1?n+' Connects are':'Connect is'} free.`); break;
+    case 'playkin': {
+      const k=connectionsOf(p).length; abilPts+=n*k;
+      toast(`${ab.name} — +${n*k} Legacy for ${k} of their family on the timeline.`); break;
+    }
     case 'hold':
       handBonus+=n; toast(`${ab.name} — you can hold ${limit()} Kin now.`); break;
     case 'discount':
-      halfPlay++; toast(`${ab.name} — your next Connect costs half.`); break;
+      halfPlay+=n; toast(`${ab.name} — your next ${n>1?n+' Connects cost':'Connect costs'} half.`); break;
     case 'pause':
       pauseN+=n; toast(`${ab.name} — the marker stands still for ${n} moves.`); break;
     case 'echo': {
-      const k=[...usedAbil].filter(k=>k!==st.key).pop(); usedAbil.delete(k);
+      const k=echoable(p, st.key, ab.tier).pop(); usedAbil.delete(k);
       const [pid,gi]=k.split(':'), back=abilitiesOf(byId[pid])[gi];
       toast(`${ab.name} — ${back?back.name:'a Gift'} is ready again.`); break;
     }
     case 'summon': {
-      const kin=deck.find(d=>isKin(id,d));
-      deck=deck.filter(d=>d!==kin); hand.push(kin);
+      const kin=deck.filter(d=>isKin(id,d)).slice(0,n);
+      deck=deck.filter(d=>!kin.includes(d)); hand.push(...kin);
       mustDiscard=Math.max(0, hand.length-limit());
-      toast(`${ab.name} — ${byId[kin].name} comes to your hand.`); break;
+      toast(`${ab.name} — ${kin.map(k=>byId[k].name).join(' and ')} ${kin.length>1?'come':'comes'} to your hand.`); break;
     }
     case 'keepsake':
-      keepsakes.push({at:played.length, n});
-      toast(`${ab.name} — +${n} for every Kin you connect from here.`); break;
+      // The lower one only pays on their own family.
+      keepsakes.push({at:played.length, n:1, of: ab.tier==='low' ? id : null});
+      toast(`${ab.name} — +1 for every ${ab.tier==='low'?'one of their family':'Kin'} you connect from here.`); break;
     case 'objective': case 'reshuffle':
       freeTake=st.key; doTakeBonus(ab.kind==='reshuffle'); break;
     case 'swap':
       swapLeft=n; toast(`${ab.name} — tap up to ${n} Kin in your hand to send back.`); break;
     case 'double':
-      doubleNext=true; toast(`${ab.name} — connect a Kin, then one more straight after, free.`); break;
+      doubleNext = ab.tier==='low' ? 'half' : 'free';
+      toast(`${ab.name} — after your next Connect, one more costs ${doubleNext==='half'?'half':'nothing'}.`); break;
     case 'reunion':
-      reunionOn=true; toast(`${ab.name} — anyone in hand with two family down connects free.`); break;
+      if(ab.tier==='low'){ const k=played.filter(x=>connectionsOf(byId[x]).length>=2).length;
+        abilPts+=n*k; toast(`${ab.name} — +${n*k} Legacy for ${k} Kin with two family beside them.`); }
+      else { reunionRate+=n; toast(`${ab.name} — +${n} for every Kin you connect beside two family.`); }
+      break;
   }
   $('#gtip').classList.remove('on');
   render();
 }
 /* Gift state for the round. Each is set by one effect above and spent where
  * the move it changes happens (doPlay, advanceClock, the hand, the draft). */
-let abilPts=0, kinFrom=null, handBonus=0, halfPlay=0, pauseN=0, keepsakes=[],
-    freeTake=null, swapLeft=0, doubleNext=false, reunionOn=false;
+let abilPts=0, handBonus=0, halfPlay=0, pauseN=0, keepsakes=[],
+    freeTake=null, swapLeft=0, doubleNext=null, reunionRate=0;
 const limit=()=>SET.handLimit+handBonus;
-const keepRate=()=>keepsakes.reduce((s,k)=>s+k.n,0);
+/* What keepsakes pay for these Kin landing: every one, or only their family. */
+const keepFor=ids=>keepsakes.reduce((s,k)=>s+k.n*ids.filter(i=>!k.of||isKin(k.of,i)).length,0);
 /* Legacy that came from Gifts rather than from the board. */
-const giftPts=()=>abilPts+keepsakes.reduce((s,k)=>s+k.n*Math.max(0,played.length-k.at),0);
+const giftPts=()=>abilPts+keepsakes.reduce((s,k)=>s+k.n*played.slice(k.at).filter(i=>!k.of||isKin(k.of,i)).length,0);
 
-/* A Connect a Gift has made free: their relative (playkin), or anyone with two
-   family already down (reunion). Says which, so doPlay spends the right one. */
-function freeBy(ids){
-  if(kinFrom && kinIsFree(ids)) return 'kin';
-  if(reunionOn && ids.every(i=>connectionsOf(byId[i]).length>=2)) return 'reunion';
-  return null;
-}
 
 function doSwap(id){
   hand=hand.filter(x=>x!==id); deck.push(id); hand.push(deck.shift());
@@ -1460,8 +1504,10 @@ function render(ghost){
   // the viewport width, so closing it on a desktop puts the number back too.
   $('#score').textContent = $('#side').classList.contains('on')
     ? 'Legacy' : `Legacy ${seeScore ? sc.total : '—'}`;
+  let ci=0;   // held cards take the palette in order
   const blHTML = sc.bonuses.length ? sc.bonuses.map(b=>`
-      <div class="ab ${b.baseline?'base':(seeScore&&b.pts?'scoring':'')}
+      <div style="--c:${b.baseline?'':CARDCOL[ci++%CARDCOL.length]}"
+           class="ab ${b.baseline?'base':'held '+(seeScore&&b.pts?'scoring':'')}
            ${!ghostId&&lastPts[b.id]===undefined?'fresh':''}
            ${!ghostId&&lastPts[b.id]!==undefined&&lastPts[b.id]!==b.pts?'bumped':''}">
         <div class="t"><span>${esc(b.name)}${b.baseline?'<i class="tag b">default</i>':''}${
@@ -1484,7 +1530,19 @@ function render(ghost){
       ${l.detail?`<div class="d">${esc(l.detail)}</div>`:''}</div>`).join('')
     : '<div class="msg">Connect a Kin to start earning.</div>');
 
-  // Gifts live on the person now, not in a list over here -- see showPop().
+  // Every Gift on the board, the usable ones lit and first. A click here uses
+  // it, the same as the button on their bar.
+  const gs=played.flatMap(id=>abilitiesOf(byId[id]).map((ab,i)=>({p:byId[id], ab, i, st:giftStatus(byId[id],i)})))
+    .sort((a,b)=>b.st.ok-a.st.ok);
+  setHTML($('#gifts'), gs.length ? gs.map(g=>`
+    <button class="gl ${g.st.ok?'ready':usedAbil.has(g.st.key)?'spent':''}" data-gift="${esc(g.p.id)}:${g.i}">
+      <span class="gi">${g.ab.icon}</span><span>
+      <span class="t">${esc(g.ab.name)}<i class="tier">${g.ab.tier==='low'?'Story':'Biography'}</i><small>${esc(g.p.given||g.p.name)}</small></span>
+      <span class="e" style="display:block">${esc(g.ab.effect)}</span>
+      <span class="w" style="display:block">${g.st.ok?'Ready — tap to use':esc(g.st.why)}</span></span></button>`).join('')
+    : '<div class="msg">Connect a Story or Biography Kin and their Gift shows up here.</div>');
+  $('#gifts').querySelectorAll('.gl.ready').forEach(b=>b.onclick=()=>{
+    const [id,i]=b.dataset.gift.split(':'); useAbility(id,+i); });
   const yl=yearsLeft(), ytot=(clockSpan[1]-clockSpan[0])*((SET.clockDir==='forwardback'||SET.clockDir==='backwardforward')?2:1)||1;
   setHTML($('#clockbox'), !SET.clockOn ? '' : `
     <div class="yrbar" title="${yl} years left"><i style="width:${Math.round(100*(1-yl/ytot))}%"></i></div>
@@ -1492,7 +1550,7 @@ function render(ghost){
       <span>${clockDir>0?'moving forward':'moving back'} ·
         ${yearsLeft()} year${yearsLeft()===1?'':'s'} left${turned?' · on the way home':''}</span>
       ${readyAbilities().length?`<span class="gifts">${readyAbilities().length}
-        Gift${readyAbilities().length===1?'':'s'} ready — look for a gold button</span>`:''}</div>`);
+        Gift${readyAbilities().length===1?'':'s'} ready</span>`:''}</div>`);
 
   // Remember what each bonus was worth so the NEXT render knows what moved.
   // Ghost previews are hypothetical, so they must not update the baseline or
@@ -1515,6 +1573,8 @@ function render(ghost){
    thing, but a score that counts is the difference between a readout and a
    game telling you it just gave you something. */
 let shownScore=null, scoreTimer=0, lastPts={};
+/* The colours a held Legacy card floods with once it scores. */
+const CARDCOL=['#f9df6d','#a0c35a','#b0c4ef','#ba81c5','#f0966e'];
 function tickScore(target){
   const el=$('#ltot');
   // rAF does not run in a hidden tab, so a tween started there would leave the
@@ -1525,6 +1585,11 @@ function tickScore(target){
   const box=$('#legacytotal');
   if(target!==shownScore)
     box.classList.remove('bump'), void box.offsetWidth, box.classList.add('bump');
+  // A gain says so in colour, bigger gains in warmer colours.
+  if(target>shownScore){ const d=target-shownScore, t=document.createElement('span');
+    t.className='plus'; t.textContent='+'+d;
+    t.style.setProperty('--plus', d>=8?'#f0966e':d>=4?'#c9a81f':'#6aaa64');
+    box.appendChild(t); setTimeout(()=>t.remove(), 1200); }
   cancelAnimationFrame(scoreTimer);
   // rAF, not setInterval: a timer keeps firing (throttled to a crawl) while the
   // tab is hidden and the count arrives in visible lurches on return. rAF just
@@ -1908,7 +1973,9 @@ function isKin(a,b){ const A=byId[a]; if(!A) return false;
 function gainOfGroup(ids){
   const now=window.scoreBoard(played.map(x=>byId[x]),byId,bonuses).total;
   const next=window.scoreBoard(played.concat(ids).map(x=>byId[x]),byId,bonuses).total;
-  return next-now+ids.length*keepRate();
+  const two=ids.filter(i=>{ const on=new Set(played.concat(ids));
+    return [...(byId[i].spouse_ids||[]),...(byId[i].parent_ids||[]),...(byId[i].children_ids||[])].filter(x=>on.has(x)).length>=2; }).length;
+  return next-now+keepFor(ids)+reunionRate*two;
 }
 function gainOf(id){
   const now=window.scoreBoard(played.map(x=>byId[x]),byId,bonuses).total;
@@ -2016,6 +2083,16 @@ let popTimer=null;
    else; clicking a lit one fires it. It sits inside the card, so every handler
    has to stop the event reaching the card's own click and drag handlers --
    otherwise using a Gift would also open that Kin's full sheet. */
+/* The small floating card, above (or below) whatever it explains. */
+function tipAt(el, html){
+  const r=el.getBoundingClientRect(), t=$('#gtip');
+  t.innerHTML=html; t.classList.add('on');
+  const w=t.offsetWidth, h=t.offsetHeight;
+  let x=r.left+r.width/2-w/2;
+  if(innerWidth>0) x=Math.max(8, Math.min(x, innerWidth-w-8));
+  t.style.left=x+'px';
+  t.style.top=(r.top-h-9 < 8 ? r.bottom+9 : r.top-h-9)+'px';
+}
 function wireGift(btn, p, {ab, st, i, state}){
   const show=()=>{
     const r=btn.getBoundingClientRect(), t=$('#gtip');
@@ -2101,9 +2178,8 @@ function renderHand(total){
     // Every button says what the move costs in years -- the clock is the real
     // budget now, so a turn's price belongs on the button that spends it.
     const yr=n=>SET.clockOn?`${n} yrs`:'';
-    html+=`<button id="draw" class="move" ${!deck.length?'disabled':''}
-        title="Pull ${SET.drawCount} Kin from the Archive${SET.clockOn?`. Costs you ${SET.costDraw} years`:''}. Hold more than ${limit()} and you return some.">
-        <b>${icon('cards')} Pull ${SET.drawCount}</b><small>${yr(SET.costDraw)}${SET.clockOn?' · ':''}${deck.length} left</small></button>`;
+    html+=`<button id="draw" class="move drawbtn" ${!deck.length?'disabled':''}
+        aria-label="Pull ${SET.drawCount} Kin from the Archive${SET.clockOn?`, ${SET.costDraw} years`:''}">${icon('cards')}</button>`;
     if(SET.drawBonus){
       const full=held().length>=SET.maxBonuses;
       const none=!bonusPool().length;
@@ -2123,9 +2199,8 @@ function renderHand(total){
       [freePlay, 'bolt', `Next Connect free${freePlay>1?` ×${freePlay}`:''}`],
       [halfPlay, 'half', `Next Connect half price`],
       [pauseN, 'pause', `Marker holds for ${pauseN} move${pauseN===1?'':'s'}`],
-      [kinFrom, 'heart', `${kinFrom&&byId[kinFrom].given||'Their'} family connects free`],
-      [reunionOn, 'home', `Two-family Kin connect free`],
-      [doubleNext, 'double', `Connect one, get one free`],
+      [reunionRate, 'home', `+${reunionRate} for Kin beside two family`],
+      [doubleNext, 'double', `Connect one, the next costs ${doubleNext==='half'?'half':'nothing'}`],
     ].filter(a=>a[0]).map(a=>`<span class="armed">${icon(a[1])} ${esc(a[2])}</span>`).join('');
     html+=armed;
   }
@@ -2152,8 +2227,11 @@ function renderHand(total){
   const sd=$('#swapdone'); if(sd) sd.onclick=()=>{ swapLeft=0; render(); };
   const d=$('#draw');
   if(d){ d.onclick=doDraw;
-    d.onmouseenter=()=>{ if(!d.disabled) previewMove(SET.costDraw); };
-    d.onmouseleave=()=>previewMove(null); }
+    // Its price shows on hover: as a tip, and as the band on the timeline.
+    d.onmouseenter=()=>{ if(d.disabled) return; previewMove(SET.costDraw);
+      tipAt(d, `<div class="n">${icon('cards')} Pull ${SET.drawCount}</div><div class="e">${
+        SET.clockOn?`${SET.costDraw} years · `:''}${deck.length} left in the Archive</div>`); };
+    d.onmouseleave=()=>{ previewMove(null); $('#gtip').classList.remove('on'); }; }
   const tb=$('#takeb');
   if(tb){ tb.onclick=doTakeBonus;
     tb.onmouseenter=()=>{ if(!tb.disabled) previewMove(SET.costBonus); };
@@ -2174,7 +2252,7 @@ function renderHand(total){
       showPop(id, true, ids);
       if(!mustDiscard && !swapLeft){ render(ids);
         // A relative granted by a Gift, or a banked free Connect, costs nothing.
-        const free = freeBy(ids) || freePlay>0;
+        const free = freePlay>0;
         previewMove(free ? null : playCost()); } };
     el.onmouseleave=()=>{ if(TOUCH) return;
       hidePop(true); spotlight(null); previewMove(null); render(); };
@@ -2185,7 +2263,7 @@ function handCard(id, gp){
   const p=byId[id];
   // An armed playkin ability makes exactly its own relatives free; say which,
   // or the offer is invisible and you spend the years anyway.
-  const free = !mustDiscard && !swapLeft && freeBy(gp.ids);
+  const free = !mustDiscard && !swapLeft && freePlay>0;
   const note = mustDiscard ? '<span class="gain drop">return</span>'
     : swapLeft ? '<span class="gain drop">swap</span>'
     : free ? '<span class="gain free">free</span>'

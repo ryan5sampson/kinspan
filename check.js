@@ -6,7 +6,10 @@ const play = fs.readFileSync(__dirname + '/play.html', 'utf8');
 
 for (const kind of Object.keys(ABILITY_EFFECTS)) {
   assert(new RegExp(`case '${kind}'`).test(play), `play.html has no case for '${kind}'`);
-  assert(ABILITY_EFFECTS[kind].verb(2), `${kind} has no verb`);
+  const lo = giftTier(kind, 'low'), hi = giftTier(kind, 'high');
+  assert(lo.effect && hi.effect, `${kind} has no words`);
+  assert(hi.worth > lo.worth, `${kind}: the higher tier (${hi.worth}) must be worth more than the lower (${lo.worth})`);
+  if (lo.gate) assert(new RegExp(`case '${lo.gate}'`).test(play), `play.html cannot open the '${lo.gate}' gate`);
 }
 for (const g of GIFTS) assert(ABILITY_EFFECTS[g.kind], `${g.name}: unknown kind ${g.kind}`);
 assert(GIFTS[GIFTS.length - 1].when({}), 'the last Gift must fit anyone');
@@ -27,6 +30,14 @@ assert.equal(pick('old'), 'refused');
 assert.equal(pick('big'), 'cook');
 assert.equal(pick('mover'), 'crossed');
 assert.equal(pick('stay'), 'neverleft');
+
+// The deal: of 80 unwritten Kin at 50%, 10 Biographies, 30 Stories, 40 Sketches.
+const crowd = Array.from({ length: 80 }, (_, i) => P('c' + i, { birth_year: 1900 + i }));
+buildAbilities(crowd, 50);
+const tally = t => crowd.filter(p => p.tier === t).length;
+assert.deepEqual([tally('rare'), tally('uncommon'), tally('basic')], [10, 30, 40], 'tier split is 1/8, 3/8, 1/2');
+assert(crowd.every(p => (p.tier === 'basic') === !abilitiesOf(p).length), 'Sketches carry no Gift, the rest one each');
+assert(crowd.filter(p => p.tier === 'uncommon').every(p => abilitiesOf(p)[0].tier === 'low'), 'Stories carry the lower tier');
 
 buildAbilities(people, 0);
 const legacy = { ...people[0], abilities: [{ name: 'Grandma\'s Pie', text: 'She baked.' }] };

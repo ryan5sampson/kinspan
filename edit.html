@@ -8,9 +8,9 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan — card builder</title>
-<script src="tree.js?v=8"></script>
-<script src="family.js?v=8"></script>
-<script src="rules.js?v=8"></script>
+<script src="tree.js?v=9"></script>
+<script src="family.js?v=9"></script>
+<script src="rules.js?v=9"></script>
 <style>
   :root{
     --bg:#f7f4ef; --panel:#ffffff; --edge:#ddd5c9; --ink:#2b2621; --dim:#7d7368;
@@ -208,7 +208,7 @@
   }
   @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
 </style>
-<link rel="stylesheet" href="theme.css?v=8">
+<link rel="stylesheet" href="theme.css?v=9">
 
 <header>
   <button class="round" id="home" aria-label="Main menu"><i data-ic="back"></i></button>
@@ -286,12 +286,12 @@ const TIER = ['Sketch', 'Story', 'Biography'];
 
 function kinCard(p, i) {
   const ab = p.abilities || [];
-  const slots = [0, 1].map(k => { const a = ab[k], fx = a && ABILITY_EFFECTS[a.kind];
+  const slots = [0].map(k => { const a = ab[k], fx = a && ABILITY_EFFECTS[a.kind];
     return a ? `<span class="g on" title="${esc(a.name)}">${fx ? fx.icon : icon('spark')}</span>` : `<span class="g">${icon('plus')}</span>`; }).join('');
   return `<button class="kc ${sideOf(p)} ${p.birth_year ? '' : 'noyear'}" data-id="${esc(p.id)}"
       style="animation-delay:${Math.min(i, 24) * 22}ms">
     <span class="band"><span class="mono">${esc(initials(p))}</span>
-      <span class="tier">${p.birth_year ? TIER[ab.length] : 'Not playable'}</span></span>
+      <span class="tier">${!p.birth_year ? 'Not playable' : ab.length ? 'Biography' : 'Random tier'}</span></span>
     <span class="body"><span class="nm">${esc(p.name)}</span>
       <span class="yr">${esc(years(p))}</span>
       <span class="rl">${esc(p.relationship_to_root || '')}</span>
@@ -350,7 +350,7 @@ function renderFocus() {
   const isRoot = fam.meta.root_id === p.id;
   const chip = (id, hot) => { const g = GIFT_BY_ID[id], fx = ABILITY_EFFECTS[g.kind];
     return `<button class="gchip ${hot ? 'sug' : ''}" data-gift="${id}"
-      ><i>${fx.icon}</i><span><b>${esc(g.name)}</b><small>${esc(fx.verb(g.n || 1))}</small></span></button>`; };
+      ><i>${fx.icon}</i><span><b>${esc(g.name)}</b><small>${esc(giftTier(g.kind, 'high').effect)} ≈ ${giftTier(g.kind, 'high').worth} Legacy</small></span></button>`; };
   const taken = new Set(ab.map(a => a.gift));
 
   const slots = ab.map((a, i) => {
@@ -361,13 +361,13 @@ function renderFocus() {
       <span class="gi">${fx ? fx.icon : icon('spark')}</span>
       <div class="grow">
         <input type="text" class="gname" id="f-gn${i}" value="${esc(a.name)}" aria-label="Gift name">
-        <div class="gfx">${fx ? esc(fx.verb(own ? a.n || 1 : sug.n)) : ''}</div>
+        <div class="gfx">${fx ? esc(giftTier(own ? a.kind : sug.kind, 'high').effect) : ''}</div>
         <input type="text" class="gwhy" id="f-gw${i}" value="${esc(a.why || a.text || '')}"
           placeholder="Why them? A line from their story" aria-label="Why they have it">
       </div>
       <button class="x" data-ungift="${i}" aria-label="Remove this Gift">${icon('close')}</button>
     </div>`; }).join('');
-  const add = ab.length >= 2 ? '' : picking ? `<div class="picker">
+  const add = ab.length >= 1 ? '' : picking ? `<div class="picker">
       ${sug && !taken.has(sug.gift) ? `<div class="gg"><span>Their life suggests</span>${chip(sug.gift, true)}</div>` : ''}
       ${[...new Set(GIFTS.map(g => g.group))].map(grp => `<div class="gg"><span>${esc(grp)}</span>${
         GIFTS.filter(g => g.group === grp && !taken.has(g.id)).map(g => chip(g.id)).join('')}</div>`).join('')}
@@ -377,7 +377,9 @@ function renderFocus() {
   f.innerHTML = `<div class="fx ${shown === p.id ? 'still' : ''}">
     ${kinCard(p, 0).replace('<button', '<div').replace(/<\/button>\s*$/, '</div>')}
     <div class="panel">
-      <h2>Gifts · ${ab.length} of 2</h2>
+      <h2>Gift</h2>
+      <p class="hint" style="margin:-4px 0 10px">${ab.length ? 'A Gift you write plays at full strength: this card is a Biography every game.'
+        : 'Without one, each game deals this Kin as a Sketch, a Story, or a Biography at random. Write one and they are always a Biography.'}</p>
       ${slots}${add}
       <h2>Their story</h2>
       <textarea id="f-story" placeholder="A job, a journey, something they said, how they are remembered.">${esc(p.story || '')}</textarea>

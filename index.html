@@ -9,9 +9,9 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan</title>
-<script src="tree.js?v=8"></script>
-<script src="family.js?v=8"></script>
-<script src="rules.js?v=8"></script>
+<script src="tree.js?v=9"></script>
+<script src="family.js?v=9"></script>
+<script src="rules.js?v=9"></script>
 <style>
   :root{
     --bg:#f7f4ef; --panel:#ffffff; --edge:#ddd5c9; --ink:#2b2621; --dim:#7d7368;
@@ -44,10 +44,8 @@
   /* A splash like a puzzle's front page: tinted, centred, one black button. */
   body:has(#s-title.on){background:var(--tint)}
   h1{margin:0;text-align:center;font-size:clamp(40px,11vw,52px);font-weight:700;line-height:1.05}
-  .kicker{text-align:center;font-family:'Zilla Slab',Georgia,serif;font-weight:600;
-    font-size:clamp(19px,5vw,24px);line-height:1.3;margin:10px auto 0;max-width:16em}
 
-  .play{display:block;min-width:170px;margin:30px auto 0;border:1px solid var(--ink);border-radius:999px;
+  .play{display:block;min-width:170px;margin:28px auto 0;border:1px solid var(--ink);border-radius:999px;
     background:var(--ink);color:#fff;font-size:17px;font-weight:600;padding:14px 40px;
     transition:transform .12s var(--ease),background .12s}
   .play:hover{background:#333}
@@ -148,13 +146,12 @@
   .done{width:100%;margin-top:12px}
   @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
 </style>
-<link rel="stylesheet" href="theme.css?v=8">
+<link rel="stylesheet" href="theme.css?v=9">
 
 <!-- ======================= title ======================= -->
 <section class="screen" id="s-title">
   <div class="mark" data-logo></div>
   <h1>Kinspan</h1>
-  <div class="kicker">Put your family back on the timeline where they lived.</div>
   <button class="play" id="play">Play</button>
   <div class="subs">
     <button class="sub" id="builder"><i data-ic="spark"></i>Card builder</button>
