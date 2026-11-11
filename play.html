@@ -277,6 +277,10 @@
   .move .ic{color:var(--gold)}
   .menu hr{border:0;border-top:1px solid var(--edge);margin:4px 0}
   .final{text-align:center}
+  .endmark{font-size:54px;width:max-content;margin:0 auto 12px}
+  .endmark rect{transform-box:fill-box;transform-origin:left center;animation:grow .6s var(--ease) both}
+  .endmark rect:nth-child(2){animation-delay:.12s} .endmark rect:nth-child(3){animation-delay:.24s}
+  @keyframes grow{from{transform:scaleX(0)}}
   .final .big{font-size:64px;font-weight:720;color:var(--gold);line-height:1;letter-spacing:-.02em;
     animation:pop .5s var(--ease) both}
   .final .why{color:var(--dim);margin:8px 0 18px}
@@ -595,6 +599,9 @@ let deck=[], hand=[], played=[], turn=0, fresh=null, over=false;
    because poker mode, the doubled river and the always-on family defaults all
    need to say something about a card beyond which one it is. */
 const MODE=new URLSearchParams(location.search).get('mode')||'classic';
+/* The same loader the mode picker raised, so arriving here is seamless. */
+showLoader(MODE);
+document.querySelector('.hmark').dataset.logo=MODE;
 let bonuses=[], offer=[], pickAll=false, pending=[], dealt=false, SET=modeSettings(MODE);
 
 /* ---- the clock --------------------------------------------------------
@@ -648,6 +655,7 @@ async function load(){
   const ys=people.flatMap(p=>[startY(p),endY(p)]);
   span=[Math.floor(Math.min(...ys)/10)*10, Math.ceil(Math.max(...ys)/10)*10];
   fit(); newGame();
+  setTimeout(hideLoader, Math.max(0, 1100-performance.now()));
 }
 function fit(){ pxYear=Math.max(4.5,($('#stage').clientWidth-28)/(span[1]-span[0])); }
 
@@ -813,7 +821,7 @@ function openMenu(){
     $('#imodal').classList.remove('on'); go[b.dataset.m](); });
 }
 function openEnd(total){
-  sheetI(`<div class="final"><div class="hello">${esc(overWhy||'The game is over')}</div>
+  sheetI(`<div class="final"><div class="endmark">${logo('', MODE)}</div><div class="hello">${esc(overWhy||'The game is over')}</div>
     <div class="big">${total}</div><div>Legacy</div>
     <div class="why">${played.length} Kin connected in ${turn-1} turns</div>
     <div class="menu"><button class="primary" id="eagain">Play again</button>

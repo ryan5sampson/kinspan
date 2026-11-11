@@ -36,6 +36,7 @@ assert.equal(a.why, 'She baked.');
 assert(abilitiesOf(people[0]).length === 0, 'rate 0 gives no generated Gift');
 for (const m of MODES) for (const k of Object.keys(m.set))
   assert(k in DEFAULT_SETTINGS, `mode ${m.id}: unknown setting ${k}`);
+for (const id of [...MODES.map(m => m.id), 'tutorial', 'custom']) assert(LOGOS[id], `no logo variant for ${id}`);
 assert.equal(modeSettings('quick').selection, 'random');
 assert.equal(modeSettings('nope').selection, DEFAULT_SETTINGS.selection, 'an unknown mode plays Classic');
 console.log(`ok — ${MODES.length} modes, ${GIFTS.length} Gifts, ${Object.keys(ABILITY_EFFECTS).length} effects`);

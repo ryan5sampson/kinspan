@@ -514,19 +514,60 @@ window.ICONS = {
   plus:    'M12 5v14M5 12h14',
   help:    'M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/><circle cx="12" cy="12" r="9',
 };
-/* The Kinspan mark, the same three bars as logo.svg. It fills with the text
- * colour, so `color` sets it wherever it sits. */
-window.logo = cls => `<svg class="logo${cls ? ' ' + cls : ''}" viewBox="0 0 806 736" fill="currentColor" role="img" aria-label="Kinspan">`
-  + '<rect width="527" height="224" rx="48"/><rect x="113" y="256" width="625" height="224" rx="48"/>'
-  + '<rect x="433" y="512" width="373" height="224" rx="48"/></svg>';
+/* ---- the Kinspan mark -------------------------------------------------
+ * Three lives as bars on one timeline. Every variation keeps the three rows
+ * and the rounded bars and only moves them, so they all read as the same
+ * mark: `bars` is [x, width] per row on an 806-wide timeline, `ghost` rows
+ * are drawn as outlines. Classic is logo.svg exactly. */
+window.LOGOS = {
+  classic:  { color:'#F0966E', bars:[[0,527],[113,625],[433,373]] },              // forward, overlapping
+  quick:    { color:'#E0A43A', bars:[[0,300],[253,300],[506,300]] },              // short steps, fast
+  saga:     { color:'#5B8DB8', bars:[[0,430],[376,430],[0,430]] },                // out and back again
+  tutorial: { color:'#5E9E72', bars:[[0,527],[113,625],[433,373]], ghost:[1,2] }, // one drawn, two to learn
+  custom:   { color:'#9A7BB0', bars:[[0,620],[0,360],[0,806]] },                  // set like sliders
+};
+window.logo = (cls, v) => {
+  const L = window.LOGOS[v] || window.LOGOS.classic, g = new Set(L.ghost || []);
+  return `<svg class="logo${cls ? ' ' + cls : ''}" style="--lc:${L.color}" viewBox="0 0 806 736" fill="currentColor" role="img" aria-label="Kinspan">`
+    + L.bars.map(([x, w], r) => g.has(r)
+        ? `<rect x="${x + 22}" y="${r * 256 + 22}" width="${w - 44}" height="180" rx="28" fill="none" stroke="currentColor" stroke-width="44"/>`
+        : `<rect x="${x}" y="${r * 256}" width="${w}" height="224" rx="48"/>`).join('') + '</svg>';
+};
+
+/* A full-screen loader: the bars wipe in from the left, hold, and wipe off
+ * to the right, one after another, in the colour of what is loading. */
+window.showLoader = v => {
+  if (typeof document === 'undefined') return;
+  let el = document.getElementById('kloader');
+  if (!el) { el = document.createElement('div'); el.id = 'kloader'; document.body.appendChild(el); }
+  el.innerHTML = window.logo('loading', v); el.className = 'on';
+};
+window.hideLoader = () => {
+  const el = document.getElementById('kloader'); if (!el) return;
+  el.className = 'off'; setTimeout(() => el.remove(), 400);
+};
 window.icon = (name, cls) => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true"><path d="${window.ICONS[name]}"/></svg>`;
 if (typeof document !== 'undefined') {
-  document.head.insertAdjacentHTML('beforeend', `<style>.logo{display:block;height:1em;width:auto;color:var(--brand,#F0966E)}
+  document.head.insertAdjacentHTML('beforeend', `<style>.logo{display:block;height:1em;width:auto;color:var(--lc,var(--brand,#F0966E))}
+    .logo.mono{color:inherit}
+    .logo.loading rect{transform-box:fill-box;animation:kwipe 1.8s cubic-bezier(.65,0,.35,1) infinite}
+    .logo.loading rect:nth-child(2){animation-delay:.16s}
+    .logo.loading rect:nth-child(3){animation-delay:.32s}
+    @keyframes kwipe{
+      0%{clip-path:inset(0 100% 0 0 round 48px);transform:translateX(-8%)}
+      35%,55%{clip-path:inset(0 0 0 0 round 48px);transform:none}
+      90%,100%{clip-path:inset(0 0 0 100% round 48px);transform:translateX(8%)}}
+    #kloader{position:fixed;inset:0;z-index:999;display:grid;place-items:center;
+      background:var(--bg,#f7f4ef);font-size:84px;transition:opacity .35s}
+    #kloader.off{opacity:0;pointer-events:none}
+    @media (prefers-reduced-motion: reduce){.logo.loading rect{animation-duration:4s}}
     .ic{width:1em;height:1em;flex:none;vertical-align:-.14em;
     fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;overflow:visible}</style>`);
+  // Coming Back to a page from the browser's cache must not land on its loader.
+  addEventListener('pageshow', e => { if (e.persisted) window.hideLoader(); });
   document.addEventListener('DOMContentLoaded', () =>
     { document.querySelectorAll('[data-ic]').forEach(e => { e.innerHTML = window.icon(e.dataset.ic); });
-      document.querySelectorAll('[data-logo]').forEach(e => { e.innerHTML = window.logo(); }); });
+      document.querySelectorAll('[data-logo]').forEach(e => { e.innerHTML = window.logo('', e.dataset.logo); }); });
 }
 
 /* ---- game modes --------------------------------------------------------
@@ -534,10 +575,10 @@ if (typeof document !== 'undefined') {
  * them; play.html?mode=<id> plays one. 'custom' is whatever the rules page
  * saved, and 'tutorial' is Classic with the tour running over it. */
 window.MODES = [
-  { id:'classic', icon:icon('hourglass'), name:'Classic', blurb:'Pick 2 of 5 Legacy cards, then walk the timeline forward.', set:{} },
-  { id:'quick', icon:icon('bolt'), name:'Quick', blurb:'Legacy cards dealt for you. Every move costs 20 years.',
+  { id:'classic', icon:logo('', 'classic'), name:'Classic', blurb:'Pick 2 of 5 Legacy cards, then walk the timeline forward.', set:{} },
+  { id:'quick', icon:logo('', 'quick'), name:'Quick', blurb:'Legacy cards dealt for you. Every move costs 20 years.',
     set:{ selection:'random', costDraw:20, costPlay:20, costBonus:25 } },
-  { id:'saga', icon:icon('uturn'), name:'There and back', blurb:'Forward, then back again. New Legacy cards flip as you go.',
+  { id:'saga', icon:logo('', 'saga'), name:'There and back', blurb:'Forward, then back again. New Legacy cards flip as you go.',
     set:{ clockDir:'forwardback', reveal:'poker' } },
 ];
 window.MODE_BY_ID = Object.fromEntries(window.MODES.map(m => [m.id, m]));

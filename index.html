@@ -82,21 +82,26 @@
     padding:16px;margin-bottom:10px;
     animation:screenin .4s var(--ease) both;
     transition:transform .14s var(--ease),border-color .14s,box-shadow .14s}
-  .mode:hover{transform:translateY(-2px);border-color:var(--gold);box-shadow:0 10px 24px rgba(80,66,48,.12)}
-  .mode .mi{width:52px;height:52px;flex:none;border-radius:13px;display:grid;place-items:center;
-    font-size:26px;background:#fdf5e0;color:var(--gold)}
+  .mode:hover{transform:translateY(-2px);border-color:var(--lc);box-shadow:0 10px 24px rgba(80,66,48,.12)}
+  .mode .mi{width:56px;height:56px;flex:none;border-radius:14px;display:grid;place-items:center;
+    font-size:28px;background:color-mix(in srgb,var(--lc) 14%,#fff)}
+  /* Hovering a mode nudges its bars along the timeline, one after another. */
+  .mode .logo rect{transform-box:fill-box}
+  .mode:hover .logo rect{animation:nudge .6s var(--ease)}
+  .mode:hover .logo rect:nth-child(2){animation-delay:.07s}
+  .mode:hover .logo rect:nth-child(3){animation-delay:.14s}
+  @keyframes nudge{40%{transform:translateX(9%)}}
   .mode .mt,.mode .md{display:block}
   .mode .mt{font-weight:680;font-size:18px}
   .mode .md{color:var(--dim);font-size:13.5px;line-height:1.4;margin-top:2px}
   .mode.tut{background:#f2f7f3;border-color:#cfe3d3}
   .mode.tut:last-child{margin-top:22px}
-  .mode.tut .mi{background:var(--selfbg);color:var(--self)}
-  .mode.tut:hover{border-color:var(--self)}
   .new{display:inline-block;margin-left:8px;font-size:10.5px;letter-spacing:.08em;
     text-transform:uppercase;font-weight:700;background:var(--self);color:#fff;
     border-radius:99px;padding:2px 8px;vertical-align:3px}
-  .custom{display:block;margin:10px auto 0;border:0;background:none;color:var(--dim);
+  .custom{display:flex;align-items:center;gap:8px;margin:10px auto 0;border:0;background:none;color:var(--dim);
     font-size:14px;padding:8px 14px;border-radius:99px}
+  .custom .logo{font-size:15px}
   .custom:hover{color:var(--ink);background:#efe8dc}
 
   /* ---- bring a file ---- */
@@ -168,7 +173,7 @@
 <section class="screen" id="s-mode">
   <div class="top"><button class="back" data-go="title" aria-label="Back"><i data-ic="back"></i></button><h2>Choose a game</h2></div>
   <div id="modes"></div>
-  <button class="custom" id="custom"><i data-ic="sliders"></i> Set up a custom game</button>
+  <button class="custom" id="custom"><span data-logo="custom"></span>Set up a custom game</button>
 </section>
 
 <!-- ======================= bring a family ======================= -->
@@ -211,13 +216,14 @@
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const fail = m => { const e=$('#err'); e.textContent=m; e.hidden=false; };
+const fail = m => { hideLoader(); const e=$('#err'); e.textContent=m; e.hidden=false; };
 const clearFail = () => { $('#err').hidden = true; };
 
 /* -------------------- screens -------------------- */
 
 let next = 'mode';   // where to go once a family is loaded: 'mode' or 'builder'
 function show(id) {
+  hideLoader();
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === 's-' + id));
   scrollTo(0, 0);
   if (id === 'mode') renderModes();
@@ -246,17 +252,24 @@ if (auto) {
 
 const tourSeen = () => { try { return !!localStorage.getItem('kinspan.tutorial'); } catch (e) { return true; } };
 function renderModes() {
-  const tut = `<button class="mode tut" data-mode="tutorial">
-      <span class="mi">${icon('play')}</span><span><span class="mt">Tutorial${tourSeen() ? '' : '<span class="new">Start here</span>'}</span>
+  const tut = `<button class="mode tut" data-mode="tutorial" style="--lc:${LOGOS.tutorial.color}">
+      <span class="mi">${logo('', 'tutorial')}</span><span><span class="mt">Tutorial${tourSeen() ? '' : '<span class="new">Start here</span>'}</span>
       <span class="md">Learn by playing. One minute, with pointers.</span></span></button>`;
-  const modes = MODES.map(m => `<button class="mode" data-mode="${m.id}">
+  const modes = MODES.map(m => `<button class="mode" data-mode="${m.id}" style="--lc:${LOGOS[m.id].color}">
       <span class="mi">${m.icon}</span><span><span class="mt">${esc(m.name)}</span>
       <span class="md">${esc(m.blurb)}</span></span></button>`).join('');
   $('#modes').innerHTML = tourSeen() ? modes + tut : tut + modes;
   $('#modes').querySelectorAll('.mode').forEach((b, i) => {
     b.style.animationDelay = (i * 50) + 'ms';
-    b.onclick = () => location.href = 'play.html?mode=' + b.dataset.mode;
+    b.onclick = () => go(b.dataset.mode);
   });
+}
+
+/* Into a game: the loader comes up in the mode's own colours here, and
+ * play.html opens on the same loader, so the hand-off reads as one screen. */
+function go(mode) {
+  showLoader(mode);
+  setTimeout(() => location.href = 'play.html?mode=' + mode, 380);
 }
 
 /* -------------------- settings -------------------- */
@@ -273,7 +286,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSet(); 
 $('#st-save').onclick = async () => { const f = await FAMILY.load(); if (f) FAMILY.download(f); closeSet(); };
 $('#st-load').onclick = () => { closeSet(); next = 'mode'; show('bring'); };
 $('#st-rules').onclick = () => location.href = 'settings.html';
-$('#st-tour').onclick = () => hasFamily() ? location.href = 'play.html?mode=tutorial' : (closeSet(), needFamily('mode'));
+$('#st-tour').onclick = () => hasFamily() ? go('tutorial') : (closeSet(), needFamily('mode'));
 
 /* -------------------- taking a file -------------------- */
 
@@ -300,6 +313,7 @@ function read(file) {
   }
   const fr = new FileReader();
   fr.onerror = () => fail('The file could not be read.');
+  showLoader();
   fr.onload = () => {
     const text = String(fr.result);
     // Decide by content, not by extension: people rename files, and a .json
@@ -338,6 +352,7 @@ function openGedcom(text, name) {
 let chosen = null;
 
 function showPicker() {
+  hideLoader();
   chosen = pending.roots.length ? pending.roots[0].id : null;
   $('#pcount').textContent = `${pending.total} people, ${pending.withYear} with a birth year.`;
   $('#search').value = '';
