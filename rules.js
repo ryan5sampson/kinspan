@@ -111,11 +111,11 @@ function rootOf(byId){ return Object.values(byId).find(p=>p.relationship_to_root
 window.BONUSES = [
   /* ---- era: what they lived through ---------------------------------- */
   { id:'great_war', group:'Era', name:'The Great War', per:'1 each',
-    blurb:'Born 1874–1900. Old enough to be sent.',
+    blurb:'Born 1874–1900. Grown by the First World War.',
     score: perPerson(p => born(p) && born(p) >= 1874 && born(p) <= 1900, 1) },
 
-  { id:'depression_kid', group:'Era', name:'Grew Up On Nothing', per:'3 each',
-    blurb:'Born 1915–1939. They told you about it. Often.',
+  { id:'depression_kid', group:'Era', name:'Depression Years', per:'3 each',
+    blurb:'Born 1915–1939. Grew up in the hard times, and told you about it.',
     score: perPerson(p => born(p) && born(p) >= 1915 && born(p) <= 1939, 3) },
 
   { id:'home_front', group:'Era', name:'Home Front', per:'2 each',
@@ -134,8 +134,8 @@ window.BONUSES = [
     blurb:'Still here on New Year\'s Day, 2000.',
     score: perPerson(p => (ended(p) || 0) >= 2000, 1) },
 
-  { id:'winter', group:'Era', name:'Born In The Cold', per:'2 each',
-    blurb:'A November to February baby. Do the maths.',
+  { id:'winter', group:'Era', name:'Winter Baby', per:'2 each',
+    blurb:'Born November to February.',
     score: perPerson(p => ['NOV','DEC','JAN','FEB'].includes(birthMonth(p)), 2) },
 
   /* ---- who they were to you ------------------------------------------ */
@@ -210,12 +210,12 @@ window.BONUSES = [
     blurb:'Made it to 80.',
     score: perPerson(p => (ageOf(p) || 0) >= 80, 1) },
 
-  { id:'venerable', group:'A life', name:'Absolute Unit', per:'5 each',
-    blurb:'Made it to 90. Outlasted the doubters.',
+  { id:'venerable', group:'A life', name:'Ninety Not Out', per:'5 each',
+    blurb:'Made it to 90.',
     score: perPerson(p => (ageOf(p) || 0) >= 90, 5) },
 
   { id:'taken_early', group:'A life', name:'Gone Too Soon', per:'4 each',
-    blurb:'Died before 60. The living never count.',
+    blurb:'Died before 60.',
     score: perPerson(p => !p.living && p.age_at_death && p.age_at_death < 60, 4) },
 
   { id:'rest_together', group:'A life', name:'Neighbours Forever', per:'2 per extra',
@@ -349,14 +349,14 @@ window.buildBonuses = function (people){
   // the rest of the set sits at whatever slice of the tree it happens to cover.
   const tier = r => rate(r) >= 0.4 ? 1 : rate(r) >= 0.24 ? 2 : 3;
 
-  /* "Got Out" hangs off the BROADEST place in the tree, not a selective one --
+  /* "Born Abroad" hangs off the BROADEST place in the tree, not a selective one --
    * pegged to a mid-sized token it fires on most of the deck and becomes the
    * best card in the game by a factor of four. Leaving the country you all
    * come from is rare, which is the entire point of the card. */
   const broad = ranked[0];
   if (broad){
-    add('left_home', 'Place', 'Got Out', '4 each',
-        `Born outside ${broad.name}. Somebody had to leave.`,
+    add('left_home', 'Place', 'Born Abroad', '4 each',
+        `Born outside ${broad.name}, where most of the family is from.`,
         p => p.birth_place && !p.birth_place.toLowerCase().includes(broad.key), 4);
   }
 
@@ -368,11 +368,11 @@ window.buildBonuses = function (people){
         p => placeHas(p, R[0].key), tier(R[0]));
   if (R[1]) add('second_region', 'Place', `The ${R[1].name} Branch`,
         `${tier(R[1])} each`,
-        `A ${R[1].name} connection.`,
+        `Born, died or resting in ${R[1].name}.`,
         p => placeHas(p, R[1].key), tier(R[1]));
   if (R[2]) add('third_region', 'Place', `Something About ${R[2].name}`,
         `${tier(R[2])} each`,
-        `A ${R[2].name} connection. They kept ending up there.`,
+        `Born, died or resting in ${R[2].name}.`,
         p => placeHas(p, R[2].key), tier(R[2]));
 
   // The single most common birthplace, at town level.
@@ -384,7 +384,7 @@ window.buildBonuses = function (people){
     const label = parts(people.find(p => townOf(p) === top[0]).birth_place)[0];
     const pts = top[1] >= 8 ? 2 : top[1] >= 5 ? 3 : 5;
     add('hometown', 'Place', `Everyone From ${label}`, `${pts} each`,
-        `Born in ${label} itself. The dot they kept returning to.`,
+        `Born in ${label}.`,
         p => townOf(p) === top[0], pts);
   }
 
@@ -433,7 +433,7 @@ window.DEFAULT_SETTINGS = {
   pokerFlips:  3,        // extra bonuses turned up in poker mode
   pokerEvery:  5,        // ...one every N turns
   river:       true,     // the last flip scores double
-  drawBonus:   false,    // spending a turn to take a bonus is a legal move (custom games)
+  drawBonus:   true,     // a turn may draw one Legacy card from the Legacy deck
   maxBonuses:  5,        // cap on how many you can hold
   swapAtCap:   true,     // at the cap, drawing replaces instead of being blocked
   openingHand: 3,
@@ -449,7 +449,12 @@ window.DEFAULT_SETTINGS = {
   clockStep:   10,        // the default cost of an action, in years
   costDraw:    10,
   costPlay:    10,
-  costBonus:   15,        // an objective is worth more of your remaining time
+  /* A drawn Legacy card is priced at break-even: in 40 bot games a random extra
+     card scored 6.7 Legacy by the end (median 5, 1 in 6 scored nothing, 1 in 10
+     scored 16+), and a 10-year move earns about 2.6, so 6.7 Legacy is ~25
+     years. On average you get your years back; any one draw is a gamble, and
+     building toward the card you drew is how you win it. */
+  costBonus:   25,
   abilityRate: 50,        // % of Kin dealt a Gift each game (1/4 of them higher tier); 0 = off
 
   /* 'normal'  everything on show
@@ -525,6 +530,7 @@ window.LOGOS = {
   saga:     { color:'#5B8DB8', bars:[[0,430],[376,430],[0,430]] },                // out and back again
   tutorial: { color:'#5E9E72', bars:[[0,527],[113,625],[433,373]], ghost:[1,2] }, // one drawn, two to learn
   custom:   { color:'#9A7BB0', bars:[[0,620],[0,360],[0,806]] },                  // set like sliders
+  legacy:   { color:'#C9A81F', bars:[[201,404],[100,606],[0,806]] },              // built up, generation on generation
 };
 window.logo = (cls, v) => {
   const L = window.LOGOS[v] || window.LOGOS.classic, g = new Set(L.ghost || []);
@@ -550,9 +556,16 @@ window.hideLoader = () => {
   const el = document.getElementById('kloader'); if (!el) return;
   el.className = 'off'; setTimeout(() => el.remove(), 400);
 };
+/* Card backs: the mark repeated, for the two decks. */
+const backOf = (v, fill, bg) => {
+  const L = window.LOGOS[v], svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-200 -200 1206 1136"><rect x="-200" y="-200" width="1206" height="1136" fill="${bg}"/>`
+    + L.bars.map(([x, w], r) => `<rect x="${x}" y="${r * 256}" width="${w}" height="224" rx="48" fill="${fill}"/>`).join('') + '</svg>';
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+};
 window.icon = (name, cls) => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true"><path d="${window.ICONS[name]}"/></svg>`;
 if (typeof document !== 'undefined') {
-  document.head.insertAdjacentHTML('beforeend', `<style>.logo{display:block;height:1em;width:auto;color:var(--lc,var(--brand,#F0966E))}
+  document.head.insertAdjacentHTML('beforeend', `<style>:root{--back-kin:${backOf('classic','#fbd3bf','#F0966E')};--back-legacy:${backOf('legacy','#C9A81F','#1e1b2e')}}
+    .logo{display:block;height:1em;width:auto;color:var(--lc,var(--brand,#F0966E))}
     .logo.mono{color:inherit}
     .logo.loading rect{transform-box:fill-box;animation:kwipe 1.8s cubic-bezier(.65,0,.35,1) infinite}
     .logo.loading rect:nth-child(2){animation-delay:.16s}
@@ -581,7 +594,7 @@ if (typeof document !== 'undefined') {
 window.MODES = [
   { id:'classic', icon:logo('', 'classic'), name:'Classic', blurb:'Pick 2 of 5 Legacy cards, then walk the timeline forward.', set:{} },
   { id:'quick', icon:logo('', 'quick'), name:'Quick', blurb:'Legacy cards dealt for you. Every move costs 20 years.',
-    set:{ selection:'random', costDraw:20, costPlay:20, costBonus:25 } },
+    set:{ selection:'random', costDraw:20, costPlay:20, costBonus:50 } },
   { id:'saga', icon:logo('', 'saga'), name:'There and back', blurb:'Forward, then back again. New Legacy cards flip as you go.',
     set:{ clockDir:'forwardback', reveal:'poker' } },
 ];
@@ -756,9 +769,9 @@ window.ABILITY_EFFECTS = {
   keepsake: { icon:icon('leaf'), worth:n => n ? LEFT : LEFT*0.3,
     low:{ n:0, say:() => `+1 Legacy for each of their family you connect after this.` },
     high:{ n:1, say:() => `+1 Legacy for every Kin you connect after this.` } },
-  objective:{ icon:icon('diamond'), worth:() => 6,         // what a drafted Legacy card scored on average
-    low:{ n:1, gate:'late', say:() => `Claim a Legacy card. No years spent.` },
-    high:{ n:1, say:() => `Claim a Legacy card. No years spent.` } },
+  objective:{ icon:icon('diamond'), worth:() => 6.7,       // what a drawn Legacy card scores on average
+    low:{ n:1, gate:'late', say:() => `Draw a Legacy card. No years spent.` },
+    high:{ n:1, say:() => `Draw a Legacy card. No years spent.` } },
   swap:     { icon:icon('swap'), worth:n => n*0.6,
     low:{ n:2, say:n => `Send up to ${n} Kin back to the Archive and pull as many.` },
     high:{ n:4, say:n => `Send up to ${n} Kin back to the Archive and pull as many.` } },
@@ -790,64 +803,65 @@ window.giftTier = function (kind, tier){
  * Entries with no `when` are menu-only: nothing in a record can say "had a
  * plan", but a person writing their grandmother's card can. */
 const NO = p => false;
+/* The part of a place a Gift's words should name: the town, or the country. */
+const town = s => parts(s)[0] || 'the same place';
+const country = s => { const a = parts(s); return a[a.length - 1] || 'another country'; };
 const GIFTS = [
-  { id:'refused',  group:'A long life', name:'Refused To Go', kind:'time', n:10,
-    when:(p,c) => (c.ageOf(p)||0) >= 90, why: p => `Reached ${c_age(p)}. Some people simply take longer.` },
-  { id:'outlasted', group:'A long life', name:'Outlasted Them All', kind:'echo',
-    when:(p,c) => c.outlivedSpouse(p), why: () => `Fifteen years and more without them, and still telling the stories.` },
-  { id:'ancient',  group:'The record', name:'End Of The Paper Trail', kind:'time', n:8,
-    when:(p,c) => c.isAncient(p), why: p => `Born ${p.birth_year}, as far back as the record goes.` },
-  { id:'cook',     group:'A full house', name:'Somebody Had To Cook', kind:'draw', n:3,
+  { id:'refused',  group:'A long life', name:'Ninety And Over', kind:'time',
+    when:(p,c) => (c.ageOf(p)||0) >= 90, why: p => `Reached ${c_age(p)}. Time to spare.` },
+  { id:'outlasted', group:'A long life', name:'Carried On', kind:'echo',
+    when:(p,c) => c.outlivedSpouse(p), why: () => `Outlived their husband or wife by fifteen years and more.` },
+  { id:'ancient',  group:'The record', name:'End Of The Paper Trail', kind:'time',
+    when:(p,c) => c.isAncient(p), why: p => `Born ${p.birth_year}, as far back as this tree goes.` },
+  { id:'cook',     group:'A full house', name:'Somebody Had To Cook', kind:'draw',
     when:(p,c) => c.kids(p) >= 7, why: p => `${c_kids(p)} children. Nobody sat down.` },
-  { id:'fullhouse', group:'A full house', name:'Full House', kind:'draw', n:2,
-    when:(p,c) => c.kids(p) >= 4, why: () => `A house that size teaches you to keep your options open.` },
+  { id:'fullhouse', group:'A full house', name:'Full House', kind:'draw',
+    when:(p,c) => c.kids(p) >= 4, why: p => `${c_kids(p)} children.` },
   { id:'reunion',  group:'A full house', name:'Family Reunion', kind:'reunion',
-    when:(p,c) => c.kinCount(p) >= 6, why: () => `Everybody came. Everybody always came.` },
-  { id:'inseparable', group:'A full house', name:'Inseparable', kind:'playkin',
-    when:(p,c) => c.marriageYears(p) >= 50, why: () => `Fifty years married. They do not go anywhere alone.` },
-  { id:'cutshort', group:'A long life', name:'Cut Short', kind:'points', n:4,
-    when:(p,c) => !p.living && p.age_at_death && p.age_at_death < 55, why: p => `Gone at ${p.age_at_death}. Worth remembering twice over.` },
-  { id:'nohome',   group:'Leaving', name:'Never Made It Home', kind:'freeplay',
-    when:(p,c) => c.abroad(p) && p.age_at_death && p.age_at_death < 60, why: () => `Died a long way from where they started, and too soon.` },
-  { id:'sentfor',  group:'Leaving', name:'Sent For The Family', kind:'summon',
-    when:(p,c) => c.abroad(p) && c.kids(p) >= 3, why: () => `Crossed first, then sent for the rest.` },
-  { id:'crossed',  group:'Leaving', name:'Crossed The Water', kind:'summon',
-    when:(p,c) => c.abroad(p), why: () => `Born in one country, buried in another.` },
-  { id:'packed',   group:'Leaving', name:'Already Packed', kind:'freeplay',
-    when:(p,c) => c.movedFar(p), why: () => `Died a long way from where they were born.` },
-  { id:'neverleft', group:'Leaving', name:'Never Left', kind:'keepsake', n:2,
-    when:(p,c) => c.stayed(p), why: () => `Born and died in the same town. Somebody had to keep the place.` },
-  { id:'farm',     group:'Leaving', name:'Kept The Farm', kind:'points', n:3,
-    when:(p,c) => c.buriedWith(p) >= 3, why: () => `Resting with their own. The land stayed in the family.` },
+    when:(p,c) => c.kinCount(p) >= 6, why: (p,c) => `${c.kinCount(p)} close family in the tree: parents, spouses and children.` },
+  { id:'inseparable', group:'A full house', name:'Fifty Years Married', kind:'playkin',
+    when:(p,c) => c.marriageYears(p) >= 50, why: (p,c) => `Married ${c.marriageYears(p)} years.` },
+  { id:'cutshort', group:'A long life', name:'Gone Too Soon', kind:'points',
+    when:(p,c) => !p.living && p.age_at_death && p.age_at_death < 55, why: p => `Died at ${p.age_at_death}.` },
+  { id:'sentfor',  group:'Moving', name:'Raised A Family Abroad', kind:'summon',
+    when:(p,c) => c.abroad(p) && c.kids(p) >= 3, why: p => `Born in ${country(p.birth_place)}, raised ${c_kids(p)} children in ${country(p.death_place)}.` },
+  { id:'crossed',  group:'Moving', name:'Two Countries', kind:'summon',
+    when:(p,c) => c.abroad(p), why: p => `Born in ${country(p.birth_place)}, died in ${country(p.death_place)}.` },
+  { id:'packed',   group:'Moving', name:'On The Move', kind:'freeplay',
+    when:(p,c) => c.movedFar(p), why: p => `Born in ${town(p.birth_place)}, died in ${town(p.death_place)}.` },
+  { id:'neverleft', group:'Moving', name:'Never Left', kind:'keepsake',
+    when:(p,c) => c.stayed(p), why: p => `Born and died in ${town(p.birth_place)}.` },
+  { id:'farm',     group:'Moving', name:'Family Plot', kind:'points',
+    when:(p,c) => c.buriedWith(p) >= 3, why: p => `Buried in ${town(p.burial_place)}, with others of the family.` },
   { id:'young',    group:'A full house', name:'Wasted No Time', kind:'freeplay',
     when:(p,c) => c.marriedYoung(p), why: () => `Married before they were 22.` },
-  { id:'second',   group:'A full house', name:'Second Innings', kind:'draw', n:2,
-    when:(p,c) => (p.marriages||[]).length >= 2, why: () => `Married more than once. They knew how to start again.` },
-  { id:'talked',   group:'A full house', name:'People Talked', kind:'points', n:3,
-    when:(p,c) => c.ageGap(p) >= 8, why: () => `Eight years and more between them. People talked.` },
-  { id:'twice',    group:'History', name:'Saw It Twice', kind:'pause', n:2,
-    when:(p,c) => p.birth_year && p.birth_year <= 1900 && (c.ended(p)||0) >= 1945, why: () => `Lived through both wars. Learned to wait things out.` },
-  { id:'badyear',  group:'History', name:'Born In A Bad Year', kind:'points', n:3,
-    when:(p,c) => c.bornInWar(p), why: p => `Born ${p.birth_year}, into the middle of it.` },
-  { id:'nothing',  group:'History', name:'Grew Up On Nothing', kind:'discount',
-    when:(p,c) => p.birth_year >= 1915 && p.birth_year <= 1939, why: () => `Made it stretch. Made everything stretch.` },
-  { id:'moon',     group:'History', name:'Watched The Moon Landing', kind:'points', n:2,
-    when:(p,c) => p.birth_year < 1930 && (c.ended(p)||0) >= 1969, why: () => `Born before the aeroplane was ordinary. Saw a man on the moon.` },
-  { id:'wrote',    group:'The record', name:'Wrote It All Down', kind:'hold', n:2,
-    when:(p,c) => !!(p.story||'').trim(), why: () => `Kept every letter. Someone always does.` },
+  { id:'second',   group:'A full house', name:'Married Again', kind:'draw',
+    when:(p,c) => (p.marriages||[]).length >= 2, why: p => `Married ${(p.marriages||[]).length} times. A second family to find.` },
+  { id:'talked',   group:'A full house', name:'People Talked', kind:'points',
+    when:(p,c) => c.ageGap(p) >= 8, why: (p,c) => `Married someone ${c.ageGap(p)} years apart. People talked.` },
+  { id:'twice',    group:'History', name:'Both World Wars', kind:'pause',
+    when:(p,c) => p.birth_year && p.birth_year <= 1900 && (c.ended(p)||0) >= 1945, why: p => `Born ${p.birth_year}, still here after 1945. Lived through both.` },
+  { id:'badyear',  group:'History', name:'Born In Wartime', kind:'points',
+    when:(p,c) => c.bornInWar(p), why: p => `Born ${p.birth_year}, during a world war.` },
+  { id:'nothing',  group:'History', name:'Depression Childhood', kind:'discount',
+    when:(p,c) => p.birth_year >= 1918 && p.birth_year <= 1935, why: p => `Born ${p.birth_year}. A child through the Great Depression.` },
+  { id:'moon',     group:'History', name:'Saw The Moon Landing', kind:'points',
+    when:(p,c) => p.birth_year < 1930 && (c.ended(p)||0) >= 1969, why: p => `Born ${p.birth_year}, still here in July 1969.` },
+  { id:'wrote',    group:'The record', name:'Remembered', kind:'hold',
+    when:(p,c) => !!(p.story||'').trim(), why: () => `Someone wrote their story down.` },
   { id:'twoofthem', group:'The record', name:'Two Of Them', kind:'double',
-    when:(p,c) => c.sharesName(p), why: () => `Same name as another Kin. Twice the paperwork.` },
-  { id:'nowhere',  group:'The record', name:'Came From Nowhere', kind:'draw', n:2,
-    when:(p,c) => (p.parent_ids||[]).length === 0, why: () => `Nobody above them on the record at all.` },
-  { id:'onlyname', group:'The record', name:'Only A Name', kind:'draw', n:1,
-    when:(p,c) => !p.living && !p.death_year, why: () => `The record just stops. Somebody knows the rest.` },
-  { id:'innings',  group:'A long life', name:'Good Innings', kind:'time', n:5,
-    when:(p,c) => (c.ageOf(p)||0) >= 80, why: p => `Reached ${c_age(p)} — that is time you can borrow.` },
+    when:(p,c) => c.sharesName(p), why: p => `Another Kin is called ${first(p)} too.` },
+  { id:'nowhere',  group:'The record', name:'First On The Record', kind:'draw',
+    when:(p,c) => (p.parent_ids||[]).length === 0, why: () => `Nobody above them in the tree yet.` },
+  { id:'onlyname', group:'The record', name:'Loose End', kind:'draw',
+    when:(p,c) => !p.living && !p.death_year, why: () => `The record stops before it says how their life ended.` },
+  { id:'innings',  group:'A long life', name:'A Long Life', kind:'time',
+    when:(p,c) => (c.ageOf(p)||0) >= 80, why: p => `Reached ${c_age(p)}.` },
   { id:'plan',     group:'Your own words', name:'Had A Plan', kind:'objective', when:NO },
   { id:'changed',  group:'Your own words', name:'Changed Their Mind', kind:'reshuffle', when:NO },
   { id:'traded',   group:'Your own words', name:'Traded Up', kind:'swap', n:2, when:NO },
   { id:'lent',     group:'Ordinary', name:'Lent A Hand', kind:'draw', n:1,
-    when:() => true, why: () => `Nothing remarkable on the record. Still here.` },
+    when:() => true, why: () => `Nothing on the record stands out yet. Write their story to change that.` },
 ];
 window.GIFTS = GIFTS;
 window.GIFT_BY_ID = Object.fromEntries(GIFTS.map(g => [g.id, g]));
@@ -894,11 +908,10 @@ window.giftContext = function (people){
 /* The Gift a life suggests: the first entry that fits, made ready to show. */
 window.suggestGift = function (p, c){
   const g = GIFTS.find(g => { try { return g.when(p, c); } catch(e){ return false; } });
-  return g ? giftFrom(g, p) : null;
+  return g ? giftFrom(g, p, c) : null;
 };
-function giftFrom(g, p){
-  return { gift: g.id, kind: g.kind, n: g.n || 1, name: g.name,
-           why: g.why ? g.why(p) : '' };
+function giftFrom(g, p, c){
+  return { gift: g.id, kind: g.kind, name: g.name, why: g.why ? g.why(p, c) : '' };
 }
 window.giftFrom = giftFrom;
 
