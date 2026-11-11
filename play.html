@@ -120,7 +120,7 @@
     from{transform:translateY(22px) scale(.94);opacity:0}
     to  {transform:none;opacity:1}
   }
-  .hc.in,.pair.in{animation:dealin .32s var(--ease) both}
+  .hc.in,.pair.in{animation:dealin .32s var(--ease) backwards}
   .hc{transition:transform .16s var(--ease),box-shadow .16s,border-color .16s,background .16s}
   .hc:hover{transform:translateY(-5px)}
   .pair:hover .hc{transform:translateY(-5px)}
@@ -472,6 +472,46 @@
   .plus{position:absolute;left:0;top:-6px;font-weight:800;font-size:15px;color:#fff;background:var(--plus,#6aaa64);
     border-radius:99px;padding:2px 9px;animation:rise 1.1s var(--ease) forwards;pointer-events:none}
   @keyframes rise{0%{transform:translateY(8px) scale(.7);opacity:0}25%{transform:none;opacity:1}100%{transform:translateY(-26px);opacity:0}}
+  /* ---- Kin in hand as physical cards ----
+     The hand is a short strip; each card is full height and hangs below the
+     window, so only its top edge shows. Hovering lifts the whole card. */
+  #hand{height:84px;overflow:visible;align-items:flex-start;padding:10px 18px 0;gap:10px;z-index:30}
+  html,body{overflow:clip}
+  #hand > .hc,#hand .pair .hc{margin-right:calc(-1 * var(--ov,0px))}
+  #hand .hc{width:184px;min-width:184px;height:268px;padding:0;border-radius:12px;white-space:normal;
+    display:flex;flex-direction:column;background:#fff;border:1px solid var(--edge);
+    box-shadow:0 -2px 10px rgba(0,0,0,.08);transform:translateY(0);
+    transition:transform .3s var(--ease),box-shadow .3s}
+  #hand .hc:hover,#hand .pair:hover .hc{transform:translateY(-196px);background:#fff;
+    box-shadow:0 18px 40px rgba(0,0,0,.25);z-index:5}
+  #hand .hc.pat{border-top:4px solid var(--pat)} #hand .hc.mat{border-top:4px solid var(--mat)}
+  #hand .hc.self{border-top:4px solid var(--self)}
+  #hand .hc.pat,#hand .hc.mat,#hand .hc.self{border-left:1px solid var(--edge)}
+  .hc .top{position:relative;padding:8px 10px 6px 50px;height:58px;flex:none}
+  .hc .top .n{font-weight:650;font-size:14px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hc .top small{display:block;color:var(--dim);font-size:11.5px;margin-top:2px}
+  .hc .top .gain{top:9px;left:9px;right:auto;min-width:32px;text-align:center}
+  .hc .art{height:70px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+  .hc.pat .art{background:var(--patbg);color:var(--pat)} .hc.mat .art{background:var(--matbg);color:var(--mat)}
+  .hc.self .art{background:var(--selfbg);color:var(--self)}
+  .hc .mono{width:40px;height:40px;border-radius:50%;border:2px solid currentColor;display:grid;place-items:center;
+    font-weight:700;font-size:15px;background:rgba(255,255,255,.65)}
+  .hc .rel{font-size:10.5px;font-weight:600;text-transform:capitalize}
+  .hc .body{padding:8px 11px;display:flex;flex-direction:column;gap:7px;font-size:11.5px;min-height:0}
+  .hc .facts{display:grid;grid-template-columns:auto 1fr;gap:1px 8px;color:#4d4d4d}
+  .hc .facts span:nth-child(odd){color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em}
+  .hc .facts span:nth-child(even){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hc .cg{display:flex;gap:7px;align-items:flex-start;background:var(--soft);border-radius:7px;padding:6px 7px}
+  .hc.t-low .cg{background:#eaf1fc} .hc.t-high .cg{background:#fdf3d8}
+  .hc .cg .ci{font-size:15px;line-height:16px;color:var(--ink)}
+  .hc .cg b{display:block;font-size:12px}
+  .hc .cg small{display:block;font-size:10.5px;line-height:1.3;color:#4d4d4d}
+  .hc .cg.none{color:var(--dim);font-style:italic}
+  .hc .joins{color:#4d4d4d} .hc .br{color:var(--dim);font-size:10.5px} .hc .br b{color:var(--gold)}
+  /* A married couple: two cards side by side, their ring between them. */
+  #hand .pair{gap:0;align-items:flex-start;height:auto}
+  #hand .pair .hc{border-radius:12px}
+  #hand .pair .join{height:58px;width:22px;border:0;background:none}
   /* The decks: three card backs stacked, fanning open under the pointer. */
   .deck{position:relative;width:50px;height:68px;flex:none;border:0;background:none;padding:0;margin:0 6px 0 2px;
     border-radius:8px;cursor:pointer}
@@ -523,7 +563,7 @@
     border-radius:6px;background:var(--panel);color:var(--ink)}
   /* Poker flips and bonus takes need to announce themselves -- they happen
      without a click, so nothing else on screen would explain the score moving. */
-  #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:60;
+  #toast{position:fixed;left:50%;transform:translateX(-50%);top:92px;z-index:60;
     background:var(--ink);color:#fff;padding:10px 16px;border-radius:6px;font-weight:600;font-size:13.5px;
     box-shadow:0 8px 24px rgba(0,0,0,.28);opacity:0;pointer-events:none;
     transition:opacity .2s,transform .2s}
@@ -2265,6 +2305,10 @@ function renderHand(total){
   // Keyed like the timeline: unchanged markup is left alone, so the card you
   // are hovering survives the render and its transition keeps running.
   if(!setHTML(h, html)) return;
+  // Cards overlap like a held hand once they no longer fit side by side.
+  const items=h.querySelectorAll(':scope > .hc, :scope > .pair .hc'), room=h.clientWidth-150;
+  const ov=items.length>1 ? Math.max(0, (items.length*194-room)/(items.length-1)) : 0;
+  h.style.setProperty('--ov', Math.min(ov, 140)+'px');
   h.querySelectorAll('.hc,.pair').forEach(el=>el.classList.add('in'));
 
   const sd=$('#swapdone'); if(sd) sd.onclick=()=>{ swapLeft=0; render(); };
@@ -2295,8 +2339,8 @@ function renderHand(total){
       if(TOUCH && inspecting!==id){ inspecting=id; showPop(id,true,ids); render(ids); return; }
       inspecting=null; doPlay(ids);
     };
+    // The card itself rises to show everything, so no side panel here.
     el.onmouseenter=()=>{ if(TOUCH) return;
-      showPop(id, true, ids);
       if(!mustDiscard && !swapLeft){ render(ids);
         // A relative granted by a Gift, or a banked free Connect, costs nothing.
         const free = freePlay>0;
@@ -2306,20 +2350,42 @@ function renderHand(total){
   });
 }
 
+/* A Kin in hand is a physical card. Only its top edge shows -- name, years,
+ * what it is worth -- and it rises out of the hand under the pointer to show
+ * the rest: who they are, where from, their Gift, and what connecting them
+ * would add. Its tier is its frame. */
 function handCard(id, gp){
   const p=byId[id];
-  // An armed playkin ability makes exactly its own relatives free; say which,
-  // or the offer is invisible and you spend the years anyway.
   const free = !mustDiscard && !swapLeft && freePlay>0;
   const note = mustDiscard ? '<span class="gain drop">return</span>'
     : swapLeft ? '<span class="gain drop">swap</span>'
     : free ? '<span class="gain free">free</span>'
     : showsPreview(SET) ? `<span class="gain">+${gainOfGroup(gp.ids)}</span>` : '';
-  const gifts=abilitiesOf(p).map(a=>`<i class="hg" title="Gift: ${esc(a.name)}">${a.icon}</i>`).join('');
+  const ini=((p.given||p.name||'?')[0]+((p.surname||'')[0]||'')).toUpperCase();
+  const place=s=>String(s||'').split(',').map(x=>x.trim()).filter(Boolean);
+  const born=place(p.birth_place), died=place(p.death_place);
+  const facts=[
+    born.length && ['Born', born[0]+(born.length>1?', '+born[born.length-1]:'')],
+    died.length && ['Died', died[0]+(died.length>1?', '+died[died.length-1]:'')],
+    p.age_at_death && ['Age', p.age_at_death],
+    (p.child_count ?? (p.children_ids||[]).length) && ['Children', p.child_count ?? (p.children_ids||[]).length],
+  ].filter(Boolean).slice(0,3);
+  const gifts=abilitiesOf(p).map(a=>`<div class="cg"><span class="ci">${a.icon}</span><span>
+      <b>${esc(a.name)}</b><small>${esc(a.effect)}</small></span></div>`).join('');
+  const conn=connectionsOf(p);
+  const br=showsPreview(SET) && !mustDiscard && !swapLeft ? gainBreakdown(gp.ids) : [];
   return `<div class="hc ${sideOf(p)} ${tierCls(p)} ${mustDiscard||swapLeft?'todiscard':''} ${free?'pairable':''}" data-id="${id}" title="${esc(tierOf(p))}">
-      ${note}
-      <div class="n ${p.sex==='M'?'m':p.sex==='F'?'f':''}">${gem(p)}${esc(p.name)}</div>
-      <small>${startY(p)}–${p.living?'':(p.death_year||'?')}${gifts}</small></div>`;
+      <div class="top">${note}
+        <div class="n ${p.sex==='M'?'m':p.sex==='F'?'f':''}">${gem(p)}${esc(p.name)}</div>
+        <small>${startY(p)}–${p.living?'living':(p.death_year||'?')}</small></div>
+      <div class="art"><span class="mono">${esc(ini)}</span>
+        <span class="rel">${esc(p.relationship_to_root||'')}</span></div>
+      <div class="body">
+        ${facts.length?`<div class="facts">${facts.map(([k,v])=>`<span>${k}</span><span>${esc(v)}</span>`).join('')}</div>`:''}
+        ${gifts || '<div class="cg none">No Gift — a Sketch</div>'}
+        <div class="joins">${conn.length ? 'Joins '+conn.map(c=>`<b>${esc(c.who.split(' ')[0])}</b>`).join(', ') : 'No family down yet'}</div>
+        ${br.length?`<div class="br">${br.map(x=>`${esc(x.label)} <b>+${x.d}</b>`).join(' · ')}</div>`:''}
+      </div></div>`;
 }
 
 let tt=null;
