@@ -1,0 +1,36 @@
+/* Kinspan house style, loaded after every page's own <style> so it wins.
+ * Puzzle-paper look: white page, near-black ink, one slab serif for titles,
+ * Franklin for everything else, black pill buttons, flat surfaces. Colour
+ * comes from the logo and the game modes, not from the chrome. */
+@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=Zilla+Slab:wght@600;700&display=swap');
+
+:root{
+  --bg:#ffffff; --panel:#ffffff; --edge:#dcdcdc; --ink:#121212; --dim:#6f6f6f;
+  --gold:#b8532c;          /* accent text: points, Gifts, links -- a deep cut of the logo */
+  --brand:#F0966E; --tint:#fcebe2; --tintedge:#efc2ab; --soft:#f4f4f4;
+  --ease:cubic-bezier(.3,1.3,.5,1);
+}
+body{font-family:'Libre Franklin',-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+/* The slab serif is for titles a person reads as a title; the small capitals
+   labels over sections stay in Franklin. */
+h1,.serif,.top h2,.sheet>h2:first-child,#isheet h2,#bsheet h2,.final .big,#ltot{
+  font-family:'Zilla Slab',Georgia,serif;letter-spacing:-.01em}
+.toast{background:var(--ink);border-radius:6px;font-weight:600}
+.mode:not(.on){background:#fff}
+
+/* Buttons: black pill for the one thing to do, outlined pill for the rest. */
+button,.btn{border-radius:999px;font-weight:600}
+button.primary,.btn.primary,.btn.gold{background:var(--ink);border-color:var(--ink);color:#fff}
+button.primary:hover:not(:disabled),.btn.primary:hover,.btn.gold:hover{background:#333;border-color:#333}
+button:hover:not(:disabled),.btn:hover{border-color:var(--ink)}
+button:focus-visible,.btn:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+/* Headers: white bar, hairline under it, icons without frames. */
+header{background:#fff;border-bottom:1px solid var(--edge);box-shadow:none}
+header h1{font-family:'Zilla Slab',Georgia,serif;font-weight:700}
+button.icon,.round,a.back,.back{border-color:transparent!important;background:transparent!important}
+button.icon:hover,.round:hover,a.back:hover,.back:hover{background:var(--soft)!important}
+
+/* Sheets and cards sit flat on the page. */
+.sheet{border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.18)}
+input,select,textarea{font-family:inherit}

@@ -7,9 +7,9 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan — custom game</title>
-<script src="tree.js?v=7"></script>
-<script src="family.js?v=7"></script>
-<script src="rules.js?v=7"></script>
+<script src="tree.js?v=8"></script>
+<script src="family.js?v=8"></script>
+<script src="rules.js?v=8"></script>
 <style>
   :root{
     --bg:#f7f4ef; --panel:#ffffff; --edge:#ddd5c9; --ink:#2b2621; --dim:#7d7368;
@@ -30,7 +30,7 @@
   header .sp{flex:1}
   button{font:inherit;border:1px solid var(--edge);background:var(--panel);color:var(--ink);
     border-radius:7px;padding:5px 12px;cursor:pointer}
-  button:hover{border-color:#c9b184}
+  button:hover{border-color:var(--ink)}
   button.primary{background:var(--gold);border-color:var(--gold);color:#fff;font-weight:600}
   button:disabled{opacity:.45;cursor:default}
   main{flex:1;overflow:auto;padding:20px 16px 60px}
@@ -52,11 +52,11 @@
      far better than a radio and a word does. */
   .modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:9px}
   .mode{border:1.5px solid var(--edge);border-radius:10px;padding:10px 12px;cursor:pointer;
-    background:#fdfbf7}
-  .mode:hover{border-color:#c9b184}
-  .mode.on{border-color:var(--gold);background:#fdf5e0;box-shadow:0 0 0 1px var(--gold) inset}
+    background:var(--soft)}
+  .mode:hover{border-color:var(--ink)}
+  .mode.on{border-color:var(--gold);background:var(--tint);box-shadow:0 0 0 1px var(--gold) inset}
   .mode .t{font-weight:640;font-size:13.5px}
-  .mode .d{color:#5c5348;font-size:11.5px;line-height:1.42;margin-top:3px}
+  .mode .d{color:#4d4d4d;font-size:11.5px;line-height:1.42;margin-top:3px}
   .nums{display:flex;flex-wrap:wrap;gap:16px;margin-top:12px}
   .num{display:flex;align-items:center;gap:8px;font-size:13px}
   .num label{color:var(--dim)}
@@ -66,10 +66,10 @@
      single field, and dimming only the label left a live input underneath. */
   .num.off,.nums.off{opacity:.4;pointer-events:none}
   .opt.off input{pointer-events:none}
-  .baseline{background:#fdf5e0;border:1px solid #e2cd9b;border-radius:9px;
+  .baseline{background:var(--tint);border:1px solid var(--tintedge);border-radius:9px;
     padding:9px 11px;margin-top:10px;font-size:12.5px;line-height:1.5}
   .baseline b{color:var(--gold)}
-  .summary{background:#fdfbf7;border:1px dashed #c9b184;border-radius:10px;
+  .summary{background:var(--soft);border:1px dashed var(--ink);border-radius:10px;
     padding:13px 15px;font-size:13.5px;line-height:1.6}
   .summary b{color:var(--gold)}
   .warn{background:var(--warnbg);border:1px solid #e6c39a;color:var(--warn);
@@ -103,6 +103,7 @@
     #save2{flex:1;min-height:46px;font-size:15px}
   }
 </style>
+<link rel="stylesheet" href="theme.css?v=8">
 
 <header>
   <a href="./#mode" class="back" aria-label="Back"><i data-ic="back"></i></a>

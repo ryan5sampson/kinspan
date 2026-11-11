@@ -8,9 +8,9 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan — card builder</title>
-<script src="tree.js?v=7"></script>
-<script src="family.js?v=7"></script>
-<script src="rules.js?v=7"></script>
+<script src="tree.js?v=8"></script>
+<script src="family.js?v=8"></script>
+<script src="rules.js?v=8"></script>
 <style>
   :root{
     --bg:#f7f4ef; --panel:#ffffff; --edge:#ddd5c9; --ink:#2b2621; --dim:#7d7368;
@@ -33,10 +33,10 @@
   .sp{flex:1}
   .round{border:1px solid var(--edge);background:var(--panel);border-radius:99px;
     width:40px;height:40px;font-size:18px;flex:none}
-  .round:hover{border-color:#c9b184}
+  .round:hover{border-color:var(--ink)}
   .btn{appearance:none;border:1px solid var(--edge);background:var(--panel);
     font-size:14px;font-weight:620;border-radius:10px;padding:8px 14px;min-height:40px}
-  .btn:hover{border-color:#c0b4a4}
+  .btn:hover{border-color:var(--ink)}
   .btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
   .btn.gold{background:var(--gold);color:#fff;border-color:var(--gold)}
   .btn.danger{color:var(--bad);border-color:#e7c9c9}
@@ -86,7 +86,7 @@
   .kc .gs{margin-top:auto;display:flex;gap:6px}
   .kc .g{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:14px;
     border:1.5px dashed var(--edge);color:var(--edge)}
-  .kc .g.on{border:1.5px solid #ddc487;background:#fdf5e0;color:var(--gold)}
+  .kc .g.on{border:1.5px solid var(--tintedge);background:var(--tint);color:var(--gold)}
   .kc.noyear{opacity:.55}
   .kc.noyear .tier{color:#b4671d}
   .kc.add{border:2px dashed var(--edge);background:transparent;align-items:center;
@@ -120,13 +120,13 @@
   .panel h2:first-child{margin-top:0}
 
   .slot{display:flex;gap:10px;align-items:flex-start;border-radius:12px;padding:11px;margin-bottom:8px;
-    background:#fdf7e6;border:1.5px solid #ddc487;animation:deal .35s var(--ease) both}
+    background:var(--tint);border:1.5px solid var(--tintedge);animation:deal .35s var(--ease) both}
   .slot .gi{font-size:24px;width:32px;text-align:center;color:var(--gold);flex:none;line-height:34px}
   .slot .grow{flex:1;min-width:0}
   .slot input{width:100%;border:0;background:transparent;font:inherit;color:var(--ink);padding:2px 0}
-  .slot input:focus{outline:0;border-bottom:1px solid #ddc487}
+  .slot input:focus{outline:0;border-bottom:1px solid var(--tintedge)}
   .slot .gname{font-weight:680;color:var(--gold);font-size:16px}
-  .slot .gfx{font-size:13px;color:#5c5348;margin:1px 0 3px}
+  .slot .gfx{font-size:13px;color:#4d4d4d;margin:1px 0 3px}
   .slot .gwhy{font-size:13px;font-style:italic;color:var(--dim)}
   .addslot{width:100%;border:1.5px dashed var(--edge);background:transparent;border-radius:12px;
     padding:13px;color:var(--dim);font-weight:620;margin-bottom:8px}
@@ -144,7 +144,7 @@
   .gchip b{display:block;font-weight:650}
   .gchip small{display:block;color:var(--dim);font-size:11.5px;line-height:1.35}
   .gchip:hover{border-color:var(--gold);transform:translateY(-1px)}
-  .gchip.sug{border-color:var(--gold);background:#fdf5e0;color:var(--gold);font-weight:650}
+  .gchip.sug{border-color:var(--gold);background:var(--tint);color:var(--gold);font-weight:650}
   textarea{width:100%;min-height:90px;padding:10px 12px;border:1px solid var(--edge);border-radius:10px;
     font:inherit;font-size:15px;line-height:1.5;resize:vertical;background:var(--panel);color:var(--ink)}
   .done{display:flex;gap:8px;margin-top:16px}
@@ -171,7 +171,7 @@
   .x:hover{color:var(--bad);background:#faf0f0}
   .person{display:flex;gap:10px;align-items:center;width:100%;text-align:left;
     background:var(--panel);border:1px solid var(--edge);border-radius:10px;padding:10px 12px;margin-bottom:7px}
-  .person:hover{border-color:#c0b4a4}
+  .person:hover{border-color:var(--ink)}
   .person .dot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--dim)}
   .person .dot.m{background:var(--pat)} .person .dot.f{background:var(--mat)}
   .person .grow{flex:1;min-width:0}
@@ -208,6 +208,7 @@
   }
   @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
 </style>
+<link rel="stylesheet" href="theme.css?v=8">
 
 <header>
   <button class="round" id="home" aria-label="Main menu"><i data-ic="back"></i></button>

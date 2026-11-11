@@ -43,6 +43,6 @@ assert.equal(modeSettings('nope').selection, DEFAULT_SETTINGS.selection, 'an unk
 // pair a fresh page with a cached script from the one before. Bump ?v= on
 // every page whenever a .js file changes.
 const vs = new Set(['index', 'play', 'edit', 'settings'].flatMap(p =>
-  [...fs.readFileSync(`${__dirname}/${p}.html`, 'utf8').matchAll(/<script src="\w+\.js(\?v=\d+)?"/g)].map(m => m[1])));
+  [...fs.readFileSync(`${__dirname}/${p}.html`, 'utf8').matchAll(/(?:<script src|stylesheet" href)="\w+\.(?:js|css)(\?v=\d+)?"/g)].map(m => m[1])));
 assert(vs.size === 1 && [...vs][0], `pages ask for different script versions: ${[...vs]}`);
 console.log(`ok — ${MODES.length} modes, ${GIFTS.length} Gifts, ${Object.keys(ABILITY_EFFECTS).length} effects`);
