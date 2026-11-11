@@ -945,7 +945,8 @@ window.buildAbilities = function (people, rate){
  * builder (at the higher tier -- you wrote it on purpose), otherwise the one
  * dealt this game. */
 window.abilitiesOf = function (p){
-  const own = (p.abilities || []).filter(a => a && a.name);
+  // One Gift per card: the first one written, if any. Common cards carry none.
+  const own = (p.abilities || []).filter(a => a && a.name).slice(0, 1);
   const list = own.length
     ? own.map(a => {
         const fit = a.kind && window.ABILITY_EFFECTS[a.kind] ? a : (p.fit_ability || { kind:'draw' });

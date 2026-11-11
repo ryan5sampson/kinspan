@@ -11,9 +11,9 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan — the timeline</title>
-<script src="tree.js?v=10"></script>
-<script src="family.js?v=10"></script>
-<script src="rules.js?v=10"></script>
+<script src="tree.js?v=11"></script>
+<script src="family.js?v=11"></script>
+<script src="rules.js?v=11"></script>
 <style>
   :root{
     --ready:#f9df6d; --ease:cubic-bezier(.34,1.24,.44,1);
@@ -474,21 +474,21 @@
   #hand .pair .join{position:absolute;top:24px;left:50%;transform:translateX(-50%);z-index:8;width:26px;height:26px;
     border-radius:50%;background:#fff;box-shadow:0 0 0 2px var(--wed),0 2px 6px rgba(0,0,0,.2);display:grid;place-items:center}
   #hand .pair .join svg{fill:var(--wed)}
-  #hand .pair:hover .hc{transform:translateY(calc(-1 * (var(--ch) - 88px))) scale(1.3)}
-  .hc{flex:0 1 var(--cw);min-width:120px;height:var(--ch);position:relative;cursor:pointer;border-radius:14px;
+  #hand .pair:hover .hc{transform:translateY(calc(-100% + 92px)) scale(1.3)}
+  .hc{flex:0 1 var(--cw);min-width:120px;min-height:var(--ch);height:max-content;align-self:flex-start;position:relative;cursor:pointer;border-radius:14px;
     transition:transform .32s var(--ease);background:none;border:0;padding:0;white-space:normal}
   .hc{transform-origin:50% 100%}
-  .hc:hover{transform:translateY(calc(-1 * (var(--ch) - 88px))) scale(1.3);z-index:6}
+  .hc:hover{transform:translateY(calc(-100% + 92px)) scale(1.3);z-index:6}
   .hc.incoming{visibility:hidden}
-  .hc .face{position:absolute;inset:0;border-radius:14px;background:#fff;border:1px solid #d9d2c6;overflow:hidden;
+  .hc .face{position:relative;min-height:var(--ch);box-sizing:border-box;border-radius:14px;background:#fff;border:1px solid #d9d2c6;overflow:hidden;
     display:flex;flex-direction:column;box-shadow:0 -2px 10px rgba(0,0,0,.08)}
   .hc:hover .face{box-shadow:0 22px 44px rgba(0,0,0,.28)}
   /* Rarity is the finish. Rare: blue holo frame and banner. Legendary: gold foil, rainbow sheen, sparkle. */
   .hc.r-rare,.hc.r-legend{padding:3px;box-sizing:border-box}
   .hc.r-rare{background:linear-gradient(135deg,#6fa8ff,#a6f0ff 30%,#c4a6ff 55%,#6fa8ff 80%,#a6f0ff);box-shadow:0 0 16px rgba(96,160,255,.55)}
   .hc.r-legend{padding:4px;background:linear-gradient(135deg,#fff1b8,#e0a82e 25%,#fff6cf 45%,#c98c12 65%,#ffe58a 85%);box-shadow:0 0 22px rgba(240,180,40,.7)}
-  .hc.r-rare .face,.hc.r-legend .face{inset:3px;border:0;border-radius:11px}
-  .hc.r-legend .face{inset:4px;background:#fffaf0}
+  .hc.r-rare .face,.hc.r-legend .face{border:0;border-radius:11px;min-height:calc(var(--ch) - 6px)}
+  .hc.r-legend .face{background:#fffaf0;min-height:calc(var(--ch) - 8px)}
   .hc .head{min-height:58px;flex:none;box-sizing:border-box;padding:9px 10px 8px 12px;position:relative}
   .hc.pat .head{background:#cfe1f1} .hc.mat .head{background:#f6c9ae} .hc.self .head{background:#c4e6cd}
   .hc.r-rare .head{background:linear-gradient(120deg,#cfe3ff 0%,#dcfbff 30%,#e9dcff 55%,#cfe3ff 80%)}
@@ -506,17 +506,16 @@
   .hc .yr{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;margin-top:3px}
   .hc .yr .gi{margin-left:auto;font-size:14px;color:var(--dim);display:flex}
   .hc.r-rare .yr .gi{color:#3b7dd8} .hc.r-legend .yr .gi{color:#9a6a00}
-  .hc .rel{padding:6px 11px 0;font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hc .rel{padding:6px 11px 0;font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;line-height:1.35}
   .hc.pat .rel{color:var(--pat)} .hc.mat .rel{color:var(--mat)} .hc.self .rel{color:var(--self)}
   .hc .sec{margin:5px 11px 0;border-top:1px solid #ece6dc;padding-top:4px}
   .hc .lab{font-size:8.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#8a8a8a;margin-bottom:1px}
   .hc dl{display:grid;grid-template-columns:44px minmax(0,1fr);row-gap:0;margin:0;font-size:10.5px;line-height:1.4}
-  .hc dt{color:#6f6f6f} .hc dd{margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hc dt{color:#6f6f6f} .hc dd{margin:0;overflow-wrap:anywhere}
   .hc .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--d);box-shadow:0 0 0 1px var(--ink);
     vertical-align:1px;margin-left:4px}
   .hc .more{margin:3px 11px 0;font-size:9.5px;color:#8a8a8a}
-  .hc .gift{margin:auto 7px 7px;display:flex;gap:7px;align-items:center;padding:6px 7px;border-radius:10px;background:var(--soft)}
+  .hc .gift{margin:auto 7px 7px;flex:none;display:flex;gap:7px;align-items:center;padding:6px 7px;border-radius:10px;background:var(--soft)}
   .hc.r-rare .gift{background:linear-gradient(120deg,#e3eeff,#eefcff 50%,#f1e9ff)}
   .hc.r-legend .gift{background:linear-gradient(120deg,#fff1b8,#fffaf0 50%,#ffe58a)}
   .hc .gift .md{width:28px;height:28px;flex:none;border-radius:50%;background:#fff;border:1.5px solid var(--ink);display:grid;place-items:center;font-size:15px}
@@ -533,8 +532,8 @@
   /* Drawn Kin come out to centre stage, then drop into the hand. */
   .stage{position:fixed;inset:0;z-index:65;display:grid;place-items:center;background:rgba(255,255,255,.6);cursor:pointer}
   .stage .row{display:flex;gap:26px}
-  .stage .sc{--cw:214px;--ch:334px;width:var(--cw);height:var(--ch);animation:fly .55s var(--ease) calc(var(--i) * .13s) both}
-  .stage .sc .hc{width:100%;height:100%;cursor:pointer}
+  .stage .sc{--cw:214px;--ch:300px;width:var(--cw);animation:fly .55s var(--ease) calc(var(--i) * .13s) both}
+  .stage .sc .hc{width:100%;cursor:pointer}
   .stage .sc .hc:hover{transform:none}
   .stage.out .sc{transition:transform .42s ease-in,opacity .42s;transform:translateY(60vh) scale(.5);opacity:0}
   @keyframes fly{from{transform:translate(-38vw,45vh) scale(.35) rotate(-14deg);opacity:0}
@@ -542,14 +541,13 @@
   /* ---- Legacy cards on the right: real cards, cascaded ---- */
   .lc{position:relative;width:212px;border-radius:12px;background:#fff;border:1px solid #d9d2c6;
     box-shadow:0 -2px 10px rgba(0,0,0,.08);transition:transform .2s var(--ease)}
-  .lc + .lc{margin-top:-58px}
-  .lc:hover{z-index:5;transform:translateX(-4px)}
-  .lc .lh{background:var(--c);border-radius:11px 11px 0 0;padding:9px 12px 10px;min-height:52px;box-sizing:border-box}
+  .lc + .lc{margin-top:10px}
+  .lc .lh{background:var(--c);border-radius:11px 11px 0 0;padding:7px 12px 8px}
   .lc .lh small{display:block;font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
   .lc .lh b{display:block;font-family:'Zilla Slab',Georgia,serif;font-size:17px;line-height:1.1;margin-top:2px}
-  .lc .lb{padding:9px 12px 0;font-size:12px;line-height:1.4;color:#3d3d3d}
+  .lc .lb{padding:7px 12px 0;font-size:11.5px;line-height:1.4;color:#3d3d3d}
   .lc .ld{padding:4px 12px 0;font-size:11px;color:var(--dim)}
-  .lc .lf{padding:9px 12px 11px;display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700}
+  .lc .lf{padding:7px 12px 9px;display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700}
   .lc .lf i{font-style:normal;background:var(--c);border:1.5px solid var(--ink);border-radius:99px;padding:1px 8px}
   .lc .pts{position:absolute;left:calc(100% + 8px);top:12px;border-radius:99px;padding:2px 10px;font-weight:800;
     font-size:14px;background:#fff;color:var(--dim);border:2px solid #d9d2c6;white-space:nowrap}
@@ -692,7 +690,7 @@
   }
 
 </style>
-<link rel="stylesheet" href="theme.css?v=10">
+<link rel="stylesheet" href="theme.css?v=11">
 
 <header>
   <button id="menubtn" class="icon" title="Menu" aria-label="Menu"><i data-ic="menu"></i></button>
