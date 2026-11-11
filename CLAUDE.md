@@ -15,6 +15,11 @@ Every change made for this project goes live: commit, push, open a PR into
 `main`, and merge it. GitHub Pages serves `main`, so unmerged work is work the
 site doesn't have. Run `node check.js` before merging.
 
+Browsers cache the site's files for up to 10 minutes, so a page and a script
+from different deploys can meet. When any `.js` file changes, bump the `?v=`
+number on every `<script src>` in all four pages (`check.js` fails if they
+disagree).
+
 ## Ponytail: lazy senior dev mode
 
 Active on every coding task in this repo, no exceptions, no drift back to

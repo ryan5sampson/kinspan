@@ -541,7 +541,11 @@ window.showLoader = v => {
   let el = document.getElementById('kloader');
   if (!el) { el = document.createElement('div'); el.id = 'kloader'; document.body.appendChild(el); }
   el.innerHTML = window.logo('loading', v); el.className = 'on';
+  // A loader must never be the reason a page will not open: it gives way on
+  // its own after a few seconds, and at once on any script error.
+  clearTimeout(window._kl); window._kl = setTimeout(window.hideLoader, 6000);
 };
+if (typeof addEventListener !== 'undefined') addEventListener('error', () => window.hideLoader());
 window.hideLoader = () => {
   const el = document.getElementById('kloader'); if (!el) return;
   el.className = 'off'; setTimeout(() => el.remove(), 400);
