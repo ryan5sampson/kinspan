@@ -587,6 +587,50 @@ if (typeof document !== 'undefined') {
       document.querySelectorAll('[data-logo]').forEach(e => { e.innerHTML = window.logo('', e.dataset.logo); }); });
 }
 
+/* ---- The Kin card ------------------------------------------------------
+ * A banner in their side's colour with name, years, and their Gift's icon;
+ * labelled Life and Family sections; then the Gift. Rarity is the finish:
+ * blue holo for a Story, gold foil for a Biography. The board and the card
+ * builder both draw it with this, styled by theme.css. Options: `rarity`
+ * overrides the dealt tier, `marks` puts Legacy-card dots on facts ({born:
+ * ['#hex'], ...}), `note` is what floats on the corner, `cls` extra classes. */
+window.kinCard = function (p, o = {}){
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const rare = o.rarity ?? (p.tier==='rare' ? 'r-legend' : p.tier==='uncommon' ? 'r-rare' : '');
+  const ab = window.abilitiesOf(p)[0];
+  const marks = o.marks || {};
+  const dot = k => (marks[k]||[]).map(c=>`<i class="dot" style="--d:${c}"></i>`).join('');
+  const where = s => { const a=String(s||'').split(',').map(x=>x.trim()).filter(Boolean);
+    return a.length>1 ? `${a[0]}, ${a[a.length-1]}` : a[0]||''; };
+  const life=[
+    p.birth_place && ['Born', where(p.birth_place), 'born'],
+    p.death_place && ['Died', where(p.death_place), 'died'],
+    p.burial_place && ['Buried', where(p.burial_place), 'buried'],
+    p.age_at_death && ['Lived', `${p.age_at_death} years`, 'lived'],
+  ].filter(Boolean);
+  const mar=(p.marriages||[]).filter(m=>m.spouse_name);
+  const kids=p.child_count ?? (p.children_ids||[]).length;
+  const family=[
+    ...mar.slice(0,2).map(m=>['Married', `${m.spouse_name.split(' ')[0]}${m.year?', '+m.year:''}`, 'married']),
+    kids && ['Children', kids, 'kids'],
+  ].filter(Boolean);
+  const cap={Life:3, Family:2};   // more than this is counted, not crammed
+  const sec=(label, rows)=>rows.length ? `<div class="sec"><div class="lab">${label}</div><dl>${
+    rows.slice(0,cap[label]).map(([k,v,key])=>`<dt>${k}</dt><dd>${esc(v)}${dot(key)}</dd>`).join('')}</dl></div>` : '';
+  const hidden=Math.max(0,life.length-cap.Life)+Math.max(0,family.length-cap.Family)+Math.max(0,mar.length-2);
+  const yrs=`${p.birth_year||'?'} – ${p.living?'living':(p.death_year||'?')}`;
+  const side = p.relationship_to_root==='self' ? 'self' : p.relationship_side==='maternal' ? 'mat' : 'pat';
+  return `<div class="hc ${side} ${rare} ${o.cls||''}" data-id="${esc(p.id)}">
+    ${o.note||''}<div class="face">
+      <div class="head"><span class="n ${p.name.length>16?'long':''}">${esc(p.name)}</span>
+        <div class="yr"><span>${yrs}</span>${dot('years')}${ab?`<span class="gi" title="${esc(ab.name)}">${ab.icon}</span>`:''}</div></div>
+      <div class="rel">${esc(p.relationship_to_root||'')}${p.relationship_side?' · '+esc(p.relationship_side)+' side':''}${dot('rel')}</div>
+      ${sec('Life', life)}${sec('Family', family)}
+      ${hidden?`<div class="more">${hidden} more in their file</div>`:''}
+      ${ab?`<div class="gift"><span class="md">${ab.icon}</span><span><b>${esc(ab.name)}</b><small>${esc(ab.effect)}</small></span></div>`:''}
+    </div></div>`;
+}
+
 /* ---- game modes --------------------------------------------------------
  * A mode is a named set of overrides on the defaults. The title screen lists
  * them; play.html?mode=<id> plays one. 'custom' is whatever the rules page
