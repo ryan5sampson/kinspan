@@ -39,6 +39,15 @@ assert.deepEqual([tally('rare'), tally('uncommon'), tally('basic')], [10, 30, 40
 assert(crowd.every(p => (p.tier === 'basic') === !abilitiesOf(p).length), 'Sketches carry no Gift, the rest one each');
 assert(crowd.filter(p => p.tier === 'uncommon').every(p => abilitiesOf(p)[0].tier === 'low'), 'Stories carry the lower tier');
 
+// A written Gift sets the card's rarity: lower plays as a Story, else a Biography.
+const story = P('w1', { abilities: [{ kind: 'draw', name: 'Low one', tier: 'low' }] });
+buildAbilities([story], 0);
+assert.equal(story.tier, 'uncommon'); assert.equal(abilitiesOf(story)[0].tier, 'low');
+// The demo family ships playable, with Gifts written on most cards.
+const demo = JSON.parse(fs.readFileSync(__dirname + '/demo.kinspan', 'utf8'));
+assert(demo.people.filter(p => (p.abilities || []).length).length > demo.people.length / 2, 'demo cards carry Gifts');
+assert(!/"lds_ordinances": \{\s*"/.test(JSON.stringify(demo, null, 1)) && demo.people.every(p => !p.fs_id), 'demo is stripped');
+
 buildAbilities(people, 0);
 const legacy = { ...people[0], abilities: [{ name: 'Grandma\'s Pie', text: 'She baked.' }] };
 const [a] = abilitiesOf(legacy);

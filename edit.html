@@ -8,9 +8,9 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan — card builder</title>
-<script src="tree.js?v=14"></script>
-<script src="family.js?v=14"></script>
-<script src="rules.js?v=14"></script>
+<script src="tree.js?v=15"></script>
+<script src="family.js?v=15"></script>
+<script src="rules.js?v=15"></script>
 <style>
   :root{
     --bg:#f7f4ef; --panel:#ffffff; --edge:#ddd5c9; --ink:#2b2621; --dim:#7d7368;
@@ -175,7 +175,7 @@
   }
   @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
 </style>
-<link rel="stylesheet" href="theme.css?v=14">
+<link rel="stylesheet" href="theme.css?v=15">
 
 <header>
   <button class="round" id="home" aria-label="Main menu"><i data-ic="back"></i></button>
@@ -254,9 +254,11 @@ const TIER = ['Sketch', 'Story', 'Biography'];
 /* The builder shows each Kin as the card they play as. A Gift written here
  * makes them a Biography every game, so they show in gold; anyone else is
  * dealt a tier each game and shows plain. */
+const writtenRarity = p => { const a = (p.abilities||[]).find(a => a && a.name);
+  return !a ? '' : a.tier === 'low' ? 'r-rare' : 'r-legend'; };
 function gridCard(p, i) {
   return `<button class="cell" data-id="${esc(p.id)}" style="animation-delay:${Math.min(i, 24) * 22}ms">${
-    kinCard(p, { rarity: (p.abilities||[]).some(a => a && a.name) ? 'r-legend' : '', cls: p.birth_year ? '' : 'noyear' })}</button>`;
+    kinCard(p, { rarity: writtenRarity(p), cls: p.birth_year ? '' : 'noyear' })}</button>`;
 }
 
 /* ------------------------------------------------------------- the deck -- */
@@ -335,7 +337,7 @@ function renderFocus() {
     : `<button class="addslot" id="pick">${icon('plus')} Add a Gift${sug && !taken.has(sug.gift) ? ` · try <b>${esc(GIFT_BY_ID[sug.gift].name)}</b>` : ''}</button>`;
 
   f.innerHTML = `<div class="fx ${shown === p.id ? 'still' : ''}">
-    <div class="big">${kinCard(p, { rarity: (p.abilities||[]).some(a => a && a.name) ? 'r-legend' : '' })}</div>
+    <div class="big">${kinCard(p, { rarity: writtenRarity(p) })}</div>
     <div class="panel">
       <h2>Gift</h2>
       <p class="hint" style="margin:-4px 0 10px">${ab.length ? 'A Gift you write plays at full strength: this card is a Biography every game.'

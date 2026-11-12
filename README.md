@@ -8,7 +8,8 @@ children, whole lines of them — and earn Legacy for what you reconnect.
 
 ## Bring your own family
 
-This site ships with **nobody in it**. You bring a file:
+This site ships with **nobody in it**, apart from one sample family for the
+**Demo** button (`demo.kinspan`). To play your own, you bring a file:
 
 - a **`.ged`** export from FamilySearch, Ancestry, MyHeritage or RootsMagic, or
 - a **`.kinspan`** save file you made here before.
