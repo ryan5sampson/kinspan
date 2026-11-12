@@ -11,9 +11,9 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan — the timeline</title>
-<script src="tree.js?v=13"></script>
-<script src="family.js?v=13"></script>
-<script src="rules.js?v=13"></script>
+<script src="tree.js?v=14"></script>
+<script src="family.js?v=14"></script>
+<script src="rules.js?v=14"></script>
 <style>
   :root{
     --ready:#f9df6d; --ease:cubic-bezier(.34,1.24,.44,1);
@@ -390,7 +390,16 @@
   #modal,#bmodal,#imodal,#fmodal{position:fixed;inset:0;background:rgba(60,50,40,.34);display:none;z-index:50;
     align-items:center;justify-content:center;padding:16px}
   #modal.on,#bmodal.on,#imodal.on,#fmodal.on{display:flex}
-  #fmodal{top:57px;z-index:35;background:var(--bg)}
+  /* The fan chart takes the timeline's place; the hand and Legacy stay put. */
+  #fanview{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:14px 24px 150px;gap:8px;position:relative}
+  #fanview[hidden]{display:none}
+  #fanview #fansvg{flex:1;min-height:0;width:100%;max-width:980px;margin:0}
+  #fanview .fanleg{display:flex;gap:18px;font-size:12.5px;color:var(--dim);align-items:center}
+  #fanview .fanleg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  #fanview .fanleg b{color:var(--ink)}
+  .fw.hot{stroke:var(--ink);stroke-width:3;filter:brightness(.9);opacity:1}
+  .fw.hot.none{stroke-dasharray:none}
   .sheet{background:var(--panel);border:1px solid var(--edge);border-radius:13px;
     max-width:430px;width:100%;max-height:88vh;overflow:auto;padding:18px;
     box-shadow:0 18px 48px rgba(0,0,0,.24)}
@@ -482,11 +491,14 @@
   #hand .pair .join{position:absolute;top:24px;left:50%;transform:translateX(-50%);z-index:8;width:26px;height:26px;
     border-radius:50%;background:#fff;box-shadow:0 0 0 2px var(--wed),0 2px 6px rgba(0,0,0,.2);display:grid;place-items:center}
   #hand .pair .join svg{fill:var(--wed)}
-  #hand .pair:hover .hc{transform:translateY(calc(-100% + 92px)) scale(1.3)}
+  #hand .pair:hover .hc{transform:translateY(calc(-100% + 92px)) scale(1.3);z-index:9}
   .hc{flex:0 1 var(--cw);min-width:120px;min-height:var(--ch);height:max-content;align-self:flex-start;position:relative;cursor:pointer;border-radius:14px;
     transition:transform .32s var(--ease);background:none;border:0;padding:0;white-space:normal}
   .hc{transform-origin:50% 100%}
-  .hc:hover{transform:translateY(calc(-100% + 92px)) scale(1.3);z-index:6}
+  .hc:hover{transform:translateY(calc(-100% + 92px)) scale(1.3);z-index:9}
+  /* The end cards grow inward, so a raised card never runs off the screen. */
+  #hand .slots > .hc:first-child,#hand .slots > .pair:first-child .hc:first-child{transform-origin:0 100%}
+  #hand .slots > .hc:last-child,#hand .slots > .pair:last-child .hc:last-child{transform-origin:100% 100%}
   .hc.incoming{visibility:hidden}
   .hc:hover .face{box-shadow:0 22px 44px rgba(0,0,0,.28)}
   .hc.todiscard .face{outline:2px solid #b4671d;outline-offset:-2px}
@@ -654,7 +666,7 @@
   }
 
 </style>
-<link rel="stylesheet" href="theme.css?v=13">
+<link rel="stylesheet" href="theme.css?v=14">
 
 <header>
   <a href="./" class="homelink" title="Main menu" aria-label="Main menu"><span class="hmark" data-logo></span><span class="modename" id="modename"></span></a>
@@ -669,6 +681,7 @@
 </header>
 
 <div id="wrap">
+  <div id="fanview" hidden></div>
   <div id="stage"><div id="inner">
     <div id="axis"></div><svg id="links"></svg><div id="cards"></div>
     <div id="clockband"></div>
@@ -691,7 +704,6 @@
 <div id="modal"><div class="sheet" id="sheet"></div></div>
 <div id="bmodal"><div class="sheet wide" id="bsheet"></div></div>
 <div id="imodal"><div class="sheet wide" id="isheet"></div></div>
-<div id="fmodal"><div class="sheet wide" id="fsheet"></div></div>
 <div id="toast"></div>
 <div id="coach" hidden></div>
 <div id="coachtip" hidden role="dialog" aria-live="polite"></div>
@@ -918,11 +930,12 @@ function openMenu(){
     <button data-m="help">${icon('help')}How to play</button>
     <hr>
     <button data-m="restart">${icon('restart')}Restart this game</button>
+    <button data-m="save">${icon('save')}Save family file</button>
     <button data-m="builder">${icon('spark')}Card builder</button>
     <button data-m="home">${icon('home')}Main menu</button></div>`);
   const go={resume:()=>{}, legacy:openBonuses, help:openHelp,
     restart:()=>{ endTour(); newGame(); },
-    builder:()=>location.href='edit.html', home:()=>location.href='./'};
+    save:()=>{ const n=FAMILY.download(fam); toast(`Saved ${n} to your Downloads folder.`); }, builder:()=>location.href='edit.html', home:()=>location.href='./'};
   $('#isheet').querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{
     $('#imodal').classList.remove('on'); go[b.dataset.m](); });
 }
@@ -1638,6 +1651,7 @@ function render(ghost){
   // every hover would leave the sidebar flashing at real values it never had.
   if(!ghostId) for(const b of sc.bonuses) lastPts[b.id]=b.pts;
   if(!ghostId) renderHand(sc.total);
+  if(fanOn && !ghostId) renderFan();
   if(over && !endShown){ endShown=true; setTimeout(()=>openEnd(sc.total), 700); }
   if(!list.length){
     nodes.forEach(el=>el.remove()); nodes.clear();
@@ -2333,12 +2347,13 @@ function renderHand(total){
     };
     // The card itself rises to show everything, so no side panel here.
     el.onmouseenter=()=>{ if(TOUCH) return;
+      fanHot(ids);
       if(!mustDiscard && !swapLeft){ render(ids);
         // A relative granted by a Gift, or a banked free Connect, costs nothing.
         const free = freePlay>0;
         previewMove(free ? null : playCost()); } };
     el.onmouseleave=()=>{ if(TOUCH) return;
-      hidePop(true); spotlight(null); previewMove(null); render(); };
+      fanHot(null); hidePop(true); spotlight(null); previewMove(null); render(); };
   });
 }
 
@@ -2479,23 +2494,41 @@ function renderFan(){
     <text class="fl" x="${cx}" y="${cy-24}" font-size="12">${esc(fanLabel(root,90))}</text>
     <text class="fl faint" x="${cx}" y="${cy-11}" font-size="9.5">you</text>`;
 
-  setHTML($('#fsheet'), `
-    <h2>Your line, as a fan</h2>
-    <p class="sub">${here} of the ${have} direct ancestors in your file are on the
-      timeline right now. ${total-have} wedge${total-have===1?' is':'s are'} empty —
-      nobody in the file fills ${total-have===1?'it':'them'}. Paternal side left,
-      maternal right. Tap anyone to read their card.</p>
-    <svg id="fansvg" viewBox="0 0 ${W} ${cy+2}" role="img"
+  setHTML($('#fanview'), `
+    <svg id="fansvg" viewBox="0 0 ${W} ${cy+2}" role="img" preserveAspectRatio="xMidYMax meet"
       aria-label="Fan chart of your direct ancestors">${svg}</svg>
-    `);
+    <div class="fanleg"><span><i style="background:var(--patbg);box-shadow:0 0 0 1px var(--pat)"></i>Father's side</span>
+      <span><b>${here}</b> of ${have} on the timeline</span>
+      <span><i style="background:var(--matbg);box-shadow:0 0 0 1px var(--mat)"></i>Mother's side</span>
+      <span id="fannote"></span></div>`);
+  wireFan();
 }
 
+let fanOn=false;
 function openFan(){
   if(!fam||!fam.people.length) return;
-  renderFan();
-  $('#fmodal').classList.add('on');
+  fanOn=true; $('#stage').hidden=true; $('#fanview').hidden=false; closeRel(); renderFan();
 }
-function closeFan(){ $('#fmodal').classList.remove('on'); }
+function closeFan(){ fanOn=false; $('#fanview').hidden=true; $('#stage').hidden=false; hidePop(); }
+
+/* Hover a wedge for their details; click it for their whole card. */
+function wireFan(){
+  $('#fanview').querySelectorAll('.fw[data-id]').forEach(w=>{
+    const id=w.dataset.id;
+    w.onmouseenter=()=>{ if(byId[id]) showPop(id, false); };
+    w.onmouseleave=()=>hidePop(true);
+    w.onclick=()=>openCard(fam.people.find(p=>p.id===id));
+  });
+}
+/* Hover a card in hand to see where they would sit in the fan -- or that they
+   are family, but not in your direct line. */
+function fanHot(ids){
+  if(!fanOn) return;
+  const hit=[...$('#fanview').querySelectorAll('.fw[data-id]')].filter(w=>{
+    const on=ids && ids.includes(w.dataset.id); w.classList.toggle('hot', on); return on; });
+  const n=$('#fannote'); if(!n) return;
+  n.textContent = !ids ? '' : hit.length ? '' : `${byId[ids[0]].given||byId[ids[0]].name} is not in your direct line`;
+}
 
 function openCard(p){
   $('#sheet').innerHTML=`
@@ -2524,23 +2557,18 @@ $('#stage').addEventListener('pointerdown', e=>{
   if(TOUCH && inspecting){ inspecting=null; spotlight(null); hidePop(); }
 });
 /* Timeline or fan chart: two icons in the header, one lit. */
-const setView=fan=>{ fan ? openFan() : closeFan();
+const setView=fan=>{ fan ? openFan() : (closeFan(), fit()); render();
   $('#vt-time').classList.toggle('on',!fan); $('#vt-fan').classList.toggle('on',fan);
   $('#vt-time').setAttribute('aria-pressed',!fan); $('#vt-fan').setAttribute('aria-pressed',fan); };
 $('#vt-time').onclick=()=>{ closeRel(); setView(false); };
 $('#vt-fan').onclick=()=>{ closeRel(); setView(true); };
 $('#menubtn').onclick=()=>{closeRel(); openMenu();};
-$('#fmodal').onclick=e=>{
-  if(e.target.id==='fmodal') return setView(false);
-  const w=e.target.closest('.fw[data-id]');
-  if(w) openCard(fam.people.find(p=>p.id===w.dataset.id));
-};
 $('#imodal').onclick=e=>{ if(e.target.id==='imodal' && !over) e.currentTarget.classList.remove('on'); };
 $('#helpbtn').onclick=()=>{closeRel(); openHelp();};
 $('#bmodal').onclick=e=>{ if(e.target.id==='bmodal') closeBonuses(); };
 addEventListener('resize',()=>{fit();render();});
 addEventListener('keydown',e=>{
-  if(e.key==='Escape'){ $('#modal').classList.remove('on'); closeBonuses(); closeFan(); endTour(); }
+  if(e.key==='Escape'){ $('#modal').classList.remove('on'); closeBonuses(); endTour(); }
   if(e.key==='Escape') $('#imodal').classList.remove('on');
   if(e.key==='d') doDraw();
 });
