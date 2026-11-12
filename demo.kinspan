@@ -1,0 +1,3346 @@
+{
+ "kinspan": 1,
+ "title": "The Sampson family",
+ "root_id": "@I1@",
+ "root_name": "Ryan Peter Sampson",
+ "saved": "2026-11-12T18:22:30.495Z",
+ "people": [
+  {
+   "id": "@I1@",
+   "fs_id": null,
+   "name": "Ryan Peter Sampson",
+   "given": "Ryan Peter",
+   "surname": "Sampson",
+   "suffix": null,
+   "sex": "M",
+   "birth_year": 2002,
+   "death_year": null,
+   "birth_date": null,
+   "death_date": null,
+   "birth_place": null,
+   "death_place": null,
+   "burial_place": null,
+   "places_lived": [],
+   "spouse_ids": [],
+   "children_ids": [],
+   "parent_ids": [
+    "@I2@",
+    "@I3@"
+   ],
+   "marriages": [],
+   "marriage_year": null,
+   "marriage_place": null,
+   "children_in_tree": 0,
+   "child_count": null,
+   "age_at_death": null,
+   "relationship_to_root": "self",
+   "relationship_side": null,
+   "generation": 0,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 2001,
+    "birth_date": null,
+    "birth_place": null,
+    "death_year": null,
+    "death_date": null,
+    "death_place": null,
+    "burial_place": null,
+    "child_count": null,
+    "living": null
+   },
+   "living": true,
+   "current_age": 24,
+   "edited_fields": [
+    "living"
+   ],
+   "curation_notes": "",
+   "status": "todo",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": false,
+   "abilities": [],
+   "tier": "basic",
+   "traits": [],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I3@",
+   "fs_id": null,
+   "name": "Kristin Diane Low",
+   "given": "Kristin Diane",
+   "surname": "Low",
+   "suffix": null,
+   "sex": "F",
+   "birth_year": 1967,
+   "death_year": null,
+   "birth_date": null,
+   "death_date": null,
+   "birth_place": null,
+   "death_place": null,
+   "burial_place": null,
+   "places_lived": [
+    "Layton, Utah"
+   ],
+   "spouse_ids": [
+    "@I2@"
+   ],
+   "children_ids": [
+    "@I1@"
+   ],
+   "parent_ids": [
+    "@I6@",
+    "@I7@"
+   ],
+   "marriages": [
+    {
+     "family_id": "@F1@",
+     "year": 1988,
+     "date": null,
+     "place": "Layton, Utah",
+     "spouse_id": "@I2@",
+     "spouse_name": "Scott Edward Sampson"
+    }
+   ],
+   "marriage_year": 1988,
+   "marriage_place": "Layton, Utah",
+   "children_in_tree": 1,
+   "child_count": 5,
+   "age_at_death": null,
+   "relationship_to_root": "mother",
+   "relationship_side": "maternal",
+   "generation": 1,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": null,
+    "birth_date": null,
+    "birth_place": null,
+    "death_year": null,
+    "death_date": null,
+    "death_place": null,
+    "burial_place": null,
+    "child_count": null,
+    "living": null
+   },
+   "living": true,
+   "current_age": 59,
+   "edited_fields": [
+    "birth_place",
+    "birth_year",
+    "child_count",
+    "living",
+    "marriage_place",
+    "marriage_year"
+   ],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": false,
+   "abilities": [
+    {
+     "gift": "fullhouse",
+     "kind": "draw",
+     "name": "Full House",
+     "why": "5 children.",
+     "tier": "high"
+    }
+   ],
+   "tier": "basic",
+   "traits": [],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I2@",
+   "fs_id": null,
+   "name": "Scott Edward Sampson",
+   "given": "Scott Edward",
+   "surname": "Sampson",
+   "suffix": null,
+   "sex": "M",
+   "birth_year": 1963,
+   "death_year": null,
+   "birth_date": null,
+   "death_date": null,
+   "birth_place": null,
+   "death_place": null,
+   "burial_place": null,
+   "places_lived": [
+    "Layton, Utah"
+   ],
+   "spouse_ids": [
+    "@I3@"
+   ],
+   "children_ids": [
+    "@I1@"
+   ],
+   "parent_ids": [
+    "@I4@",
+    "@I5@"
+   ],
+   "marriages": [
+    {
+     "family_id": "@F1@",
+     "year": 1988,
+     "date": null,
+     "place": "Layton, Utah",
+     "spouse_id": "@I3@",
+     "spouse_name": "Kristin Diane Low"
+    }
+   ],
+   "marriage_year": 1988,
+   "marriage_place": "Layton, Utah",
+   "children_in_tree": 1,
+   "child_count": 5,
+   "age_at_death": null,
+   "relationship_to_root": "father",
+   "relationship_side": "paternal",
+   "generation": 1,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": null,
+    "birth_date": null,
+    "birth_place": null,
+    "death_year": null,
+    "death_date": null,
+    "death_place": null,
+    "burial_place": null,
+    "child_count": null,
+    "living": null
+   },
+   "living": true,
+   "current_age": 63,
+   "edited_fields": [
+    "birth_place",
+    "birth_year",
+    "child_count",
+    "living",
+    "marriage_place",
+    "marriage_year"
+   ],
+   "curation_notes": "",
+   "status": "todo",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": false,
+   "abilities": [],
+   "tier": "basic",
+   "traits": [],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I5@",
+   "fs_id": null,
+   "name": "Deanna Edwards",
+   "given": "Deanna",
+   "surname": "Edwards",
+   "suffix": null,
+   "sex": "F",
+   "birth_year": 1938,
+   "death_year": 2020,
+   "birth_date": "14 JAN 1938",
+   "death_date": "11 OCT 2020",
+   "birth_place": "Ogden, Weber, Utah, United States",
+   "death_place": "Orem, Utah, Utah, United States",
+   "burial_place": "Orem, Utah, Utah, United States",
+   "places_lived": [
+    "Ogden, Weber, Utah, United States",
+    "Salt Lake City, Salt Lake, Utah, United States",
+    "Rexburg, Madison, Idaho, United States",
+    "Orem, Utah, Utah, United States"
+   ],
+   "spouse_ids": [
+    "@I4@"
+   ],
+   "children_ids": [
+    "@I2@"
+   ],
+   "parent_ids": [
+    "@I11@",
+    "@I10@"
+   ],
+   "marriages": [
+    {
+     "family_id": "@F2@",
+     "year": 1960,
+     "date": "6 DEC 1960",
+     "place": "Salt Lake City, Salt Lake, Utah, United States",
+     "spouse_id": "@I4@",
+     "spouse_name": "Ralph Revell Sampson"
+    },
+    {
+     "family_id": "@F17@",
+     "year": 1978,
+     "date": "30 JAN 1978",
+     "place": "Rexburg, Madison, Idaho, United States",
+     "spouse_id": null,
+     "spouse_name": null
+    }
+   ],
+   "marriage_year": 1960,
+   "marriage_place": "Salt Lake City, Salt Lake, Utah, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 82,
+   "relationship_to_root": "grandmother",
+   "relationship_side": "paternal",
+   "generation": 2,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [
+    "@I5@",
+    "@I16@"
+   ],
+   "gedcom": {
+    "birth_year": 1938,
+    "birth_date": "14 JAN 1938",
+    "birth_place": "Ogden, Weber, Utah, United States",
+    "death_year": 2020,
+    "death_date": "11 OCT 2020",
+    "death_place": "Orem, Utah, Utah, United States",
+    "burial_place": "Orem, Utah, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": false,
+   "abilities": [
+    {
+     "gift": "inseparable",
+     "kind": "playkin",
+     "name": "Fifty Years Married",
+     "why": "Married 60 years.",
+     "tier": "low"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1938–2020  (82)"
+    },
+    {
+     "k": "Born",
+     "v": "Ogden, Utah"
+    },
+    {
+     "k": "Died",
+     "v": "Orem, Utah"
+    },
+    {
+     "k": "Journey",
+     "v": "stayed in Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1960 · Salt Lake City, Utah"
+    },
+    {
+     "k": "Marriages",
+     "v": "2"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I26@",
+   "fs_id": null,
+   "name": "Eldon Waldorf Morse",
+   "given": "Eldon Waldorf",
+   "surname": "Morse",
+   "suffix": null,
+   "sex": "M",
+   "birth_year": 1949,
+   "death_year": 2021,
+   "birth_date": "4 SEP 1949",
+   "death_date": "24 OCT 2021",
+   "birth_place": "Cottage Hospital, Burley, Cassia, Idaho, United States",
+   "death_place": "Boise, Ada, Idaho, United States",
+   "burial_place": null,
+   "places_lived": [
+    "Cottage Hospital, Burley, Cassia, Idaho, United States",
+    "Boise, Ada, Idaho, United States"
+   ],
+   "spouse_ids": [],
+   "children_ids": [],
+   "parent_ids": [
+    "@I15@",
+    "@I14@"
+   ],
+   "marriages": [],
+   "marriage_year": null,
+   "marriage_place": null,
+   "children_in_tree": 0,
+   "child_count": null,
+   "age_at_death": 72,
+   "relationship_to_root": "great-uncle",
+   "relationship_side": "maternal",
+   "generation": 2,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1949,
+    "birth_date": "4 SEP 1949",
+    "birth_place": "Cottage Hospital, Burley, Cassia, Idaho, United States",
+    "death_year": 2021,
+    "death_date": "24 OCT 2021",
+    "death_place": "Boise, Ada, Idaho, United States",
+    "burial_place": null,
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": false,
+   "abilities": [
+    {
+     "gift": "packed",
+     "kind": "freeplay",
+     "name": "On The Move",
+     "why": "Born in Cottage Hospital, died in Boise.",
+     "tier": "low"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1949–2021  (72)"
+    },
+    {
+     "k": "Born",
+     "v": "Cottage Hospital, Idaho"
+    },
+    {
+     "k": "Died",
+     "v": "Boise, Idaho"
+    },
+    {
+     "k": "Journey",
+     "v": "stayed in Idaho"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I7@",
+   "fs_id": null,
+   "name": "Eula Roceil Morse",
+   "given": "Eula Roceil",
+   "surname": "Morse",
+   "suffix": null,
+   "sex": "F",
+   "birth_year": 1944,
+   "death_year": null,
+   "birth_date": null,
+   "death_date": null,
+   "birth_place": null,
+   "death_place": null,
+   "burial_place": null,
+   "places_lived": [
+    "Bountiful, Utah"
+   ],
+   "spouse_ids": [
+    "@I6@"
+   ],
+   "children_ids": [
+    "@I3@"
+   ],
+   "parent_ids": [
+    "@I15@",
+    "@I14@"
+   ],
+   "marriages": [
+    {
+     "family_id": "@F3@",
+     "year": 1964,
+     "date": null,
+     "place": "Bountiful, Utah",
+     "spouse_id": "@I6@",
+     "spouse_name": "William Walker Low Jr"
+    }
+   ],
+   "marriage_year": 1964,
+   "marriage_place": "Bountiful, Utah",
+   "children_in_tree": 1,
+   "child_count": 6,
+   "age_at_death": null,
+   "relationship_to_root": "grandmother",
+   "relationship_side": "maternal",
+   "generation": 2,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": null,
+    "birth_date": null,
+    "birth_place": null,
+    "death_year": null,
+    "death_date": null,
+    "death_place": null,
+    "burial_place": null,
+    "child_count": null,
+    "living": null
+   },
+   "living": true,
+   "current_age": 82,
+   "edited_fields": [
+    "birth_year",
+    "child_count",
+    "living",
+    "marriage_place",
+    "marriage_year"
+   ],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": false,
+   "abilities": [
+    {
+     "gift": "young",
+     "kind": "freeplay",
+     "name": "Wasted No Time",
+     "why": "Married before they were 22.",
+     "tier": "low"
+    }
+   ],
+   "tier": "basic",
+   "traits": [],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I19@",
+   "fs_id": null,
+   "name": "James Eliot Sampson",
+   "given": "James Eliot",
+   "surname": "Sampson",
+   "suffix": null,
+   "sex": "M",
+   "birth_year": 1935,
+   "death_year": 2017,
+   "birth_date": "6 JUN 1935",
+   "death_date": "9 AUG 2017",
+   "birth_place": "Ogden, Weber, Utah, United States",
+   "death_place": "Bountiful, Davis, Utah, United States",
+   "burial_place": "Lakeview Cemetery, Bountiful, Davis, Utah, United States",
+   "places_lived": [
+    "Ogden, Weber, Utah, United States",
+    "Salt Lake Temple, Salt Lake City, Salt Lake, Utah, United States",
+    "Bountiful, Davis, Utah, United States",
+    "Lakeview Cemetery, Bountiful, Davis, Utah, United States"
+   ],
+   "spouse_ids": [],
+   "children_ids": [],
+   "parent_ids": [
+    "@I13@",
+    "@I12@"
+   ],
+   "marriages": [
+    {
+     "family_id": "@F19@",
+     "year": 1955,
+     "date": "3 JAN 1955",
+     "place": "Salt Lake Temple, Salt Lake City, Salt Lake, Utah, United States",
+     "spouse_id": null,
+     "spouse_name": null
+    }
+   ],
+   "marriage_year": 1955,
+   "marriage_place": "Salt Lake Temple, Salt Lake City, Salt Lake, Utah, United States",
+   "children_in_tree": 0,
+   "child_count": null,
+   "age_at_death": 82,
+   "relationship_to_root": "great-uncle",
+   "relationship_side": "paternal",
+   "generation": 2,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1935,
+    "birth_date": "6 JUN 1935",
+    "birth_place": "Ogden, Weber, Utah, United States",
+    "death_year": 2017,
+    "death_date": "9 AUG 2017",
+    "death_place": "Bountiful, Davis, Utah, United States",
+    "burial_place": "Lakeview Cemetery, Bountiful, Davis, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": false,
+   "abilities": [
+    {
+     "gift": "nothing",
+     "kind": "discount",
+     "name": "Depression Childhood",
+     "why": "Born 1935. A child through the Great Depression.",
+     "tier": "low"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1935–2017  (82)"
+    },
+    {
+     "k": "Born",
+     "v": "Ogden, Utah"
+    },
+    {
+     "k": "Died",
+     "v": "Bountiful, Utah"
+    },
+    {
+     "k": "Journey",
+     "v": "stayed in Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1955 · Salt Lake Temple, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I4@",
+   "fs_id": null,
+   "name": "Ralph Revell Sampson",
+   "given": "Ralph Revell",
+   "surname": "Sampson",
+   "suffix": null,
+   "sex": "M",
+   "birth_year": 1938,
+   "death_year": 2025,
+   "birth_date": "30 APR 1938",
+   "death_date": "30 JUL 2025",
+   "birth_place": "Ogden, Weber, Utah, United States",
+   "death_place": null,
+   "burial_place": "Bountiful, Davis, Utah, United States",
+   "places_lived": [
+    "Ogden, Weber, Utah, United States",
+    "Salt Lake City, Salt Lake, Utah, United States",
+    "Bountiful, Davis, Utah, United States"
+   ],
+   "spouse_ids": [
+    "@I5@"
+   ],
+   "children_ids": [
+    "@I2@"
+   ],
+   "parent_ids": [
+    "@I13@",
+    "@I12@"
+   ],
+   "marriages": [
+    {
+     "family_id": "@F2@",
+     "year": 1960,
+     "date": "6 DEC 1960",
+     "place": "Salt Lake City, Salt Lake, Utah, United States",
+     "spouse_id": "@I5@",
+     "spouse_name": "Deanna Edwards"
+    }
+   ],
+   "marriage_year": 1960,
+   "marriage_place": "Salt Lake City, Salt Lake, Utah, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 87,
+   "relationship_to_root": "grandfather",
+   "relationship_side": "paternal",
+   "generation": 2,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [
+    "@I4@",
+    "@I17@"
+   ],
+   "gedcom": {
+    "birth_year": 1938,
+    "birth_date": "30 APR 1938",
+    "birth_place": "Ogden, Weber, Utah, United States",
+    "death_year": 2025,
+    "death_date": "30 JUL 2025",
+    "death_place": null,
+    "burial_place": "Bountiful, Davis, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": false,
+   "abilities": [
+    {
+     "gift": "innings",
+     "kind": "time",
+     "name": "A Long Life",
+     "why": "Reached 87.",
+     "tier": "high"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1938–2025  (87)"
+    },
+    {
+     "k": "Born",
+     "v": "Ogden, Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1960 · Salt Lake City, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I28@",
+   "fs_id": null,
+   "name": "Vernon Breeze \"The Chief\" Morse",
+   "given": "Vernon Breeze \"The Chief\"",
+   "surname": "Morse",
+   "suffix": null,
+   "sex": "M",
+   "birth_year": 1946,
+   "death_year": 2003,
+   "birth_date": "5 JUN 1946",
+   "death_date": "30 AUG 2003",
+   "birth_place": "Boise, Ada, Idaho, United States",
+   "death_place": "Samaria, Oneida, Idaho, United States",
+   "burial_place": "Samaria City Cemetery, Samaria, Oneida, Idaho, United States",
+   "places_lived": [
+    "Boise, Ada, Idaho, United States",
+    "Samaria, Oneida, Idaho, United States",
+    "Samaria City Cemetery, Samaria, Oneida, Idaho, United States"
+   ],
+   "spouse_ids": [],
+   "children_ids": [],
+   "parent_ids": [
+    "@I15@",
+    "@I14@"
+   ],
+   "marriages": [],
+   "marriage_year": null,
+   "marriage_place": null,
+   "children_in_tree": 0,
+   "child_count": null,
+   "age_at_death": 57,
+   "relationship_to_root": "great-uncle",
+   "relationship_side": "maternal",
+   "generation": 2,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1946,
+    "birth_date": "5 JUN 1946",
+    "birth_place": "Boise, Ada, Idaho, United States",
+    "death_year": 2003,
+    "death_date": "30 AUG 2003",
+    "death_place": "Samaria, Oneida, Idaho, United States",
+    "burial_place": "Samaria City Cemetery, Samaria, Oneida, Idaho, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": false,
+   "abilities": [
+    {
+     "gift": "farm",
+     "kind": "points",
+     "name": "Family Plot",
+     "why": "Buried in Samaria City Cemetery, with others of the family.",
+     "tier": "low"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1946–2003  (57)"
+    },
+    {
+     "k": "Born",
+     "v": "Boise, Idaho"
+    },
+    {
+     "k": "Died",
+     "v": "Samaria, Idaho"
+    },
+    {
+     "k": "Journey",
+     "v": "stayed in Idaho"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I6@",
+   "fs_id": null,
+   "name": "William Walker Low Jr",
+   "given": "William Walker",
+   "surname": "Low",
+   "suffix": "Jr",
+   "sex": "M",
+   "birth_year": 1940,
+   "death_year": null,
+   "birth_date": null,
+   "death_date": null,
+   "birth_place": null,
+   "death_place": null,
+   "burial_place": null,
+   "places_lived": [
+    "Bountiful, Utah"
+   ],
+   "spouse_ids": [
+    "@I7@"
+   ],
+   "children_ids": [
+    "@I3@"
+   ],
+   "parent_ids": [
+    "@I8@",
+    "@I9@"
+   ],
+   "marriages": [
+    {
+     "family_id": "@F3@",
+     "year": 1964,
+     "date": null,
+     "place": "Bountiful, Utah",
+     "spouse_id": "@I7@",
+     "spouse_name": "Eula Roceil Morse"
+    }
+   ],
+   "marriage_year": 1964,
+   "marriage_place": "Bountiful, Utah",
+   "children_in_tree": 1,
+   "child_count": 6,
+   "age_at_death": null,
+   "relationship_to_root": "grandfather",
+   "relationship_side": "maternal",
+   "generation": 2,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": null,
+    "birth_date": null,
+    "birth_place": null,
+    "death_year": null,
+    "death_date": null,
+    "death_place": null,
+    "burial_place": null,
+    "child_count": null,
+    "living": null
+   },
+   "living": true,
+   "current_age": 86,
+   "edited_fields": [
+    "birth_year",
+    "child_count",
+    "living",
+    "marriage_place",
+    "marriage_year"
+   ],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": false,
+   "abilities": [
+    {
+     "gift": "badyear",
+     "kind": "points",
+     "name": "Born In Wartime",
+     "why": "Born 1940, during a world war.",
+     "tier": "high"
+    }
+   ],
+   "tier": "basic",
+   "traits": [],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I13@",
+   "fs_id": null,
+   "name": "Eliot Thatcher Sampson",
+   "given": "Eliot Thatcher",
+   "surname": "Sampson",
+   "suffix": null,
+   "sex": "M",
+   "birth_year": 1911,
+   "death_year": 1999,
+   "birth_date": "28 JAN 1911",
+   "death_date": "10 MAY 1999",
+   "birth_place": "Mammoth, Juab, Utah, United States",
+   "death_place": "Ogden, Weber, Utah, United States",
+   "burial_place": "Aultorest Memorial Park, Ogden, Weber, Utah, United States",
+   "places_lived": [
+    "Mammoth, Juab, Utah, United States",
+    "Salt Lake Temple, Salt Lake City, Salt Lake, Utah, United States",
+    "Ogden, Weber, Utah, United States",
+    "Aultorest Memorial Park, Ogden, Weber, Utah, United States"
+   ],
+   "spouse_ids": [
+    "@I12@"
+   ],
+   "children_ids": [
+    "@I4@",
+    "@I19@"
+   ],
+   "parent_ids": [
+    "@I30@",
+    "@I31@"
+   ],
+   "marriages": [
+    {
+     "family_id": "@F4@",
+     "year": 1934,
+     "date": "28 JUN 1934",
+     "place": "Salt Lake Temple, Salt Lake City, Salt Lake, Utah, United States",
+     "spouse_id": "@I12@",
+     "spouse_name": "Rose Elaine Revell"
+    }
+   ],
+   "marriage_year": 1934,
+   "marriage_place": "Salt Lake Temple, Salt Lake City, Salt Lake, Utah, United States",
+   "children_in_tree": 2,
+   "child_count": null,
+   "age_at_death": 88,
+   "relationship_to_root": "great-grandfather",
+   "relationship_side": "paternal",
+   "generation": 3,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1911,
+    "birth_date": "28 JAN 1911",
+    "birth_place": "Mammoth, Juab, Utah, United States",
+    "death_year": 1999,
+    "death_date": "10 MAY 1999",
+    "death_place": "Ogden, Weber, Utah, United States",
+    "burial_place": "Aultorest Memorial Park, Ogden, Weber, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": false,
+   "abilities": [
+    {
+     "gift": "moon",
+     "kind": "points",
+     "name": "Saw The Moon Landing",
+     "why": "Born 1911, still here in July 1969.",
+     "tier": "low"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1911–1999  (88)"
+    },
+    {
+     "k": "Born",
+     "v": "Mammoth, Utah"
+    },
+    {
+     "k": "Died",
+     "v": "Ogden, Utah"
+    },
+    {
+     "k": "Journey",
+     "v": "stayed in Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1934 · Salt Lake Temple, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I14@",
+   "fs_id": null,
+   "name": "Eula Marie Breeze",
+   "given": "Eula Marie",
+   "surname": "Breeze",
+   "suffix": null,
+   "sex": "F",
+   "birth_year": 1918,
+   "death_year": 2004,
+   "birth_date": "13 MAR 1918",
+   "death_date": "9 DEC 2004",
+   "birth_place": "Boise, Ada, Idaho, United States",
+   "death_place": "Salt Lake City, Salt Lake, Utah, United States",
+   "burial_place": "Samaria City Cemetery, Samaria, Oneida, Idaho, United States",
+   "places_lived": [
+    "Boise, Ada, Idaho, United States",
+    "Salt Lake City, Salt Lake, Utah",
+    "Salt Lake City, Salt Lake, Utah, United States",
+    "Samaria City Cemetery, Samaria, Oneida, Idaho, United States"
+   ],
+   "spouse_ids": [
+    "@I15@"
+   ],
+   "children_ids": [
+    "@I7@",
+    "@I28@",
+    "@I26@"
+   ],
+   "parent_ids": [
+    "@I34@",
+    "@I33@"
+   ],
+   "marriages": [
+    {
+     "family_id": "@F7@",
+     "year": 1941,
+     "date": "4 JUN 1941",
+     "place": "Salt Lake City, Salt Lake, Utah",
+     "spouse_id": "@I15@",
+     "spouse_name": "William Evans \"Bill\" Morse Jr."
+    }
+   ],
+   "marriage_year": 1941,
+   "marriage_place": "Salt Lake City, Salt Lake, Utah",
+   "children_in_tree": 3,
+   "child_count": null,
+   "age_at_death": 86,
+   "relationship_to_root": "great-grandmother",
+   "relationship_side": "maternal",
+   "generation": 3,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1918,
+    "birth_date": "13 MAR 1918",
+    "birth_place": "Boise, Ada, Idaho, United States",
+    "death_year": 2004,
+    "death_date": "9 DEC 2004",
+    "death_place": "Salt Lake City, Salt Lake, Utah, United States",
+    "burial_place": "Samaria City Cemetery, Samaria, Oneida, Idaho, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": false,
+   "abilities": [
+    {
+     "gift": "reunion",
+     "kind": "reunion",
+     "name": "Family Reunion",
+     "why": "6 close family in the tree: parents, spouses and children.",
+     "tier": "low"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1918–2004  (86)"
+    },
+    {
+     "k": "Born",
+     "v": "Boise, Idaho"
+    },
+    {
+     "k": "Died",
+     "v": "Salt Lake City, Utah"
+    },
+    {
+     "k": "Journey",
+     "v": "Idaho → Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1941 · Salt Lake City, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I9@",
+   "fs_id": null,
+   "name": "Florence Barnett",
+   "given": "Florence",
+   "surname": "Barnett",
+   "suffix": null,
+   "sex": "F",
+   "birth_year": 1912,
+   "death_year": 2007,
+   "birth_date": "17 MAR 1912",
+   "death_date": "23 DEC 2007",
+   "birth_place": "Richmond, Cache, Utah, United States",
+   "death_place": "Salt Lake City, Salt Lake, Utah, United States",
+   "burial_place": "Providence City Cemetery, Providence, Cache, Utah, United States",
+   "places_lived": [
+    "Richmond, Cache, Utah, United States",
+    "Logan Utah Temple, Logan, Cache, Utah, United States",
+    "Salt Lake City, Salt Lake, Utah, United States",
+    "Providence City Cemetery, Providence, Cache, Utah, United States"
+   ],
+   "spouse_ids": [
+    "@I8@"
+   ],
+   "children_ids": [
+    "@I6@"
+   ],
+   "parent_ids": [
+    "@I27@",
+    "@I22@"
+   ],
+   "marriages": [
+    {
+     "family_id": "@F6@",
+     "year": 1934,
+     "date": "8 MAR 1934",
+     "place": "Logan Utah Temple, Logan, Cache, Utah, United States",
+     "spouse_id": "@I8@",
+     "spouse_name": "William Walker Low"
+    }
+   ],
+   "marriage_year": 1934,
+   "marriage_place": "Logan Utah Temple, Logan, Cache, Utah, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 95,
+   "relationship_to_root": "great-grandmother",
+   "relationship_side": "maternal",
+   "generation": 3,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1912,
+    "birth_date": "17 MAR 1912",
+    "birth_place": "Richmond, Cache, Utah, United States",
+    "death_year": 2007,
+    "death_date": "23 DEC 2007",
+    "death_place": "Salt Lake City, Salt Lake, Utah, United States",
+    "burial_place": "Providence City Cemetery, Providence, Cache, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "todo",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": false,
+   "abilities": [],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1912–2007  (95)"
+    },
+    {
+     "k": "Born",
+     "v": "Richmond, Utah"
+    },
+    {
+     "k": "Died",
+     "v": "Salt Lake City, Utah"
+    },
+    {
+     "k": "Journey",
+     "v": "stayed in Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1934 · Logan Utah Temple, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I11@",
+   "fs_id": null,
+   "name": "Lawrence Alton Edwards",
+   "given": "Lawrence Alton",
+   "surname": "Edwards",
+   "suffix": null,
+   "sex": "M",
+   "birth_year": 1912,
+   "death_year": 1983,
+   "birth_date": "12 AUG 1912",
+   "death_date": "28 NOV 1983",
+   "birth_place": "Gunnison, Sanpete, Utah, United States",
+   "death_place": "Ogden, Weber, Utah, United States",
+   "burial_place": "Ogden, Weber, Utah, United States",
+   "places_lived": [
+    "Gunnison, Sanpete, Utah, United States",
+    "Manti, Sanpete, Utah, United States",
+    "Ogden, Weber, Utah, United States"
+   ],
+   "spouse_ids": [
+    "@I10@"
+   ],
+   "children_ids": [
+    "@I5@"
+   ],
+   "parent_ids": [
+    "@I25@",
+    "@I21@"
+   ],
+   "marriages": [
+    {
+     "family_id": "@F5@",
+     "year": 1936,
+     "date": "22 JUN 1936",
+     "place": "Manti, Sanpete, Utah, United States",
+     "spouse_id": "@I10@",
+     "spouse_name": "Mildred Hansen"
+    }
+   ],
+   "marriage_year": 1936,
+   "marriage_place": "Manti, Sanpete, Utah, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 71,
+   "relationship_to_root": "great-grandfather",
+   "relationship_side": "paternal",
+   "generation": 3,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1912,
+    "birth_date": "12 AUG 1912",
+    "birth_place": "Gunnison, Sanpete, Utah, United States",
+    "death_year": 1983,
+    "death_date": "28 NOV 1983",
+    "death_place": "Ogden, Weber, Utah, United States",
+    "burial_place": "Ogden, Weber, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": false,
+   "abilities": [
+    {
+     "gift": "lent",
+     "kind": "draw",
+     "name": "Lent A Hand",
+     "why": "Nothing on the record stands out yet. Write their story to change that.",
+     "tier": "low"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1912–1983  (71)"
+    },
+    {
+     "k": "Born",
+     "v": "Gunnison, Utah"
+    },
+    {
+     "k": "Died",
+     "v": "Ogden, Utah"
+    },
+    {
+     "k": "Journey",
+     "v": "stayed in Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1936 · Manti, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I10@",
+   "fs_id": null,
+   "name": "Mildred Hansen",
+   "given": "Mildred",
+   "surname": "Hansen",
+   "suffix": null,
+   "sex": "F",
+   "birth_year": 1909,
+   "death_year": 1993,
+   "birth_date": "13 APR 1909",
+   "death_date": "23 AUG 1993",
+   "birth_place": "Richfield, Sevier, Utah, United States",
+   "death_place": "Vienna, Fairfax, Virginia, United States",
+   "burial_place": "Aultorest Memorial Park, Ogden, Weber, Utah, United States",
+   "places_lived": [
+    "Richfield, Sevier, Utah, United States",
+    "Manti, Sanpete, Utah, United States",
+    "Vienna, Fairfax, Virginia, United States",
+    "Aultorest Memorial Park, Ogden, Weber, Utah, United States"
+   ],
+   "spouse_ids": [
+    "@I11@"
+   ],
+   "children_ids": [
+    "@I5@"
+   ],
+   "parent_ids": [
+    "@I32@",
+    "@I29@"
+   ],
+   "marriages": [
+    {
+     "family_id": "@F5@",
+     "year": 1936,
+     "date": "22 JUN 1936",
+     "place": "Manti, Sanpete, Utah, United States",
+     "spouse_id": "@I11@",
+     "spouse_name": "Lawrence Alton Edwards"
+    }
+   ],
+   "marriage_year": 1936,
+   "marriage_place": "Manti, Sanpete, Utah, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 84,
+   "relationship_to_root": "great-grandmother",
+   "relationship_side": "paternal",
+   "generation": 3,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1909,
+    "birth_date": "13 APR 1909",
+    "birth_place": "Richfield, Sevier, Utah, United States",
+    "death_year": 1993,
+    "death_date": "23 AUG 1993",
+    "death_place": "Vienna, Fairfax, Virginia, United States",
+    "burial_place": "Aultorest Memorial Park, Ogden, Weber, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": false,
+   "abilities": [
+    {
+     "gift": "packed",
+     "kind": "freeplay",
+     "name": "On The Move",
+     "why": "Born in Richfield, died in Vienna.",
+     "tier": "low"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1909–1993  (84)"
+    },
+    {
+     "k": "Born",
+     "v": "Richfield, Utah"
+    },
+    {
+     "k": "Died",
+     "v": "Vienna, Virginia"
+    },
+    {
+     "k": "Journey",
+     "v": "Utah → Virginia"
+    },
+    {
+     "k": "Married",
+     "v": "1936 · Manti, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I12@",
+   "fs_id": null,
+   "name": "Rose Elaine Revell",
+   "given": "Rose Elaine",
+   "surname": "Revell",
+   "suffix": null,
+   "sex": "F",
+   "birth_year": 1913,
+   "death_year": 2004,
+   "birth_date": "16 OCT 1913",
+   "death_date": "28 JUL 2004",
+   "birth_place": "Ogden, Weber, Utah, United States",
+   "death_place": "Eden, Weber, Utah, United States",
+   "burial_place": "Aultorest Memorial Park, Ogden, Weber, Utah, United States",
+   "places_lived": [
+    "Ogden, Weber, Utah, United States",
+    "Salt Lake Temple, Salt Lake City, Salt Lake, Utah, United States",
+    "Eden, Weber, Utah, United States",
+    "Aultorest Memorial Park, Ogden, Weber, Utah, United States"
+   ],
+   "spouse_ids": [
+    "@I13@"
+   ],
+   "children_ids": [
+    "@I4@",
+    "@I19@"
+   ],
+   "parent_ids": [
+    "@I23@",
+    "@I24@"
+   ],
+   "marriages": [
+    {
+     "family_id": "@F4@",
+     "year": 1934,
+     "date": "28 JUN 1934",
+     "place": "Salt Lake Temple, Salt Lake City, Salt Lake, Utah, United States",
+     "spouse_id": "@I13@",
+     "spouse_name": "Eliot Thatcher Sampson"
+    }
+   ],
+   "marriage_year": 1934,
+   "marriage_place": "Salt Lake Temple, Salt Lake City, Salt Lake, Utah, United States",
+   "children_in_tree": 2,
+   "child_count": null,
+   "age_at_death": 91,
+   "relationship_to_root": "great-grandmother",
+   "relationship_side": "paternal",
+   "generation": 3,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1913,
+    "birth_date": "16 OCT 1913",
+    "birth_place": "Ogden, Weber, Utah, United States",
+    "death_year": 2004,
+    "death_date": "28 JUL 2004",
+    "death_place": "Eden, Weber, Utah, United States",
+    "burial_place": "Aultorest Memorial Park, Ogden, Weber, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": false,
+   "abilities": [
+    {
+     "gift": "refused",
+     "kind": "time",
+     "name": "Ninety And Over",
+     "why": "Reached 91. Time to spare.",
+     "tier": "low"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1913–2004  (91)"
+    },
+    {
+     "k": "Born",
+     "v": "Ogden, Utah"
+    },
+    {
+     "k": "Died",
+     "v": "Eden, Utah"
+    },
+    {
+     "k": "Journey",
+     "v": "stayed in Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1934 · Salt Lake Temple, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I15@",
+   "fs_id": null,
+   "name": "William Evans \"Bill\" Morse Jr.",
+   "given": "William Evans \"Bill\"",
+   "surname": "Morse",
+   "suffix": "Jr.",
+   "sex": "M",
+   "birth_year": 1905,
+   "death_year": 1996,
+   "birth_date": "19 NOV 1905",
+   "death_date": "5 NOV 1996",
+   "birth_place": "Samaria, Oneida, Idaho, United States",
+   "death_place": "Orem, Utah, Utah, United States",
+   "burial_place": "Samaria City Cemetery, Samaria, Oneida, Idaho, United States",
+   "places_lived": [
+    "Samaria, Oneida, Idaho, United States",
+    "Salt Lake City, Salt Lake, Utah",
+    "Orem, Utah, Utah, United States",
+    "Samaria City Cemetery, Samaria, Oneida, Idaho, United States"
+   ],
+   "spouse_ids": [
+    "@I14@"
+   ],
+   "children_ids": [
+    "@I7@",
+    "@I28@",
+    "@I26@"
+   ],
+   "parent_ids": [],
+   "marriages": [
+    {
+     "family_id": "@F7@",
+     "year": 1941,
+     "date": "4 JUN 1941",
+     "place": "Salt Lake City, Salt Lake, Utah",
+     "spouse_id": "@I14@",
+     "spouse_name": "Eula Marie Breeze"
+    }
+   ],
+   "marriage_year": 1941,
+   "marriage_place": "Salt Lake City, Salt Lake, Utah",
+   "children_in_tree": 3,
+   "child_count": null,
+   "age_at_death": 91,
+   "relationship_to_root": "great-grandfather",
+   "relationship_side": "maternal",
+   "generation": 3,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1905,
+    "birth_date": "19 NOV 1905",
+    "birth_place": "Samaria, Oneida, Idaho, United States",
+    "death_year": 1996,
+    "death_date": "5 NOV 1996",
+    "death_place": "Orem, Utah, Utah, United States",
+    "burial_place": "Samaria City Cemetery, Samaria, Oneida, Idaho, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": false,
+   "abilities": [
+    {
+     "gift": "talked",
+     "kind": "points",
+     "name": "People Talked",
+     "why": "Married someone 13 years apart. People talked.",
+     "tier": "low"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1905–1996  (91)"
+    },
+    {
+     "k": "Born",
+     "v": "Samaria, Idaho"
+    },
+    {
+     "k": "Died",
+     "v": "Orem, Utah"
+    },
+    {
+     "k": "Journey",
+     "v": "Idaho → Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1941 · Salt Lake City, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I8@",
+   "fs_id": null,
+   "name": "William Walker Low",
+   "given": "William Walker",
+   "surname": "Low",
+   "suffix": null,
+   "sex": "M",
+   "birth_year": 1909,
+   "death_year": 1981,
+   "birth_date": "18 JUL 1909",
+   "death_date": "5 SEP 1981",
+   "birth_place": "Providence, Cache, Utah, United States",
+   "death_place": "Providence, Cache, Utah, United States",
+   "burial_place": "Providence City Cemetery, Providence, Cache, Utah, United States",
+   "places_lived": [
+    "Providence, Cache, Utah, United States",
+    "Logan Utah Temple, Logan, Cache, Utah, United States",
+    "Providence City Cemetery, Providence, Cache, Utah, United States"
+   ],
+   "spouse_ids": [
+    "@I9@"
+   ],
+   "children_ids": [
+    "@I6@"
+   ],
+   "parent_ids": [
+    "@I20@",
+    "@I18@"
+   ],
+   "marriages": [
+    {
+     "family_id": "@F6@",
+     "year": 1934,
+     "date": "8 MAR 1934",
+     "place": "Logan Utah Temple, Logan, Cache, Utah, United States",
+     "spouse_id": "@I9@",
+     "spouse_name": "Florence Barnett"
+    }
+   ],
+   "marriage_year": 1934,
+   "marriage_place": "Logan Utah Temple, Logan, Cache, Utah, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 72,
+   "relationship_to_root": "great-grandfather",
+   "relationship_side": "maternal",
+   "generation": 3,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1909,
+    "birth_date": "18 JUL 1909",
+    "birth_place": "Providence, Cache, Utah, United States",
+    "death_year": 1981,
+    "death_date": "5 SEP 1981",
+    "death_place": "Providence, Cache, Utah, United States",
+    "burial_place": "Providence City Cemetery, Providence, Cache, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": false,
+   "abilities": [
+    {
+     "gift": "neverleft",
+     "kind": "keepsake",
+     "name": "Never Left",
+     "why": "Born and died in Providence.",
+     "tier": "low"
+    }
+   ],
+   "tier": "uncommon",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1909–1981  (72)"
+    },
+    {
+     "k": "Born",
+     "v": "Providence, Utah"
+    },
+    {
+     "k": "Died",
+     "v": "Providence, Utah"
+    },
+    {
+     "k": "Journey",
+     "v": "stayed in Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1934 · Logan Utah Temple, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I22@",
+   "fs_id": null,
+   "name": "Anna Axillina Anderson",
+   "given": "Anna Axillina",
+   "surname": "Anderson",
+   "suffix": null,
+   "sex": "F",
+   "birth_year": 1884,
+   "death_year": 1967,
+   "birth_date": "30 AUG 1884",
+   "death_date": "10 MAY 1967",
+   "birth_place": "Richmond, Cache, Utah Territory, United States",
+   "death_place": "Utah, United States",
+   "burial_place": "Richmond City Cemetery, Richmond, Cache, Utah, United States",
+   "places_lived": [
+    "Richmond, Cache, Utah Territory, United States",
+    "Logan, Cache, Utah, United States",
+    "Utah, United States",
+    "Richmond City Cemetery, Richmond, Cache, Utah, United States"
+   ],
+   "spouse_ids": [
+    "@I27@"
+   ],
+   "children_ids": [
+    "@I9@"
+   ],
+   "parent_ids": [],
+   "marriages": [
+    {
+     "family_id": "@F9@",
+     "year": 1905,
+     "date": "18 OCT 1905",
+     "place": "Logan, Cache, Utah, United States",
+     "spouse_id": "@I27@",
+     "spouse_name": "John William Barnett Jr"
+    }
+   ],
+   "marriage_year": 1905,
+   "marriage_place": "Logan, Cache, Utah, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 83,
+   "relationship_to_root": "great-great-grandmother",
+   "relationship_side": "maternal",
+   "generation": 4,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1884,
+    "birth_date": "30 AUG 1884",
+    "birth_place": "Richmond, Cache, Utah Territory, United States",
+    "death_year": 1967,
+    "death_date": "10 MAY 1967",
+    "death_place": "Utah, United States",
+    "burial_place": "Richmond City Cemetery, Richmond, Cache, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": true,
+   "abilities": [
+    {
+     "gift": "twice",
+     "kind": "pause",
+     "name": "Both World Wars",
+     "why": "Born 1884, still here after 1945. Lived through both.",
+     "tier": "high"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1884–1967  (83)"
+    },
+    {
+     "k": "Born",
+     "v": "Richmond, Utah Territory"
+    },
+    {
+     "k": "Died",
+     "v": "Utah, United States"
+    },
+    {
+     "k": "Journey",
+     "v": "stayed in Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1905 · Logan, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I23@",
+   "fs_id": null,
+   "name": "Charles Revell",
+   "given": "Charles",
+   "surname": "Revell",
+   "suffix": null,
+   "sex": "M",
+   "birth_year": 1889,
+   "death_year": 1960,
+   "birth_date": "25 APR 1889",
+   "death_date": "30 JUN 1960",
+   "birth_place": "Nestáni, Arcadia, Peloponnese, Greece",
+   "death_place": "Ogden, Weber, Utah, United States",
+   "burial_place": "Aultorest Memorial Park, Ogden, Weber, Utah, United States",
+   "places_lived": [
+    "Nestáni, Arcadia, Peloponnese, Greece",
+    "Salt Lake City, Salt Lake, Utah, United States",
+    "Ogden, Weber, Utah, United States",
+    "Aultorest Memorial Park, Ogden, Weber, Utah, United States"
+   ],
+   "spouse_ids": [
+    "@I24@"
+   ],
+   "children_ids": [
+    "@I12@"
+   ],
+   "parent_ids": [],
+   "marriages": [
+    {
+     "family_id": "@F12@",
+     "year": 1913,
+     "date": "1 JAN 1913",
+     "place": "Salt Lake City, Salt Lake, Utah, United States",
+     "spouse_id": "@I24@",
+     "spouse_name": "Lettie Victoria Walker"
+    }
+   ],
+   "marriage_year": 1913,
+   "marriage_place": "Salt Lake City, Salt Lake, Utah, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 71,
+   "relationship_to_root": "great-great-grandfather",
+   "relationship_side": "paternal",
+   "generation": 4,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1889,
+    "birth_date": "25 APR 1889",
+    "birth_place": "Nestáni, Arcadia, Peloponnese, Greece",
+    "death_year": 1960,
+    "death_date": "30 JUN 1960",
+    "death_place": "Ogden, Weber, Utah, United States",
+    "burial_place": "Aultorest Memorial Park, Ogden, Weber, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": true,
+   "abilities": [
+    {
+     "gift": "crossed",
+     "kind": "summon",
+     "name": "Two Countries",
+     "why": "Born in Greece, died in United States.",
+     "tier": "low"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1889–1960  (71)"
+    },
+    {
+     "k": "Born",
+     "v": "Nestáni, Greece"
+    },
+    {
+     "k": "Died",
+     "v": "Ogden, Utah"
+    },
+    {
+     "k": "Journey",
+     "v": "Greece → Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1913 · Salt Lake City, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I34@",
+   "fs_id": null,
+   "name": "George Albert Breeze",
+   "given": "George Albert",
+   "surname": "Breeze",
+   "suffix": null,
+   "sex": "M",
+   "birth_year": 1882,
+   "death_year": 1952,
+   "birth_date": "24 JAN 1882",
+   "death_date": "14 NOV 1952",
+   "birth_place": "Raccoon Township, Marion, Illinois, United States",
+   "death_place": "Boise, Ada, Idaho, United States",
+   "burial_place": "Morris Hill Cemetery, Boise, Ada, Idaho, United States",
+   "places_lived": [
+    "Raccoon Township, Marion, Illinois, United States",
+    "Marion, Illinois, United States",
+    "Boise, Ada, Idaho, United States",
+    "Morris Hill Cemetery, Boise, Ada, Idaho, United States"
+   ],
+   "spouse_ids": [
+    "@I33@"
+   ],
+   "children_ids": [
+    "@I14@"
+   ],
+   "parent_ids": [],
+   "marriages": [
+    {
+     "family_id": "@F14@",
+     "year": 1911,
+     "date": "3 DEC 1911",
+     "place": "Marion, Illinois, United States",
+     "spouse_id": "@I33@",
+     "spouse_name": "Iva Mae Bundy"
+    }
+   ],
+   "marriage_year": 1911,
+   "marriage_place": "Marion, Illinois, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 70,
+   "relationship_to_root": "great-great-grandfather",
+   "relationship_side": "maternal",
+   "generation": 4,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1882,
+    "birth_date": "24 JAN 1882",
+    "birth_place": "Raccoon Township, Marion, Illinois, United States",
+    "death_year": 1952,
+    "death_date": "14 NOV 1952",
+    "death_place": "Boise, Ada, Idaho, United States",
+    "burial_place": "Morris Hill Cemetery, Boise, Ada, Idaho, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": true,
+   "abilities": [
+    {
+     "gift": "nowhere",
+     "kind": "draw",
+     "name": "First On The Record",
+     "why": "Nobody above them in the tree yet.",
+     "tier": "low"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1882–1952  (70)"
+    },
+    {
+     "k": "Born",
+     "v": "Raccoon Township, Illinois"
+    },
+    {
+     "k": "Died",
+     "v": "Boise, Idaho"
+    },
+    {
+     "k": "Journey",
+     "v": "Illinois → Idaho"
+    },
+    {
+     "k": "Married",
+     "v": "1911 · Marion, Illinois"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I32@",
+   "fs_id": null,
+   "name": "Hans James Hansen",
+   "given": "Hans James",
+   "surname": "Hansen",
+   "suffix": null,
+   "sex": "M",
+   "birth_year": 1873,
+   "death_year": 1941,
+   "birth_date": "6 NOV 1873",
+   "death_date": "20 JAN 1941",
+   "birth_place": "Richfield, Sevier, Utah Territory, United States",
+   "death_place": "Richfield, Sevier, Utah, United States",
+   "burial_place": "Richfield, Sevier, Utah, United States",
+   "places_lived": [
+    "Richfield, Sevier, Utah Territory, United States",
+    "Manti Utah Temple, Manti, Sanpete, Utah, United States",
+    "Richfield, Sevier, Utah, United States"
+   ],
+   "spouse_ids": [
+    "@I29@"
+   ],
+   "children_ids": [
+    "@I10@"
+   ],
+   "parent_ids": [],
+   "marriages": [
+    {
+     "family_id": "@F10@",
+     "year": 1895,
+     "date": "13 MAR 1895",
+     "place": "Manti Utah Temple, Manti, Sanpete, Utah, United States",
+     "spouse_id": "@I29@",
+     "spouse_name": "Sarah Christensen"
+    }
+   ],
+   "marriage_year": 1895,
+   "marriage_place": "Manti Utah Temple, Manti, Sanpete, Utah, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 68,
+   "relationship_to_root": "great-great-grandfather",
+   "relationship_side": "paternal",
+   "generation": 4,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1873,
+    "birth_date": "6 NOV 1873",
+    "birth_place": "Richfield, Sevier, Utah Territory, United States",
+    "death_year": 1941,
+    "death_date": "20 JAN 1941",
+    "death_place": "Richfield, Sevier, Utah, United States",
+    "burial_place": "Richfield, Sevier, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": true,
+   "abilities": [
+    {
+     "gift": "ancient",
+     "kind": "time",
+     "name": "End Of The Paper Trail",
+     "why": "Born 1873, as far back as this tree goes.",
+     "tier": "low"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1873–1941  (68)"
+    },
+    {
+     "k": "Born",
+     "v": "Richfield, Utah Territory"
+    },
+    {
+     "k": "Died",
+     "v": "Richfield, Utah"
+    },
+    {
+     "k": "Journey",
+     "v": "stayed in Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1895 · Manti Utah Temple, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I30@",
+   "fs_id": null,
+   "name": "Irving Gerard Sampson",
+   "given": "Irving Gerard",
+   "surname": "Sampson",
+   "suffix": null,
+   "sex": "M",
+   "birth_year": 1885,
+   "death_year": 1944,
+   "birth_date": "2 MAR 1885",
+   "death_date": "20 JUL 1944",
+   "birth_place": "Weiser, Washington, Idaho, United States",
+   "death_place": "Ogden, Weber, Utah, United States",
+   "burial_place": "Ogden, Weber, Utah, United States of America",
+   "places_lived": [
+    "Weiser, Washington, Idaho, United States",
+    "Pocatello, Bannock, Idaho, United States",
+    "Ogden, Weber, Utah, United States",
+    "Ogden, Weber, Utah, United States of America"
+   ],
+   "spouse_ids": [
+    "@I31@"
+   ],
+   "children_ids": [
+    "@I13@"
+   ],
+   "parent_ids": [],
+   "marriages": [
+    {
+     "family_id": "@F13@",
+     "year": 1906,
+     "date": "16 AUG 1906",
+     "place": "Pocatello, Bannock, Idaho, United States",
+     "spouse_id": "@I31@",
+     "spouse_name": "Martha Davis Thatcher"
+    }
+   ],
+   "marriage_year": 1906,
+   "marriage_place": "Pocatello, Bannock, Idaho, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 59,
+   "relationship_to_root": "great-great-grandfather",
+   "relationship_side": "paternal",
+   "generation": 4,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1885,
+    "birth_date": "2 MAR 1885",
+    "birth_place": "Weiser, Washington, Idaho, United States",
+    "death_year": 1944,
+    "death_date": "20 JUL 1944",
+    "death_place": "Ogden, Weber, Utah, United States",
+    "burial_place": "Ogden, Weber, Utah, United States of America",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": true,
+   "abilities": [
+    {
+     "gift": "young",
+     "kind": "freeplay",
+     "name": "Wasted No Time",
+     "why": "Married before they were 22.",
+     "tier": "high"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1885–1944  (59)"
+    },
+    {
+     "k": "Born",
+     "v": "Weiser, Idaho"
+    },
+    {
+     "k": "Died",
+     "v": "Ogden, Utah"
+    },
+    {
+     "k": "Journey",
+     "v": "Idaho → Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1906 · Pocatello, Idaho"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I33@",
+   "fs_id": null,
+   "name": "Iva Mae Bundy",
+   "given": "Iva Mae",
+   "surname": "Bundy",
+   "suffix": null,
+   "sex": "F",
+   "birth_year": 1890,
+   "death_year": 1952,
+   "birth_date": "22 APR 1890",
+   "death_date": "4 APR 1952",
+   "birth_place": "Raccoon Township, Marion, Illinois, United States",
+   "death_place": "Boise, Ada, Idaho, United States",
+   "burial_place": "Morris Hill Cemetery, Boise, Ada, Idaho, United States",
+   "places_lived": [
+    "Raccoon Township, Marion, Illinois, United States",
+    "Marion, Illinois, United States",
+    "Boise, Ada, Idaho, United States",
+    "Morris Hill Cemetery, Boise, Ada, Idaho, United States"
+   ],
+   "spouse_ids": [
+    "@I34@"
+   ],
+   "children_ids": [
+    "@I14@"
+   ],
+   "parent_ids": [],
+   "marriages": [
+    {
+     "family_id": "@F14@",
+     "year": 1911,
+     "date": "3 DEC 1911",
+     "place": "Marion, Illinois, United States",
+     "spouse_id": "@I34@",
+     "spouse_name": "George Albert Breeze"
+    }
+   ],
+   "marriage_year": 1911,
+   "marriage_place": "Marion, Illinois, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 62,
+   "relationship_to_root": "great-great-grandmother",
+   "relationship_side": "maternal",
+   "generation": 4,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1890,
+    "birth_date": "22 APR 1890",
+    "birth_place": "Raccoon Township, Marion, Illinois, United States",
+    "death_year": 1952,
+    "death_date": "4 APR 1952",
+    "death_place": "Boise, Ada, Idaho, United States",
+    "burial_place": "Morris Hill Cemetery, Boise, Ada, Idaho, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": true,
+   "abilities": [
+    {
+     "gift": "talked",
+     "kind": "points",
+     "name": "People Talked",
+     "why": "Married someone 8 years apart. People talked.",
+     "tier": "low"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1890–1952  (62)"
+    },
+    {
+     "k": "Born",
+     "v": "Raccoon Township, Illinois"
+    },
+    {
+     "k": "Died",
+     "v": "Boise, Idaho"
+    },
+    {
+     "k": "Journey",
+     "v": "Illinois → Idaho"
+    },
+    {
+     "k": "Married",
+     "v": "1911 · Marion, Illinois"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I27@",
+   "fs_id": null,
+   "name": "John William Barnett Jr",
+   "given": "John William",
+   "surname": "Barnett",
+   "suffix": "Jr",
+   "sex": "M",
+   "birth_year": 1883,
+   "death_year": 1956,
+   "birth_date": "27 DEC 1883",
+   "death_date": "5 JUN 1956",
+   "birth_place": "Richmond, Cache, Utah, United States",
+   "death_place": "Salt Lake City, Salt Lake, Utah, United States",
+   "burial_place": "Logan Cemetery, Logan, Cache, Utah, United States",
+   "places_lived": [
+    "Richmond, Cache, Utah, United States",
+    "Logan, Cache, Utah, United States",
+    "Salt Lake City, Salt Lake, Utah, United States",
+    "Logan Cemetery, Logan, Cache, Utah, United States"
+   ],
+   "spouse_ids": [
+    "@I22@"
+   ],
+   "children_ids": [
+    "@I9@"
+   ],
+   "parent_ids": [],
+   "marriages": [
+    {
+     "family_id": "@F9@",
+     "year": 1905,
+     "date": "18 OCT 1905",
+     "place": "Logan, Cache, Utah, United States",
+     "spouse_id": "@I22@",
+     "spouse_name": "Anna Axillina Anderson"
+    }
+   ],
+   "marriage_year": 1905,
+   "marriage_place": "Logan, Cache, Utah, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 73,
+   "relationship_to_root": "great-great-grandfather",
+   "relationship_side": "maternal",
+   "generation": 4,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1883,
+    "birth_date": "27 DEC 1883",
+    "birth_place": "Richmond, Cache, Utah, United States",
+    "death_year": 1956,
+    "death_date": "5 JUN 1956",
+    "death_place": "Salt Lake City, Salt Lake, Utah, United States",
+    "burial_place": "Logan Cemetery, Logan, Cache, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": true,
+   "abilities": [
+    {
+     "gift": "inseparable",
+     "kind": "playkin",
+     "name": "Fifty Years Married",
+     "why": "Married 51 years.",
+     "tier": "low"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1883–1956  (73)"
+    },
+    {
+     "k": "Born",
+     "v": "Richmond, Utah"
+    },
+    {
+     "k": "Died",
+     "v": "Salt Lake City, Utah"
+    },
+    {
+     "k": "Journey",
+     "v": "stayed in Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1905 · Logan, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I25@",
+   "fs_id": null,
+   "name": "Le Roy Lorenzo Edwards",
+   "given": "Le Roy Lorenzo",
+   "surname": "Edwards",
+   "suffix": null,
+   "sex": "M",
+   "birth_year": 1886,
+   "death_year": 1959,
+   "birth_date": "15 JUN 1886",
+   "death_date": "20 APR 1959",
+   "birth_place": "Sterling, Sanpete, Utah, United States",
+   "death_place": "Ogden, Weber, Utah, United States",
+   "burial_place": "Gunnison, Sanpete, Utah, United States",
+   "places_lived": [
+    "Sterling, Sanpete, Utah, United States",
+    "Manti, Sanpete, Utah, United States",
+    "Ogden, Weber, Utah, United States",
+    "Gunnison, Sanpete, Utah, United States"
+   ],
+   "spouse_ids": [
+    "@I21@"
+   ],
+   "children_ids": [
+    "@I11@"
+   ],
+   "parent_ids": [],
+   "marriages": [
+    {
+     "family_id": "@F11@",
+     "year": 1908,
+     "date": "10 JUN 1908",
+     "place": "Manti, Sanpete, Utah, United States",
+     "spouse_id": "@I21@",
+     "spouse_name": "Minnie Bartholomew"
+    }
+   ],
+   "marriage_year": 1908,
+   "marriage_place": "Manti, Sanpete, Utah, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 73,
+   "relationship_to_root": "great-great-grandfather",
+   "relationship_side": "paternal",
+   "generation": 4,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1886,
+    "birth_date": "15 JUN 1886",
+    "birth_place": "Sterling, Sanpete, Utah, United States",
+    "death_year": 1959,
+    "death_date": "20 APR 1959",
+    "death_place": "Ogden, Weber, Utah, United States",
+    "burial_place": "Gunnison, Sanpete, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "todo",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": true,
+   "abilities": [],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1886–1959  (73)"
+    },
+    {
+     "k": "Born",
+     "v": "Sterling, Utah"
+    },
+    {
+     "k": "Died",
+     "v": "Ogden, Utah"
+    },
+    {
+     "k": "Journey",
+     "v": "stayed in Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1908 · Manti, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I24@",
+   "fs_id": null,
+   "name": "Lettie Victoria Walker",
+   "given": "Lettie Victoria",
+   "surname": "Walker",
+   "suffix": null,
+   "sex": "F",
+   "birth_year": 1893,
+   "death_year": 1980,
+   "birth_date": "17 OCT 1893",
+   "death_date": "6 APR 1980",
+   "birth_place": "Ogden, Weber, Utah, United States",
+   "death_place": "Ogden, Weber, Utah, United States",
+   "burial_place": "Aultorest Memorial Park, Ogden, Weber, Utah, United States",
+   "places_lived": [
+    "Ogden, Weber, Utah, United States",
+    "Salt Lake City, Salt Lake, Utah, United States",
+    "Aultorest Memorial Park, Ogden, Weber, Utah, United States"
+   ],
+   "spouse_ids": [
+    "@I23@"
+   ],
+   "children_ids": [
+    "@I12@"
+   ],
+   "parent_ids": [],
+   "marriages": [
+    {
+     "family_id": "@F12@",
+     "year": 1913,
+     "date": "1 JAN 1913",
+     "place": "Salt Lake City, Salt Lake, Utah, United States",
+     "spouse_id": "@I23@",
+     "spouse_name": "Charles Revell"
+    }
+   ],
+   "marriage_year": 1913,
+   "marriage_place": "Salt Lake City, Salt Lake, Utah, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 87,
+   "relationship_to_root": "great-great-grandmother",
+   "relationship_side": "paternal",
+   "generation": 4,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1893,
+    "birth_date": "17 OCT 1893",
+    "birth_place": "Ogden, Weber, Utah, United States",
+    "death_year": 1980,
+    "death_date": "6 APR 1980",
+    "death_place": "Ogden, Weber, Utah, United States",
+    "burial_place": "Aultorest Memorial Park, Ogden, Weber, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": true,
+   "abilities": [
+    {
+     "gift": "outlasted",
+     "kind": "echo",
+     "name": "Carried On",
+     "why": "Outlived their husband or wife by fifteen years and more.",
+     "tier": "high"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1893–1980  (87)"
+    },
+    {
+     "k": "Born",
+     "v": "Ogden, Utah"
+    },
+    {
+     "k": "Died",
+     "v": "Ogden, Utah"
+    },
+    {
+     "k": "Journey",
+     "v": "stayed in Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1913 · Salt Lake City, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I31@",
+   "fs_id": null,
+   "name": "Martha Davis Thatcher",
+   "given": "Martha Davis",
+   "surname": "Thatcher",
+   "suffix": null,
+   "sex": "F",
+   "birth_year": 1885,
+   "death_year": 1965,
+   "birth_date": "2 AUG 1885",
+   "death_date": "15 JUL 1965",
+   "birth_place": "Thatcher, Franklin, Idaho, United States",
+   "death_place": "Ogden, Weber, Utah, United States",
+   "burial_place": "Ogden City Cemetery, Ogden, Weber, Utah, United States",
+   "places_lived": [
+    "Thatcher, Franklin, Idaho, United States",
+    "Pocatello, Bannock, Idaho, United States",
+    "Ogden, Weber, Utah, United States",
+    "Ogden City Cemetery, Ogden, Weber, Utah, United States"
+   ],
+   "spouse_ids": [
+    "@I30@"
+   ],
+   "children_ids": [
+    "@I13@"
+   ],
+   "parent_ids": [],
+   "marriages": [
+    {
+     "family_id": "@F13@",
+     "year": 1906,
+     "date": "16 AUG 1906",
+     "place": "Pocatello, Bannock, Idaho, United States",
+     "spouse_id": "@I30@",
+     "spouse_name": "Irving Gerard Sampson"
+    }
+   ],
+   "marriage_year": 1906,
+   "marriage_place": "Pocatello, Bannock, Idaho, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 80,
+   "relationship_to_root": "great-great-grandmother",
+   "relationship_side": "paternal",
+   "generation": 4,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1885,
+    "birth_date": "2 AUG 1885",
+    "birth_place": "Thatcher, Franklin, Idaho, United States",
+    "death_year": 1965,
+    "death_date": "15 JUL 1965",
+    "death_place": "Ogden, Weber, Utah, United States",
+    "burial_place": "Ogden City Cemetery, Ogden, Weber, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": true,
+   "abilities": [
+    {
+     "gift": "outlasted",
+     "kind": "echo",
+     "name": "Carried On",
+     "why": "Outlived their husband or wife by fifteen years and more.",
+     "tier": "high"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1885–1965  (80)"
+    },
+    {
+     "k": "Born",
+     "v": "Thatcher, Idaho"
+    },
+    {
+     "k": "Died",
+     "v": "Ogden, Utah"
+    },
+    {
+     "k": "Journey",
+     "v": "Idaho → Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1906 · Pocatello, Idaho"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I21@",
+   "fs_id": null,
+   "name": "Minnie Bartholomew",
+   "given": "Minnie",
+   "surname": "Bartholomew",
+   "suffix": null,
+   "sex": "F",
+   "birth_year": 1885,
+   "death_year": 1959,
+   "birth_date": "10 MAY 1885",
+   "death_date": "8 APR 1959",
+   "birth_place": "Fayette, Sanpete, Utah Territory, United States",
+   "death_place": "Ogden, Weber, Utah, United States",
+   "burial_place": "Gunnison Cemetery, Gunnison, Sanpete, Utah, United States",
+   "places_lived": [
+    "Fayette, Sanpete, Utah Territory, United States",
+    "Manti, Sanpete, Utah, United States",
+    "Ogden, Weber, Utah, United States",
+    "Gunnison Cemetery, Gunnison, Sanpete, Utah, United States"
+   ],
+   "spouse_ids": [
+    "@I25@"
+   ],
+   "children_ids": [
+    "@I11@"
+   ],
+   "parent_ids": [],
+   "marriages": [
+    {
+     "family_id": "@F11@",
+     "year": 1908,
+     "date": "10 JUN 1908",
+     "place": "Manti, Sanpete, Utah, United States",
+     "spouse_id": "@I25@",
+     "spouse_name": "Le Roy Lorenzo Edwards"
+    }
+   ],
+   "marriage_year": 1908,
+   "marriage_place": "Manti, Sanpete, Utah, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 74,
+   "relationship_to_root": "great-great-grandmother",
+   "relationship_side": "paternal",
+   "generation": 4,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1885,
+    "birth_date": "10 MAY 1885",
+    "birth_place": "Fayette, Sanpete, Utah Territory, United States",
+    "death_year": 1959,
+    "death_date": "8 APR 1959",
+    "death_place": "Ogden, Weber, Utah, United States",
+    "burial_place": "Gunnison Cemetery, Gunnison, Sanpete, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": true,
+   "abilities": [
+    {
+     "gift": "twice",
+     "kind": "pause",
+     "name": "Both World Wars",
+     "why": "Born 1885, still here after 1945. Lived through both.",
+     "tier": "low"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1885–1959  (74)"
+    },
+    {
+     "k": "Born",
+     "v": "Fayette, Utah Territory"
+    },
+    {
+     "k": "Died",
+     "v": "Ogden, Utah"
+    },
+    {
+     "k": "Journey",
+     "v": "stayed in Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1908 · Manti, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I29@",
+   "fs_id": null,
+   "name": "Sarah Christensen",
+   "given": "Sarah",
+   "surname": "Christensen",
+   "suffix": null,
+   "sex": "F",
+   "birth_year": 1876,
+   "death_year": 1949,
+   "birth_date": "17 MAR 1876",
+   "death_date": "9 AUG 1949",
+   "birth_place": "Richfield, Sevier, Utah Territory, United States",
+   "death_place": "St George, Washington, Utah, United States",
+   "burial_place": "Richfield, Sevier, Utah, United States",
+   "places_lived": [
+    "Richfield, Sevier, Utah Territory, United States",
+    "Manti Utah Temple, Manti, Sanpete, Utah, United States",
+    "St George, Washington, Utah, United States",
+    "Richfield, Sevier, Utah, United States"
+   ],
+   "spouse_ids": [
+    "@I32@"
+   ],
+   "children_ids": [
+    "@I10@"
+   ],
+   "parent_ids": [],
+   "marriages": [
+    {
+     "family_id": "@F10@",
+     "year": 1895,
+     "date": "13 MAR 1895",
+     "place": "Manti Utah Temple, Manti, Sanpete, Utah, United States",
+     "spouse_id": "@I32@",
+     "spouse_name": "Hans James Hansen"
+    }
+   ],
+   "marriage_year": 1895,
+   "marriage_place": "Manti Utah Temple, Manti, Sanpete, Utah, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 73,
+   "relationship_to_root": "great-great-grandmother",
+   "relationship_side": "paternal",
+   "generation": 4,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1876,
+    "birth_date": "17 MAR 1876",
+    "birth_place": "Richfield, Sevier, Utah Territory, United States",
+    "death_year": 1949,
+    "death_date": "9 AUG 1949",
+    "death_place": "St George, Washington, Utah, United States",
+    "burial_place": "Richfield, Sevier, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": true,
+   "abilities": [
+    {
+     "gift": "ancient",
+     "kind": "time",
+     "name": "End Of The Paper Trail",
+     "why": "Born 1876, as far back as this tree goes.",
+     "tier": "high"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1876–1949  (73)"
+    },
+    {
+     "k": "Born",
+     "v": "Richfield, Utah Territory"
+    },
+    {
+     "k": "Died",
+     "v": "St George, Utah"
+    },
+    {
+     "k": "Journey",
+     "v": "stayed in Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1895 · Manti Utah Temple, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I20@",
+   "fs_id": null,
+   "name": "William Walker Low",
+   "given": "William Walker",
+   "surname": "Low",
+   "suffix": null,
+   "sex": "M",
+   "birth_year": 1881,
+   "death_year": 1930,
+   "birth_date": "23 FEB 1881",
+   "death_date": "19 APR 1930",
+   "birth_place": "Providence, Cache, Utah Territory, United States",
+   "death_place": "Berkeley, Alameda, California, United States",
+   "burial_place": "Providence City Cemetery, River Heights, Cache, Utah, United States",
+   "places_lived": [
+    "Providence, Cache, Utah Territory, United States",
+    "Logan Utah Temple, Logan, Cache, Utah, United States",
+    "Berkeley, Alameda, California, United States",
+    "Providence City Cemetery, River Heights, Cache, Utah, United States"
+   ],
+   "spouse_ids": [
+    "@I18@"
+   ],
+   "children_ids": [
+    "@I8@"
+   ],
+   "parent_ids": [],
+   "marriages": [
+    {
+     "family_id": "@F8@",
+     "year": 1908,
+     "date": "23 SEP 1908",
+     "place": "Logan Utah Temple, Logan, Cache, Utah, United States",
+     "spouse_id": "@I18@",
+     "spouse_name": "Diana Hammond"
+    }
+   ],
+   "marriage_year": 1908,
+   "marriage_place": "Logan Utah Temple, Logan, Cache, Utah, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 49,
+   "relationship_to_root": "great-great-grandfather",
+   "relationship_side": "maternal",
+   "generation": 4,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1881,
+    "birth_date": "23 FEB 1881",
+    "birth_place": "Providence, Cache, Utah Territory, United States",
+    "death_year": 1930,
+    "death_date": "19 APR 1930",
+    "death_place": "Berkeley, Alameda, California, United States",
+    "burial_place": "Providence City Cemetery, River Heights, Cache, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": true,
+   "abilities": [
+    {
+     "gift": "cutshort",
+     "kind": "points",
+     "name": "Gone Too Soon",
+     "why": "Died at 49.",
+     "tier": "high"
+    }
+   ],
+   "tier": "basic",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1881–1930  (49)"
+    },
+    {
+     "k": "Born",
+     "v": "Providence, Utah Territory"
+    },
+    {
+     "k": "Died",
+     "v": "Berkeley, California"
+    },
+    {
+     "k": "Journey",
+     "v": "Utah → California"
+    },
+    {
+     "k": "Married",
+     "v": "1908 · Logan Utah Temple, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  },
+  {
+   "id": "@I18@",
+   "fs_id": null,
+   "name": "Diana Hammond",
+   "given": "Diana",
+   "surname": "Hammond",
+   "suffix": null,
+   "sex": "F",
+   "birth_year": 1880,
+   "death_year": 1933,
+   "birth_date": "13 SEP 1880",
+   "death_date": "12 MAR 1933",
+   "birth_place": "Providence, Cache, Utah, United States",
+   "death_place": "Providence, Cache, Utah, United States",
+   "burial_place": "Providence City Cemetery, Providence, Cache, Utah, United States",
+   "places_lived": [
+    "Providence, Cache, Utah, United States",
+    "Logan Utah Temple, Logan, Cache, Utah, United States",
+    "Providence City Cemetery, Providence, Cache, Utah, United States"
+   ],
+   "spouse_ids": [
+    "@I20@"
+   ],
+   "children_ids": [
+    "@I8@"
+   ],
+   "parent_ids": [],
+   "marriages": [
+    {
+     "family_id": "@F8@",
+     "year": 1908,
+     "date": "23 SEP 1908",
+     "place": "Logan Utah Temple, Logan, Cache, Utah, United States",
+     "spouse_id": "@I20@",
+     "spouse_name": "William Walker Low"
+    }
+   ],
+   "marriage_year": 1908,
+   "marriage_place": "Logan Utah Temple, Logan, Cache, Utah, United States",
+   "children_in_tree": 1,
+   "child_count": null,
+   "age_at_death": 53,
+   "relationship_to_root": "great-great-grandmother",
+   "relationship_side": "maternal",
+   "generation": 4,
+   "connected_to_root": true,
+   "photo_url": null,
+   "story": "",
+   "source_note_count": 0,
+   "lds_ordinances": {},
+   "possible_duplicate_of": [],
+   "merged_fs_ids": [],
+   "merged_ids": [],
+   "gedcom": {
+    "birth_year": 1880,
+    "birth_date": "13 SEP 1880",
+    "birth_place": "Providence, Cache, Utah, United States",
+    "death_year": 1933,
+    "death_date": "12 MAR 1933",
+    "death_place": "Providence, Cache, Utah, United States",
+    "burial_place": "Providence City Cemetery, Providence, Cache, Utah, United States",
+    "child_count": null,
+    "living": null
+   },
+   "living": false,
+   "current_age": null,
+   "edited_fields": [],
+   "curation_notes": "",
+   "status": "drafted",
+   "saved_hits": [],
+   "newspaper_hits": [],
+   "searchable": true,
+   "abilities": [
+    {
+     "gift": "cutshort",
+     "kind": "points",
+     "name": "Gone Too Soon",
+     "why": "Died at 53.",
+     "tier": "low"
+    }
+   ],
+   "tier": "rare",
+   "traits": [
+    {
+     "k": "Lifespan",
+     "v": "1880–1933  (53)"
+    },
+    {
+     "k": "Born",
+     "v": "Providence, Utah"
+    },
+    {
+     "k": "Died",
+     "v": "Providence, Utah"
+    },
+    {
+     "k": "Journey",
+     "v": "stayed in Utah"
+    },
+    {
+     "k": "Married",
+     "v": "1908 · Logan Utah Temple, Utah"
+    }
+   ],
+   "ready": false,
+   "playable": true
+  }
+ ]
+}

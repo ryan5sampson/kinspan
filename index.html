@@ -9,9 +9,9 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan</title>
-<script src="tree.js?v=14"></script>
-<script src="family.js?v=14"></script>
-<script src="rules.js?v=14"></script>
+<script src="tree.js?v=15"></script>
+<script src="family.js?v=15"></script>
+<script src="rules.js?v=15"></script>
 <style>
   :root{
     --bg:#f7f4ef; --panel:#ffffff; --edge:#ddd5c9; --ink:#2b2621; --dim:#7d7368;
@@ -61,6 +61,11 @@
   .famchip b{font-weight:700}
   .famchip span{color:#4d4d4d}
   .famchip[hidden]{display:none}
+  /* Demo: a quiet pill in the corner of the title screen. */
+  .demo{position:fixed;top:16px;right:16px;z-index:5;border:1px solid var(--ink);background:transparent;
+    border-radius:99px;padding:7px 16px;font-size:13.5px;font-weight:600}
+  .demo:hover{background:rgba(0,0,0,.06)}
+  body:not(:has(#s-title.on)) .demo{display:none}
   .famchip button{border:0;background:none;padding:2px 4px;font-size:14px;color:var(--ink);
     text-decoration:underline;text-underline-offset:3px;font-weight:500}
 
@@ -146,9 +151,10 @@
   .done{width:100%;margin-top:12px}
   @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
 </style>
-<link rel="stylesheet" href="theme.css?v=14">
+<link rel="stylesheet" href="theme.css?v=15">
 
 <!-- ======================= title ======================= -->
+<button class="demo" id="demo" title="Play with a sample family">Demo</button>
 <section class="screen" id="s-title">
   <div class="mark" data-logo></div>
   <h1>Kinspan</h1>
@@ -237,6 +243,23 @@ $('#famswap').onclick = () => { next = 'mode'; show('bring'); };
 /* The family lives in this browser's storage, not in a file the site can see.
  * This writes it out as one, to the Downloads folder. */
 $('#famsave').onclick = async () => { const f = await FAMILY.load(); if (f) FAMILY.download(f); };
+
+/* Demo mode: the Sampson family, shipped with the site as demo.kinspan, with
+ * most cards carrying a written Gift. It takes the place of whatever family
+ * this browser holds, so say so first when there is one that isn't the demo. */
+$('#demo').onclick = async () => {
+  const cur = FAMILY.hasAutosave();
+  if (cur && cur.title !== 'The Sampson family' &&
+      !confirm(`Demo mode replaces ${cur.title || 'the family'} in this browser. `
+        + 'Use Save file first if you want to keep it. Continue?')) return;
+  try {
+    showLoader('classic');
+    const r = await fetch('demo.kinspan?v=1');
+    if (!r.ok) throw new Error('The demo family could not be loaded.');
+    FAMILY.use(FAMILY.readSave(await r.text(), 'demo.kinspan'));
+    location.reload();
+  } catch (err) { hideLoader(); alert(err.message || String(err)); }
+};
 $('#custom').onclick = () => location.href = 'settings.html';
 
 const auto = FAMILY.hasAutosave();

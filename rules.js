@@ -975,7 +975,8 @@ window.buildAbilities = function (people, rate){
   for (const p of people){
     // `fit_ability` is what a written Gift with no effect chosen borrows.
     p.fit_ability = window.suggestGift(p, c);
-    p.gen_ability = null; p.tier = written(p) ? 'rare' : 'basic';
+    // A written Gift sets the card's rarity: a lower one plays as a Story.
+    p.gen_ability = null; p.tier = !written(p) ? 'basic' : p.abilities.find(a => a && a.name).tier === 'low' ? 'uncommon' : 'rare';
   }
   pool.forEach((p, i) => {
     if (i >= gifted || !p.fit_ability) return;
@@ -995,7 +996,7 @@ window.abilitiesOf = function (p){
   const list = own.length
     ? own.map(a => {
         const fit = a.kind && window.ABILITY_EFFECTS[a.kind] ? a : (p.fit_ability || { kind:'draw' });
-        return { ...a, kind: fit.kind, tier: 'high', why: a.why || a.text || '', authored: true };
+        return { ...a, kind: fit.kind, tier: a.tier === 'low' ? 'low' : 'high', why: a.why || a.text || '', authored: true };
       })
     : (p.gen_ability ? [p.gen_ability] : []);
   return list.map(a => ({ ...a, ...window.giftTier(a.kind, a.tier),
