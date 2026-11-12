@@ -11,9 +11,9 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan — the timeline</title>
-<script src="tree.js?v=15"></script>
-<script src="family.js?v=15"></script>
-<script src="rules.js?v=15"></script>
+<script src="tree.js?v=16"></script>
+<script src="family.js?v=16"></script>
+<script src="rules.js?v=16"></script>
 <style>
   :root{
     --ready:#f9df6d; --ease:cubic-bezier(.34,1.24,.44,1);
@@ -666,7 +666,7 @@
   }
 
 </style>
-<link rel="stylesheet" href="theme.css?v=15">
+<link rel="stylesheet" href="theme.css?v=16">
 
 <header>
   <a href="./" class="homelink" title="Main menu" aria-label="Main menu"><span class="hmark" data-logo></span><span class="modename" id="modename"></span></a>
@@ -2428,7 +2428,7 @@ function toastHand(m){ $('#hand').innerHTML=`<span class="msg">${esc(m)}</span>`
    rings around you, so who is on the timeline and who is simply missing are
    both visible at a glance. It reads played[] and the family file and writes
    nothing, so it cannot disturb a round in progress. */
-const FAN_GENS=5;
+const FAN_GENS=4;   // you and four rings: parents to great-great-grandparents
 
 /* rows[g][i] = the person in slot i of generation g, or undefined. Slot i*2 is
    the father, i*2+1 the mother, so slot order left-to-right is the usual fan
@@ -2454,6 +2454,49 @@ function fanWedge(cx,cy,r0,r1,a0,a1){
   return `M${x0} ${y0}A${r1} ${r1} 0 0 1 ${x1} ${y1}L${x2} ${y2}A${r0} ${r0} 0 0 0 ${x3} ${y3}Z`;
 }
 
+/* Names the way FamilySearch sets them: the two inner rings run the whole name
+ * and years along the arc; the outer rings, too narrow for that, run outward
+ * from the centre as first names, surname, and years, one per line, flipped on
+ * the left half so nothing reads upside down. */
+/* Width in px of text in the board's font, measured, not guessed. */
+const measureCtx=document.createElement('canvas').getContext('2d');
+const textW=(t,fs,w=400)=>{ measureCtx.font=`${w} ${fs}px 'Libre Franklin', sans-serif`; return measureCtx.measureText(t).width; };
+/* The longest form of a name that fits `len`: as written, then middle names
+   as initials, then the first name alone, and only then cut. */
+const clipText=(s,len,fs,w=400)=>{
+  s=String(s||'').replace(/\s+/g,' ').trim(); if(textW(s,fs,w)<=len) return s;
+  const parts=s.split(' ');
+  if(parts.length>1){
+    const ini=parts[0]+' '+parts.slice(1).map(x=>x[0]+'.').join(' '); if(textW(ini,fs,w)<=len) return ini;
+    if(textW(parts[0],fs,w)<=len) return parts[0];
+  }
+  while(s.length>2 && textW(s+'…',fs,w)>len) s=s.slice(0,-1);
+  return s.trimEnd()+'…';
+};
+const fanYears=p=>p.birth_year?`${p.birth_year}–${p.living?'':(p.death_year||'')}`:'';
+function fanText(p, g, i, cx, cy, r0, step, a0, a1, on){
+  const cls=`fl${on?'':' faint'}`, fs=[0,15,13,11.5,10.5][g];
+  const given=(p.given||'').replace(/"[^"]*"/g,'').replace(/\s+/g,' ').trim();
+  const last=[p.surname,p.suffix].filter(Boolean).join(' ');
+  const lines=[[given,700,fs],[last,400,fs],[fanYears(p),400,fs-1.5]].filter(l=>l[0]);
+  const lh=fs*1.15, mid=r0+step/2;
+  if(g<=2){
+    // Along the arc, outermost line first, each on its own concentric arc.
+    const P=(r,a)=>`${(cx+r*Math.cos(a)).toFixed(1)} ${(cy+r*Math.sin(a)).toFixed(1)}`;
+    return lines.map(([t,w,f],k)=>{
+      const r=mid+((lines.length-1)/2-k)*lh, id=`fa${g}_${i}_${k}`;
+      return `<defs><path id="${id}" d="M${P(r,a0)}A${r} ${r} 0 0 1 ${P(r,a1)}" fill="none"></path></defs>
+        <text class="${cls}" font-size="${f}" font-weight="${w}"><textPath href="#${id}" startOffset="50%">${
+          esc(clipText(t, r*(a1-a0)*.86, f, w))}</textPath></text>`;
+    }).join('');
+  }
+  // Outward from the centre, flipped on the left half so nothing reads upside down.
+  const am=(a0+a1)/2, tx=cx+mid*Math.cos(am), ty=cy+mid*Math.sin(am);
+  const rot=am*180/Math.PI+(Math.cos(am)<0?180:0), len=step-8;
+  return `<text class="${cls}" transform="rotate(${rot.toFixed(1)} ${tx.toFixed(1)} ${ty.toFixed(1)})">${
+    lines.map(([t,w,f],k)=>`<tspan x="${tx.toFixed(1)}" y="${(ty+(k-(lines.length-1)/2)*lh).toFixed(1)}" font-size="${f}" font-weight="${w}">${
+      esc(clipText(t,len,f,w))}</tspan>`).join('')}</text>`;
+}
 /* One name, cut to what fits along the radius rather than shrunk to nothing. */
 function fanLabel(p,room){
   const s=(p.given||p.name||'').trim()||'?';
@@ -2462,7 +2505,7 @@ function fanLabel(p,room){
 }
 
 function renderFan(){
-  const W=760,cx=W/2,cy=406,R=374,R0=54,step=(R-R0)/FAN_GENS;
+  const W=760,cx=W/2,cy=406,R=380,R0=72,step=(R-R0)/FAN_GENS;
   const rows=fanRows(), on=new Set(played);
   let svg='', have=0, here=0, total=0;
   for(let g=1;g<=FAN_GENS;g++){
@@ -2479,20 +2522,15 @@ function renderFan(){
       const note=played_?' · on the timeline':(p.birth_year?'':' · no birth year, so not playable');
       svg+=`<path class="${cls}" d="${d}" data-id="${esc(p.id)}"><title>${
         esc(p.name)}${p.birth_year?' · '+p.birth_year:''}${esc(note)}</title></path>`;
-      // Radial text, flipped on the left half so no name reads upside down.
-      const mid=r0+step/2, tx=cx+mid*Math.cos(am), ty=cy+mid*Math.sin(am);
-      const rot=am*180/Math.PI+(Math.cos(am)<0?180:0);
-      svg+=`<text class="fl${played_?'':' faint'}" x="${tx.toFixed(1)}" y="${ty.toFixed(1)}"
-        transform="rotate(${rot.toFixed(1)} ${tx.toFixed(1)} ${ty.toFixed(1)})"
-        font-size="${g<=2?11:9.5}">${esc(fanLabel(p,step))}</text>`;
+      svg+=fanText(p, g, i, cx, cy, r0, step, a0, a1, played_);
     }
   }
   const root=rows[0][0];
   // A half disc, so the fan sits flat on its baseline rather than bulging past it.
   svg+=`<path class="fw here" style="fill:var(--selfbg)"
     d="M${cx-R0} ${cy}A${R0} ${R0} 0 0 1 ${cx+R0} ${cy}Z"></path>
-    <text class="fl" x="${cx}" y="${cy-24}" font-size="12">${esc(fanLabel(root,90))}</text>
-    <text class="fl faint" x="${cx}" y="${cy-11}" font-size="9.5">you</text>`;
+    <text class="fl" x="${cx}" y="${cy-30}" font-size="14" font-weight="700">${esc(clipText(root.given||root.name, 124, 14, 700))}</text>
+    <text class="fl" x="${cx}" y="${cy-14}" font-size="12">${esc(clipText(root.surname||'', 120, 12))}</text>`;
 
   setHTML($('#fanview'), `
     <svg id="fansvg" viewBox="0 0 ${W} ${cy+2}" role="img" preserveAspectRatio="xMidYMax meet"
