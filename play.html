@@ -11,9 +11,9 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan — the timeline</title>
-<script src="tree.js?v=16"></script>
-<script src="family.js?v=16"></script>
-<script src="rules.js?v=16"></script>
+<script src="tree.js?v=17"></script>
+<script src="family.js?v=17"></script>
+<script src="rules.js?v=17"></script>
 <style>
   :root{
     --ready:#f9df6d; --ease:cubic-bezier(.34,1.24,.44,1);
@@ -237,8 +237,6 @@
     .hc .n{font-size:13px}
   .hc .n.m{color:var(--male)} .hc .n.f{color:var(--female)}
   .hc small{color:var(--dim);display:block;font-size:10.5px}
-  .hc.pat{border-left:3px solid var(--pat)} .hc.mat{border-left:3px solid var(--mat)}
-  .hc.self{border-left:3px solid var(--self)}
   /* What a Kin is worth sits on the card's corner as a chip, not in the small
      print -- it is the number you are choosing between. */
   .hc{position:relative;padding-right:40px}
@@ -394,6 +392,7 @@
   #fanview{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
     padding:14px 24px 150px;gap:8px;position:relative}
   #fanview[hidden]{display:none}
+  #fanview:not([hidden]),#stage.shown{animation:fade .3s ease both}
   #fanview #fansvg{flex:1;min-height:0;width:100%;max-width:980px;margin:0}
   #fanview .fanleg{display:flex;gap:18px;font-size:12.5px;color:var(--dim);align-items:center}
   #fanview .fanleg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
@@ -510,7 +509,8 @@
   .stage .sc{--cw:214px;--ch:300px;width:var(--cw);animation:fly .55s var(--ease) calc(var(--i) * .13s) both}
   .stage .sc .hc{width:100%;cursor:pointer}
   .stage .sc .hc:hover{transform:none}
-  .stage.out .sc{transition:transform .42s ease-in,opacity .42s;transform:translateY(60vh) scale(.5);opacity:0}
+  .stage.going{background:transparent;transition:background .4s}
+  .stage.going .sc{animation:none;transform-origin:0 0;transition:transform .44s cubic-bezier(.5,0,.2,1)}
   @keyframes fly{from{transform:translate(-38vw,45vh) scale(.35) rotate(-14deg);opacity:0}
     70%{transform:translateY(-8px) scale(1.04) rotate(1deg);opacity:1}to{transform:none;opacity:1}}
   /* ---- Legacy cards on the right: real cards, cascaded ---- */
@@ -529,6 +529,7 @@
   .lc .pts.on{background:#6aaa64;color:#fff;border-color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.2)}
   .lc .pts.big{background:#f0966e}
   .lc.bumped .pts{animation:bump .4s var(--ease)}
+  .lc.fresh{animation:slidein .4s var(--ease) both}
   #bl{padding-right:58px}
   /* The decks: three card backs stacked, fanning open under the pointer. */
   #hand .piles{position:absolute;left:24px;bottom:calc(100% + 18px);display:flex;gap:22px;z-index:7}
@@ -666,7 +667,7 @@
   }
 
 </style>
-<link rel="stylesheet" href="theme.css?v=16">
+<link rel="stylesheet" href="theme.css?v=17">
 
 <header>
   <a href="./" class="homelink" title="Main menu" aria-label="Main menu"><span class="hmark" data-logo></span><span class="modename" id="modename"></span></a>
@@ -837,7 +838,10 @@ function dealOpening(){
   if(dealt) return;
   dealt=true;
   const got=deck.splice(0, Math.min(SET.openingHand, deck.length));
-  hand.push(...got); stage(got);
+  hand.push(...got);
+  // Wait for the loading screen to clear, so the deal is seen, not missed.
+  got.forEach(i=>incoming.add(i)); render();
+  setTimeout(()=>stage(got), Math.max(0, 1250-performance.now()));
 }
 
 /* ---- the tour ---------------------------------------------------------
@@ -1602,7 +1606,7 @@ function render(ghost){
   // not showing it. Keyed off whether the panel is actually open rather than
   // the viewport width, so closing it on a desktop puts the number back too.
   const blHTML = sc.bonuses.length ? sc.bonuses.map(b=>`
-      <div class="lc ${!ghostId&&lastPts[b.id]!==undefined&&lastPts[b.id]!==b.pts?'bumped':''}"
+      <div class="lc ${!ghostId&&lastPts[b.id]!==undefined&&lastPts[b.id]!==b.pts?'bumped':''} ${!ghostId&&lastPts[b.id]===undefined?'fresh':''}"
            style="--c:${b.baseline?'#e6e3dc':GROUPCOL[(BONUS_BY_ID[b.id]||{}).group]||'#d6d2ca'}">
         <div class="lh"><small>${b.baseline?'Family ties':esc((BONUS_BY_ID[b.id]||{}).group||'')}${b.mult>1?` · ×${b.mult}`:''}</small><b>${esc(b.name)}</b></div>
         <div class="lb">${esc(b.blurb)}</div>
@@ -2313,7 +2317,14 @@ function renderHand(total){
   html += `<div class="slots">${cards}${'<div class="slot"></div>'.repeat(Math.max(0, 6-hand.length))}</div>`;
   // Keyed like the timeline: unchanged markup is left alone, so the card you
   // are hovering survives the render and its transition keeps running.
+  const before=new Map([...h.querySelectorAll('.hc')].map(e=>[e.dataset.id, e.getBoundingClientRect().left]));
   if(!setHTML(h, html)) return;
+  // Cards that were already in hand slide from where they were (FLIP).
+  if(!prefersStill()) h.querySelectorAll('.hc').forEach(e=>{
+    const was=before.get(e.dataset.id); if(was==null) return;
+    const dx=was-e.getBoundingClientRect().left;
+    if(Math.abs(dx)>1) e.animate([{transform:`translateX(${dx}px)`},{transform:'none'}],{duration:320,easing:'cubic-bezier(.3,1.2,.5,1)'});
+  });
 
   h.querySelectorAll('.hc,.pair').forEach(el=>el.classList.add('in'));
 
@@ -2410,8 +2421,19 @@ function stage(ids){
   const el=document.createElement('div'); el.className='stage';
   el.innerHTML=`<div class="row">${ids.map((id,i)=>`<div class="sc" style="--i:${i}">${handCard(id,{ids:[id]},true)}</div>`).join('')}</div>`;
   document.body.appendChild(el);
-  const done=()=>{ if(el.dataset.done) return; el.dataset.done=1; el.classList.add('out');
-    setTimeout(()=>{ el.remove(); ids.forEach(i=>incoming.delete(i)); render(); }, 430); };
+  // On the way out each card flies to its own slot in the hand (measured, then
+  // one transform), and the hand's copy shows the moment it lands.
+  const done=()=>{ if(el.dataset.done) return; el.dataset.done=1;
+    ids.forEach(i=>incoming.delete(i)); render();
+    const slot=id=>$(`#hand .hc[data-id="${CSS.escape(id)}"]`);
+    ids.forEach(id=>{ const t=slot(id); if(t) t.style.visibility='hidden'; });
+    el.classList.add('going');
+    el.querySelectorAll('.sc').forEach((sc,k)=>{
+      const t=slot(ids[k]); if(!t) return;
+      const a=sc.getBoundingClientRect(), b=t.getBoundingClientRect();
+      sc.style.transform=`translate(${b.left-a.left}px,${b.top-a.top}px) scale(${b.width/a.width})`;
+    });
+    setTimeout(()=>{ el.remove(); ids.forEach(id=>{ const t=slot(id); if(t) t.style.visibility=''; }); }, 460); };
   el.onclick=done; setTimeout(done, 1300+ids.length*130);
   render();
 }
@@ -2547,7 +2569,7 @@ function openFan(){
   if(!fam||!fam.people.length) return;
   fanOn=true; $('#stage').hidden=true; $('#fanview').hidden=false; closeRel(); renderFan();
 }
-function closeFan(){ fanOn=false; $('#fanview').hidden=true; $('#stage').hidden=false; hidePop(); }
+function closeFan(){ fanOn=false; $('#fanview').hidden=true; $('#stage').hidden=false; $('#stage').classList.add('shown'); hidePop(); }
 
 /* Hover a wedge for their details; click it for their whole card. */
 function wireFan(){
