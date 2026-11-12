@@ -517,6 +517,7 @@ window.ICONS = {
   flag:    'M5 21V4h11l-2 4 2 4H5',
   down:    'M12 5v14M6 13l6 6 6-6',
   plus:    'M12 5v14M5 12h14',
+  timeline:'M0 0"/><rect x="2" y="4" width="12" height="4" rx="2"/><rect x="5" y="10" width="15" height="4" rx="2"/><rect x="11" y="16" width="11" height="4" rx="2"',
   help:    'M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/><circle cx="12" cy="12" r="9',
 };
 /* ---- the Kinspan mark -------------------------------------------------
