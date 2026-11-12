@@ -9,9 +9,9 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan</title>
-<script src="tree.js?v=17"></script>
-<script src="family.js?v=17"></script>
-<script src="rules.js?v=17"></script>
+<script src="tree.js?v=18"></script>
+<script src="family.js?v=18"></script>
+<script src="rules.js?v=18"></script>
 <style>
   :root{
     --bg:#f7f4ef; --panel:#ffffff; --edge:#ddd5c9; --ink:#2b2621; --dim:#7d7368;
@@ -119,6 +119,10 @@
   .priv{color:var(--dim);font-size:12.5px;margin-top:12px;text-align:center}
   .priv b{color:var(--ink);font-weight:620}
   .err{color:#a4262c;font-size:13.5px;margin-top:10px}
+  .guide{margin-top:22px;border-top:1px solid var(--edge);padding-top:12px;font-size:14px;line-height:1.5}
+  .guide summary{cursor:pointer;font-weight:650;padding:4px 0}
+  .guide ul{padding-left:20px;margin:8px 0} .guide li{margin:4px 0}
+  .guide p{margin:8px 0;color:#3d3d3d}
   .lead{color:var(--dim);margin:-8px 0 14px}
 
   .who{display:flex;gap:10px;align-items:center;width:100%;text-align:left;
@@ -151,7 +155,7 @@
   .done{width:100%;margin-top:12px}
   @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
 </style>
-<link rel="stylesheet" href="theme.css?v=17">
+<link rel="stylesheet" href="theme.css?v=18">
 
 <!-- ======================= title ======================= -->
 <button class="demo" id="demo" title="Play with a sample family">Demo</button>
@@ -182,13 +186,32 @@
   <div class="top"><button class="back" data-go="title" aria-label="Back"><i data-ic="back"></i></button><h2>Bring your family</h2></div>
   <div id="drop">
     <div class="t">Drop your family file here</div>
-    <div class="b">A <b>.kinspan</b> save, or a <b>.ged</b> export from FamilySearch,
-      Ancestry, MyHeritage or RootsMagic.</div>
+    <div class="b">A <b>.ged</b> (GEDCOM) family-tree file, or a <b>.kinspan</b> you saved here before.</div>
     <div class="row mid"><button class="btn primary" id="pick">Choose a file</button></div>
     <input type="file" id="file" accept=".kinspan,.json,.ged,.gedcom,text/plain,application/json">
   </div>
   <p class="priv"><b>Your file never leaves this device.</b> No account, no server, nothing uploaded.</p>
   <div class="err" id="err" hidden></div>
+
+  <details class="guide">
+    <summary>How to get your family file</summary>
+    <p>Kinspan reads <b>GEDCOM</b> (<code>.ged</code>), the standard file every family-tree site and
+      program can export.</p>
+    <ul>
+      <li><b>Ancestry:</b> Trees › Create &amp; Manage Trees › Manage Tree › Export tree, then download it.</li>
+      <li><b>MyHeritage:</b> Family Tree › Manage trees › Export to GEDCOM.</li>
+      <li><b>FamilySearch</b> has no download button. Use a free program that syncs with it
+        (RootsMagic Essentials or Ancestral Quest Basics): sign in to FamilySearch from it, bring in
+        your ancestors, then File › Export › GEDCOM.</li>
+      <li><b>RootsMagic, Family Tree Maker, Legacy, Gramps:</b> File › Export › GEDCOM.</li>
+    </ul>
+    <p><b>How much to include.</b> You plus <b>4 to 5 generations</b> of ancestors (back to your
+      great-great-grandparents) is ideal; add their brothers and sisters if you like. The game plays
+      best with <b>30 to 150 people</b>.</p>
+    <p><b>What makes a good card.</b> Everyone needs a <b>birth year</b> to be played. Birth, death
+      and burial <b>places</b> build your family's own Place cards. <b>Marriages</b> let couples play
+      together, and death years, children and dates feed the rest of the Legacy cards.</p>
+  </details>
 </section>
 
 <!-- ======================= who is it centred on ======================= -->
@@ -375,7 +398,9 @@ let chosen = null;
 function showPicker() {
   hideLoader();
   chosen = pending.roots.length ? pending.roots[0].id : null;
-  $('#pcount').textContent = `${pending.total} people, ${pending.withYear} with a birth year.`;
+  $('#pcount').textContent = `${pending.total} people, ${pending.withYear} with a birth year.`
+    + (pending.withYear > 300 ? ' That is a big tree: the game plays best with 30 to 150, so a file of'
+      + ' fewer generations will feel more like your family.' : '');
   $('#search').value = '';
   renderWho('');
   show('picker');

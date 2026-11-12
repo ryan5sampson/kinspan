@@ -14,6 +14,19 @@ This site ships with **nobody in it**, apart from one sample family for the
 - a **`.ged`** export from FamilySearch, Ancestry, MyHeritage or RootsMagic, or
 - a **`.kinspan`** save file you made here before.
 
+### Getting a GEDCOM
+
+- **Ancestry:** Trees › Create & Manage Trees › Manage Tree › Export tree.
+- **MyHeritage:** Family Tree › Manage trees › Export to GEDCOM.
+- **FamilySearch** has no download button: use a free program that syncs with it
+  (RootsMagic Essentials or Ancestral Quest Basics), then File › Export › GEDCOM.
+- **RootsMagic, Family Tree Maker, Legacy, Gramps:** File › Export › GEDCOM.
+
+Include yourself plus 4 to 5 generations of ancestors; the game plays best
+with 30 to 150 people. Everyone needs a birth year to be played; places,
+marriages, children and dates feed the Legacy cards, and the Place cards are
+built from whichever places come up most in your own file.
+
 Your file is read **in your browser, on your device**. It is never uploaded.
 There is no account, no server and no database — this is a folder of static
 files. Nothing about your family goes anywhere.

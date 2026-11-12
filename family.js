@@ -198,7 +198,10 @@ async function load() {
   return null;
 }
 
-const playable = fam => fam.people.filter(p => p.playable);
+/* Who can be dealt: anyone with a birth year who is family to the person the
+ * tree is centred on. Others in the file (an in-law's own relatives, a stray
+ * record) stay in the file but never reach the deck. */
+const playable = fam => fam.people.filter(p => p.playable && p.connected_to_root !== false);
 const relate = (fam, a, b) => window.TREE.relate(fam.graph, fam.byId, a, b);
 
 window.FAMILY = {
