@@ -9,9 +9,9 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan</title>
-<script src="tree.js?v=13"></script>
-<script src="family.js?v=13"></script>
-<script src="rules.js?v=13"></script>
+<script src="tree.js?v=14"></script>
+<script src="family.js?v=14"></script>
+<script src="rules.js?v=14"></script>
 <style>
   :root{
     --bg:#f7f4ef; --panel:#ffffff; --edge:#ddd5c9; --ink:#2b2621; --dim:#7d7368;
@@ -146,7 +146,7 @@
   .done{width:100%;margin-top:12px}
   @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
 </style>
-<link rel="stylesheet" href="theme.css?v=13">
+<link rel="stylesheet" href="theme.css?v=14">
 
 <!-- ======================= title ======================= -->
 <section class="screen" id="s-title">
@@ -160,6 +160,7 @@
   <div class="famchip" id="famchip" hidden>
     <b id="famname"></b><span id="famcount"></span>
     <button id="famswap">Change</button>
+    <button id="famsave" title="Download your family as a .kinspan file">Save file</button>
   </div>
 </section>
 
@@ -233,6 +234,9 @@ function loaded() {
 $('#play').onclick = () => needFamily('mode');
 $('#builder').onclick = () => needFamily('builder');
 $('#famswap').onclick = () => { next = 'mode'; show('bring'); };
+/* The family lives in this browser's storage, not in a file the site can see.
+ * This writes it out as one, to the Downloads folder. */
+$('#famsave').onclick = async () => { const f = await FAMILY.load(); if (f) FAMILY.download(f); };
 $('#custom').onclick = () => location.href = 'settings.html';
 
 const auto = FAMILY.hasAutosave();
