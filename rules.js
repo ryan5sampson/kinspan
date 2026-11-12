@@ -134,7 +134,7 @@ window.BONUSES = [
     blurb:'Still here on New Year\'s Day, 2000.',
     score: perPerson(p => (ended(p) || 0) >= 2000, 1) },
 
-  { id:'winter', group:'Era', name:'Winter Baby', per:'2 each',
+  { id:'winter', group:'Era', name:'Turn Of The Year', per:'2 each',
     blurb:'Born November to February.',
     score: perPerson(p => ['NOV','DEC','JAN','FEB'].includes(birthMonth(p)), 2) },
 
@@ -408,8 +408,13 @@ window.buildBonuses = function (people){
 
   window.BONUSES = window.BONUSES.filter(b => !b.dynamic).concat(dyn);
   window.BONUS_BY_ID = Object.fromEntries(window.BONUSES.map(b => [b.id, b]));
+  /* A card nobody in THIS family could ever score is a dead card in the deal
+   * (no one born 1874-1900, nobody married fifty years...). Every family is
+   * different, so the deck is cut to what this one can fill. */
+  window.DEAD = new Set(window.bonusCoverage(people).filter(c => !c.maxPts).map(c => c.id));
   return window.BONUSES;
 };
+window.DEAD = new Set();
 
 window.BONUS_BY_ID = Object.fromEntries(window.BONUSES.map(b => [b.id, b]));
 
@@ -654,7 +659,7 @@ window.modeSettings = function (id){
  * already scoring for free. */
 window.draftPool = function (s){
   const off = s.defaults ? new Set(window.BASELINE) : new Set();
-  return window.BONUSES.filter(b => !off.has(b.id)).map(b => b.id);
+  return window.BONUSES.filter(b => !off.has(b.id) && !window.DEAD.has(b.id)).map(b => b.id);
 };
 
 /* ------------------------------------------------------------------ */
