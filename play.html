@@ -11,9 +11,9 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="touch-icon.png">
 <title>Kinspan — the timeline</title>
-<script src="tree.js?v=12"></script>
-<script src="family.js?v=12"></script>
-<script src="rules.js?v=12"></script>
+<script src="tree.js?v=13"></script>
+<script src="family.js?v=13"></script>
+<script src="rules.js?v=13"></script>
 <style>
   :root{
     --ready:#f9df6d; --ease:cubic-bezier(.34,1.24,.44,1);
@@ -256,8 +256,15 @@
   /* A Gift waiting to change your next move. */
   .armed{flex:none;background:var(--gold);color:#fff;border-radius:16px;padding:5px 11px;
     font-size:12.5px;font-weight:600;white-space:nowrap}
-  .hmark{font-size:20px}
-  .modename{font-weight:680;font-size:14.5px}
+  .hmark{font-size:24px}
+  .homelink{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;padding:4px 8px 4px 2px;border-radius:10px}
+  .homelink:hover{background:var(--soft)}
+  .modename{font-family:'Zilla Slab',Georgia,serif;font-weight:700;font-size:19px}
+  .viewtog{display:flex;background:var(--soft);border-radius:99px;padding:3px;gap:2px}
+  .viewtog button{border:0;background:none;border-radius:99px;width:46px;height:34px;font-size:19px;
+    display:grid;place-items:center;color:var(--dim);padding:0}
+  .viewtog button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.15)}
+  .viewtog button:hover:not(.on){color:var(--ink)}
   .menu{display:flex;flex-direction:column;gap:8px}
   .menu button{padding:13px;font-size:15px;font-weight:600;border-radius:11px;text-align:left}
   .menu button.primary{text-align:center}
@@ -383,6 +390,7 @@
   #modal,#bmodal,#imodal,#fmodal{position:fixed;inset:0;background:rgba(60,50,40,.34);display:none;z-index:50;
     align-items:center;justify-content:center;padding:16px}
   #modal.on,#bmodal.on,#imodal.on,#fmodal.on{display:flex}
+  #fmodal{top:57px;z-index:35;background:var(--bg)}
   .sheet{background:var(--panel);border:1px solid var(--edge);border-radius:13px;
     max-width:430px;width:100%;max-height:88vh;overflow:auto;padding:18px;
     box-shadow:0 18px 48px rgba(0,0,0,.24)}
@@ -464,7 +472,7 @@
      shows. Hover lifts the whole card. Married couples sit side by side with
      a ring in the gap between them. */
   html,body{overflow:clip}
-  #hand{--cw:clamp(150px, calc((100vw - 330px) / 6 - 16px), 214px); --ch:calc(var(--cw) * 1.56);
+  #hand{position:relative;--cw:clamp(150px, calc((100vw - 120px) / 6), 250px); --ch:calc(var(--cw) * 1.56);
     height:104px;overflow:visible;align-items:flex-start;padding:16px 20px 0;gap:16px;z-index:30;
     background:linear-gradient(180deg,#fff,#f6f3ee)}
   #hand .slots{display:flex;gap:16px;flex:1;min-width:0}
@@ -482,7 +490,7 @@
   .hc.incoming{visibility:hidden}
   .hc:hover .face{box-shadow:0 22px 44px rgba(0,0,0,.28)}
   .hc.todiscard .face{outline:2px solid #b4671d;outline-offset:-2px}
-  #hand .armedrow{position:absolute;left:20px;top:-38px;display:flex;gap:8px;z-index:7}
+  #hand .armedrow{position:absolute;left:260px;top:-38px;display:flex;gap:8px;z-index:7}
   #hand > .msg{align-self:center}
   /* Drawn Kin come out to centre stage, then drop into the hand. */
   .stage{position:fixed;inset:0;z-index:65;display:grid;place-items:center;background:rgba(255,255,255,.6);cursor:pointer}
@@ -511,7 +519,8 @@
   .lc.bumped .pts{animation:bump .4s var(--ease)}
   #bl{padding-right:58px}
   /* The decks: three card backs stacked, fanning open under the pointer. */
-  .deck{position:relative;width:92px;height:128px;flex:none;border:0;background:none;padding:0;margin:-44px 6px 0 2px;
+  #hand .piles{position:absolute;left:24px;bottom:calc(100% + 18px);display:flex;gap:22px;z-index:7}
+  .deck{position:relative;width:92px;height:128px;flex:none;border:0;background:none;padding:0;margin:0;
     border-radius:8px;cursor:pointer}
   .deck i{position:absolute;inset:0;border-radius:7px;border:2px solid #fff;
     background:var(--back-kin) center/24px repeat;box-shadow:0 1px 3px rgba(0,0,0,.28);
@@ -645,17 +654,18 @@
   }
 
 </style>
-<link rel="stylesheet" href="theme.css?v=12">
+<link rel="stylesheet" href="theme.css?v=13">
 
 <header>
-  <button id="menubtn" class="icon" title="Menu" aria-label="Menu"><i data-ic="menu"></i></button>
-  <span class="hmark" data-logo></span>
-  <span class="modename" id="modename"></span>
-  <span class="stat">Turn <b id="turn">–</b></span>
-  <span class="stat">Archive <b id="deckn">–</b></span>
+  <a href="./" class="homelink" title="Main menu" aria-label="Main menu"><span class="hmark" data-logo></span><span class="modename" id="modename"></span></a>
   <div class="sp"></div>
-  <button id="score" title="Show or hide your Legacy">Legacy</button>
+  <div class="viewtog" role="group" aria-label="View">
+    <button id="vt-time" class="on" title="Timeline" aria-label="Timeline" aria-pressed="true"><i data-ic="timeline"></i></button>
+    <button id="vt-fan" title="Fan chart" aria-label="Fan chart" aria-pressed="false"><i data-ic="fan"></i></button>
+  </div>
+  <div class="sp"></div>
   <button id="helpbtn" class="icon" title="How to play" aria-label="How to play">?</button>
+  <button id="menubtn" class="icon" title="Pause" aria-label="Pause menu"><i data-ic="pause"></i></button>
 </header>
 
 <div id="wrap">
@@ -905,13 +915,12 @@ function openMenu(){
   sheetI(`<h2>Paused</h2><div class="menu">
     <button class="primary" data-m="resume">Resume</button>
     <button data-m="legacy">${icon('diamond')}Legacy cards</button>
-    <button data-m="fan">${icon('fan')}Fan chart</button>
     <button data-m="help">${icon('help')}How to play</button>
     <hr>
     <button data-m="restart">${icon('restart')}Restart this game</button>
     <button data-m="builder">${icon('spark')}Card builder</button>
     <button data-m="home">${icon('home')}Main menu</button></div>`);
-  const go={resume:()=>{}, legacy:openBonuses, fan:openFan, help:openHelp,
+  const go={resume:()=>{}, legacy:openBonuses, help:openHelp,
     restart:()=>{ endTour(); newGame(); },
     builder:()=>location.href='edit.html', home:()=>location.href='./'};
   $('#isheet').querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{
@@ -1567,8 +1576,6 @@ function render(ghost){
   const ghosts = ghost ? (Array.isArray(ghost)?ghost:[ghost]) : [];
   const ghostId = ghosts[0] || null;
   const list=(ghosts.length?played.concat(ghosts):played).map(id=>byId[id]);
-  $('#turn').textContent = turn;
-  $('#deckn').textContent=deck.length;
   const sc=window.scoreBoard(played.map(id=>byId[id]), byId, bonuses);
   const gp=giftPts();
   if(gp){ sc.lines.push({label:'Gifts you used', pts:gp,
@@ -1581,8 +1588,6 @@ function render(ghost){
   // The button that opens the panel carries the number only while the panel is
   // not showing it. Keyed off whether the panel is actually open rather than
   // the viewport width, so closing it on a desktop puts the number back too.
-  $('#score').textContent = $('#side').classList.contains('on')
-    ? 'Legacy' : `Legacy ${seeScore ? sc.total : '—'}`;
   const blHTML = sc.bonuses.length ? sc.bonuses.map(b=>`
       <div class="lc ${!ghostId&&lastPts[b.id]!==undefined&&lastPts[b.id]!==b.pts?'bumped':''}"
            style="--c:${b.baseline?'#e6e3dc':GROUPCOL[(BONUS_BY_ID[b.id]||{}).group]||'#d6d2ca'}">
@@ -2255,7 +2260,7 @@ function renderHand(total){
     // budget now, so a turn's price belongs on the button that spends it.
     const yr=n=>SET.clockOn?`${n} yrs`:'';
     // The two decks: Kin from the Archive, and Legacy cards.
-    html+=`<button id="draw" class="deck kin" ${!deck.length?'disabled':''}
+    html+=`<div class="piles"><button id="draw" class="deck kin" ${!deck.length?'disabled':''}
         aria-label="Pull ${SET.drawCount} Kin from the Archive${SET.clockOn?`, ${SET.costDraw} years`:''}"><i></i><i></i><i></i><b class="dn">${deck.length}</b></button>`;
     if(SET.drawBonus){
       const full=held().length>=SET.maxBonuses;
@@ -2266,6 +2271,7 @@ function renderHand(total){
       html+=`<button id="takeb" class="deck legacy" ${(none||(full&&!SET.swapAtCap))?'disabled':''}
         aria-label="Draw a Legacy card${SET.clockOn?`, ${SET.costBonus} years`:''}"><i></i><i></i><i></i><b class="dn">${bonusPool().length}</b></button>`;
     }
+    html+=`</div>`;
     // Gifts that change the NEXT move sit here, by the moves they change, so
     // a banked free Connect is something you can see rather than remember.
     const armed=[
@@ -2481,7 +2487,7 @@ function renderFan(){
       maternal right. Tap anyone to read their card.</p>
     <svg id="fansvg" viewBox="0 0 ${W} ${cy+2}" role="img"
       aria-label="Fan chart of your direct ancestors">${svg}</svg>
-    <button id="fclose" style="width:100%">Back to the timeline</button>`);
+    `);
 }
 
 function openFan(){
@@ -2517,19 +2523,15 @@ $('#stage').addEventListener('pointerdown', e=>{
   closeRel();
   if(TOUCH && inspecting){ inspecting=null; spotlight(null); hidePop(); }
 });
-$('#score').onclick=()=>{ $('#side').classList.toggle('on'); render(); };
-$('#sideclose').onclick=()=>{ $('#side').classList.remove('on'); render(); };
-/* The sidebar is a column on a desktop and a pull-up sheet on a phone, so it
-   starts open on one and closed on the other. Keyed off the SAME media query
-   the CSS uses -- reading innerWidth directly disagreed with the stylesheet
-   whenever the window reported an odd size, and left the desktop sidebar shut. */
-const NARROW=matchMedia('(max-width: 760px)');
-const syncSide=()=>{ $('#side').classList.toggle('on', !NARROW.matches); if(people.length) render(); };
-NARROW.addEventListener('change', syncSide);
-syncSide();
+/* Timeline or fan chart: two icons in the header, one lit. */
+const setView=fan=>{ fan ? openFan() : closeFan();
+  $('#vt-time').classList.toggle('on',!fan); $('#vt-fan').classList.toggle('on',fan);
+  $('#vt-time').setAttribute('aria-pressed',!fan); $('#vt-fan').setAttribute('aria-pressed',fan); };
+$('#vt-time').onclick=()=>{ closeRel(); setView(false); };
+$('#vt-fan').onclick=()=>{ closeRel(); setView(true); };
 $('#menubtn').onclick=()=>{closeRel(); openMenu();};
 $('#fmodal').onclick=e=>{
-  if(e.target.id==='fmodal'||e.target.id==='fclose') return closeFan();
+  if(e.target.id==='fmodal') return setView(false);
   const w=e.target.closest('.fw[data-id]');
   if(w) openCard(fam.people.find(p=>p.id===w.dataset.id));
 };
